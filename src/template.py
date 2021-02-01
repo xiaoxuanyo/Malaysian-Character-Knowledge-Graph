@@ -67,12 +67,36 @@ FIELDS_MAP = {
 class TemplateEngine:
     fields_map = FIELDS_MAP
 
-    def __init__(self, **kwargs):
-        self._setattr(**kwargs)
+    def __init__(self, values):
+        self._setattr(values)
 
-    def _setattr(self, **kwargs):
+    def _setattr(self, values):
         tm_map = {k.strip().lower(): i.strip().lower() for i, j in self.fields_map.items() for k in j}
-        for k, v in kwargs.items():
+        for k, v in values.items():
             attr = tm_map.get(k.strip().lower())
             if attr:
                 setattr(self, attr, v.strip())
+
+
+value = {
+    "name": "Amylea Azizan",
+    "image": "wikimel.jpg",
+    "landscape": "<!-- Tulis \"yes\", jika imej kelihatan lebar. Jika tidak, tinggalkan. -->",
+    "caption": "Amylea Azizan",
+    "background": "solo_singer",
+    "native_name_lang": "Bahasa Melayu",
+    "alias": "Amylea AF , Amylea OIAM",
+    "birth_date": "{{birth date and age|1986|11|26}}",
+    "birth_place": "[[Alor Setar]], [[Kedah]]",
+    "origin": "{{MAS}}",
+    "death_date": "<!-- {{death date and age|YYYY|MM|DD|YYYY|MM|DD}} (tarikh kematian pertama) -->",
+    "occupation": "[[Penyanyi]]",
+    "instrument": "Vokal",
+    "years_active": "<!-- YYYY–YYYY (atau –kini) -->",
+    "label": "Seventeen Eleven Music",
+    "associated_acts": "[[Kaer Azami]]<br>[[Megat Adzuan]]",
+    "website": "<!-- {{URL|contoh.com}} -->"
+}
+
+tem = TemplateEngine(value)
+print(tem.__dict__)
