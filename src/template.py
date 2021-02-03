@@ -8,59 +8,76 @@
 import mwparserfromhell as mwp
 import json
 
-__all__ = ['TemplateEngine', 'FIELDS_MAP']
+__all__ = ['TemplateEngine', 'FIELDS_MAP', 'EN2MS_MAP', 'EN2ZH_MAP']
 
 FIELDS_MAP = {
-    'name': ['name'],
-    'alias': ['alias', 'nama', 'othernames', 'other_names', 'others name', 'others_name'],
-    'website': ['website', 'url'],
-    'management company': ['syarikat pengurusan'],
-    'come from': ['origin'],
-    'birth name': ['birth_name', 'birth name'],
-    'birth date': ['birth_date', 'born', 'birthdate'],
-    'genre': ['genre'],
-    'instrument': ['instrument', 'instrumen', 'instruments'],
-    'record company': ['label', 'record label'],
-    'twitter': ['twitter'],
-    'religion': ['religion', 'agama'],
-    'years active': ['year_active', 'yearsactive', 'years active', 'years_singing', 'years_active'],
-    'brother': ['relatives', 'saudara'],
-    'birth place': ['birth_place', 'tempat lahir'],
-    'parents': ['parents', 'parent'],
-    'job': ['occupation', 'occupation(s)', 'pekerjaan'],
-    'citizen': ['nationality'],
-    'related works': ['associated_acts', 'associated acts'],
-    'native name': ['native_name'],
-    'honorific prefix': ['honorific_prefix'],
-    'height': ['height'],
-    'honorific suffix': ['honorific_suffix'],
-    'current members': ['current_members', 'currentmembers'],
-    'spouse': ['spouse'],
-    'education': ['education'],
-    'weight': ['weight'],
-    'residence': ['residence'],
-    'birth': ['birth'],
-    'partner': ['partner'],
-    'notable instruments': ['notable_instruments'],
-    'notable role': ['notable role'],
-    'awards': ['awards'],
-    'agent': ['agent'],
-    'employer': ['employer'],
-    'alma mater': ['alma_mater'],
-    'known': ['known'],
-    'children': ['children'],
-    'death date': ['death_date'],
-    'chinese name': ['chinesename'],
-    'voice type': ['voice_type', 'voice type'],
-    'background': ['background'],
-    'status': ['status'],
-    'current team': ['Current team'],
-    'bike number': ['Bike number'],
-    'discipline': ['discipline'],
-    'significant projects': ['significant_projects'],
-    'institutions': ['institutions'],
-    'significant awards': ['significant_awards'],
-    'practice name': ['practice_name']
+    'Name': ['name'],
+    'Alias': ['alias', 'nama', 'othernames', 'other_names', 'others name', 'others_name'],
+    'Website': ['website', 'url'],
+    'Management Company': ['syarikat pengurusan'],
+    'Come From': ['origin'],
+    'Birth Name': ['birth_name', 'birth name'],
+    'Birth Date': ['birth_date', 'born', 'birthdate'],
+    'Genre': ['genre'],
+    'Instrument': ['instrument', 'instrumen', 'instruments'],
+    'Record Company': ['label', 'record label'],
+    'Twitter': ['twitter'],
+    'Religion': ['religion', 'agama'],
+    'Years Active': ['year_active', 'yearsactive', 'years active', 'years_singing', 'years_active'],
+    'Brother': ['relatives', 'saudara'],
+    'Birth Place': ['birth_place', 'tempat lahir'],
+    'Parents': ['parents', 'parent'],
+    'Job': ['occupation', 'occupation(s)', 'pekerjaan'],
+    'Citizen': ['nationality'],
+    'Related Works': ['associated_acts', 'associated acts'],
+    'Native Name': ['native_name'],
+    'Honorific Prefix': ['honorific_prefix'],
+    'Height': ['height'],
+    'Honorific Suffix': ['honorific_suffix'],
+    'Current Members': ['current_members', 'currentmembers'],
+    'Spouse': ['spouse'],
+    'Education': ['education'],
+    'Weight': ['weight'],
+    'Residence': ['residence'],
+    'Birth': ['birth'],
+    'Partner': ['partner'],
+    'Notable Instruments': ['notable_instruments'],
+    'Notable Role': ['notable role'],
+    'Awards': ['awards'],
+    'Agent': ['agent'],
+    'Employer': ['employer'],
+    'Alma Mater': ['alma_mater'],
+    'Known': ['known'],
+    'Children': ['children'],
+    'Death Date': ['death_date'],
+    'Chinese Name': ['chinesename'],
+    'Voice Type': ['voice_type', 'voice type'],
+    'Background': ['background'],
+    'Status': ['status'],
+    'Current Team': ['Current team'],
+    'Bike Number': ['Bike number'],
+    'Discipline': ['discipline'],
+    'Significant projects': ['significant_projects'],
+    'Institutions': ['institutions'],
+    'Significant Awards': ['significant_awards'],
+    'Practice Name': ['practice_name']
+}
+
+
+EN2MS_MAP = {
+    'Years Active': 'Tahun aktif',
+    'Genre': 'Genre',
+    'Instrument': 'Instrumen',
+    'Nationality': 'Warganegara',
+    'Current Team': 'Pasukan kini',
+    'Bike Number': 'Nombor motosikal',
+    'Website': 'Laman sesawang',
+}
+
+EN2ZH_MAP = {
+    'Nationality': '国籍',
+    'Birth Date': '出生日期',
+    'Birth Place': '出生地点',
 }
 
 
@@ -71,11 +88,15 @@ class TemplateEngine:
         self._setattr(values)
 
     def _setattr(self, values):
-        tm_map = {k.strip().lower(): i.strip().lower() for i, j in self.fields_map.items() for k in j}
+        tm_map = {k.strip().lower(): i.strip() for i, j in self.fields_map.items() for k in j}
         for k, v in values.items():
             attr = tm_map.get(k.strip().lower())
             if attr:
                 setattr(self, attr, v.strip())
+
+    @property
+    def properties(self):
+        return self.__dict__
 
 
 value = {
@@ -99,4 +120,4 @@ value = {
 }
 
 tem = TemplateEngine(value)
-print(tem.__dict__)
+print(tem.properties)
