@@ -7,7 +7,6 @@
 
 import mwparserfromhell as mwp
 
-
 __all__ = ['Template', 'TemplateEngineer', 'TemplateChineseActorSinger']
 
 
@@ -173,3 +172,29 @@ value = {
 
 tem = Template(value)
 print(tem.fields)
+
+t2 = "[http://www.jay2u.com/ jay2u.com]<br />[http://www.jvrmusic.com/artist/artist-index.asp?id=jay jvrmusic.com]"
+
+
+def parse(p_t):
+    p_t = p_t.filter(recursive=False)
+    for i, j in enumerate(p_t):
+        if isinstance(j, mwp.wikicode.Template):
+            values = [str(k.value) for k in j.params]
+            p_t[i] = mwp.parse('-'.join(values))
+        elif isinstance(j, mwp.wikicode.ExternalLink):
+            p_t[i] = j.url
+        elif isinstance(j, mwp.wikicode.Tag):
+            p_t[i] = j.contents
+        elif isinstance(j, mwp.wikicode.Wikilink):
+            p_t[i] = j.text if j.text else j.title
+        elif isinstance(j, mwp.wikicode.Argument) or isinstance(j, mwp.wikicode.Comment) or isinstance(j,
+                                                                                                       mwp.wikicode.Heading) or isinstance(
+            j, mwp.wikicode.HTMLEntity):
+            p_t[i] = mwp.parse(None)
+    if all([isinstance(ii, mwp.wikicode.Text) for ii in p_t]):
+        return p_t
+    return parse(mwp.parse(p_t))
+
+
+print(parse(mwp.parse(t2)))
