@@ -10,6 +10,14 @@ import mwparserfromhell as mwp
 __all__ = ['Template', 'TemplateEngineer', 'TemplateChineseActorSinger']
 
 
+def _is_int(ind):
+    try:
+        int(ind)
+        return True
+    except ValueError:
+        return False
+
+
 class TemplateEngine:
     fields_map = {
         'Name': ['name', 'nama'],
@@ -49,30 +57,44 @@ class TemplateEngine:
         'Parents': '父母'
     }
 
+    _dont = [mwp.wikicode.Argument, mwp.wikicode.Comment, mwp.wikicode.Heading, mwp.wikicode.HTMLEntity]
+
     def __init__(self, values):
         self.fields = {k: [] for k in self.fields_map.keys()}
         for k, v in values.items():
             field = self._reverse_fields_map.get(k.strip())
             if field:
-                p_v = mwp.parse(v.strip())
-                # text = p_v.filter_text()
-                # link = p_v.filter_wikilinks(recursive=False)
-                # template = p_v.filter_templates(recursive=False)
-                # tag = p_v.filter_tags(recursive=False)
-                # o_link = p_v.filter_external_links(recursive=False)
-                # print([[j for j in i.split(',') if j.strip()] for i in text])
-
-                t = p_v.filter(recursive=False)
-                print(t)
-                print([type(ii) for ii in t])
+                p_v = self.parse(v.strip())
+                print(field, ': ', ''.join([str(i) for i in p_v]))
                 print('\n')
                 # print(link)
                 # print(template)
                 # print(tag)
                 # print(o_link)
                 # print('\n')
-                self.fields[field].append(p_v)
+                self.fields[field].append(''.join([str(i) for i in p_v]))
         self.fields = {k: v for k, v in self.fields.items() if v}
+
+    @classmethod
+    def parse(cls, p_t):
+        p_t = mwp.parse(p_t)
+        p_t = p_t.filter(recursive=False)
+        for i, j in enumerate(p_t):
+            if isinstance(j, mwp.wikicode.Template):
+                values = [str(k.value) for k in j.params if _is_int(str(k.name))]
+                p_t[i] = mwp.parse('-'.join(values))
+            elif isinstance(j, mwp.wikicode.ExternalLink):
+                p_t[i] = j.url
+            elif isinstance(j, mwp.wikicode.Tag):
+                rs = mwp.parse('\n') if str(j.tag) == 'br' else j.contents
+                p_t[i] = rs
+            elif isinstance(j, mwp.wikicode.Wikilink):
+                p_t[i] = j.text if j.text else j.title
+            elif any([isinstance(j, k) for k in cls._dont]):
+                p_t[i] = mwp.parse(None)
+        if all([isinstance(ii, mwp.wikicode.Text) for ii in p_t]):
+            return p_t
+        return cls.parse(p_t)
 
 
 class TemplateEngineer(TemplateEngine):
@@ -146,55 +168,18 @@ class Template(TemplateEngineer):
 
 
 value = {
-    "name": "Jay Chou",
-    "image": "Jay Chou in Seoul.jpg",
-    "caption": "Jay Chou di tayangan perdana \"[[Secret (filem 2007)|Secret]]\" di [[Seoul]], [[Korea Selatan]], [[10 Januari]] [[2008]]",
-    "tradchinesename": "周杰倫",
-    "pinyinchinesename": "Zhōu Jiélún",
-    "birthdate": "{{birth date and age|1979|01|18}}",
-    "birthplace": "[[Linkou]], [[Kaunti Taipei]], [[Taiwan]], [[Republik China]]",
-    "othername": "President Chou (周董)",
-    "origin": "[[Republik China]] ([[Taiwan]])",
-    "height": "173cm",
-    "occupation": "[[Penyanyi]], [[pemuzik]], [[komposer]], [[penerbit rakaman]], [[rapper]], [[pengarah filem]], dan [[pelakon]]",
-    "genre": "[[Mandopop]], [[R&B]], [[hip hop]], [[pop rap]], [[C-pop]],[[Rock music|rock]]",
-    "instrument": "[[Piano]], [[Cello]], [[Guitar]], [[Dram]], [[Guzheng]], [[Harmonika]], [[Violin]],[[Erhu]], [[Pipa]], [[gitar bass]], [[gitar elektrik]]",
-    "label": "[[Sony BMG|Sony BMG Asia]], Alfa Music, [[JVR Music]]",
-    "yearsactive": "2000–kini",
-    "influenced": "[[Nan Quan Mama]]",
-    "website": "[http://www.jay2u.com/ jay2u.com]<br />[http://www.jvrmusic.com/artist/artist-index.asp?id=jay jvrmusic.com]",
-    "hongkongfilmwards": "'''Pelakon Baru Terbaik'''<br />2006 ''[[Initial D (filem)|Initial D]]''<br />'''Lagu Filem Asli Terbaik'''<br />2007 \"Chrysanthemum Terrace\" (''[[Curse of the Golden Flower]]'')",
-    "goldenhorseawards": "'''Pelakon Baru Terbaik'''<br />2005 ''[[Initial D (filem)|Initial D]]''<br />'''Filem Taiwan Paling Cemerlang'''<br />2007 ''[[Secret (filem 2007)|Secret]]''<br />'''Lagu Asli Terbaik'''<br />2007 \"The Secret That Cannot Be Told\" (''[[Secret (filem 2007)|Secret]]'')",
-    "mtvasiaawards": "'''Artis Kegemaran, Taiwan'''<br />2002, 2005",
-    "goldenmelodyawards": "'''Album Mandarin Terbaik'''<br />2001 ''[[Jay (album)|Jay]]''<br />2002 ''[[Fantasy (album Jay Chou)|Fantasy]]''<br />2004 ''[[Ye Hui Mei (album)|Ye Hui Mei]]''<br />'''Lagu Terbaik'''<br />2008 ''\"Blue and White Porcelein\"'' (''[[On The Run (album Jay Chou)|On The Run]]'')<br />'''Komposer Terbaik'''<br />2002 ''\"Love Before A.D.\"'' (''[[Fantasy (album Jay Chou)|Fantasy]]'')<ref>{{zh icon}} [[Pejabat Penerangan Kerajaan]] ([[Republik China|R.O.C.]]) [http://info.gio.gov.tw/ct.asp?xItem=13498&ctNode=1220&mp=1 Winners of the 13th Golden Melody Awards]. 28 April 2004. Dicapai pada 11 Disember 2007.</ref><br />2008 ''\"Blue and White Porcelein\"'' (''[[On The Run (album Jay Chou)|On The Run]]'')<br />'''Penerbit Terbaik'''<br />2002 ''[[Fantasy (album Jay Chou)|Fantasy]]''\n'''Penerbit Single Terbaik'''<br />2007 ''[[Fearless (filem 2006)|Fearless]] EP''<br />'''Komposer Terbaik (Kategori Instrumen)'''<br />2008 ''\"Piano Room\"'' (''[[Secret (filem 2007)|Secret]]'')<br />'''Penerbit Terbaik (Kategori Instrumen)'''<br />2008 ''Secret Original Movie Soundtrack'' (''[[Secret (filem 2007)|Secret]]'')",
-    "awards": "'''[[World Music Awards]]'''<br />Artis Cina Terlaris<br />2004, 2006, 2007"
+    "caption": "Santiago Calatrava di hadapan [[Auditorio de Tenerife]].",
+    "name": "Santiago Calatrava Valls",
+    "nationality": "Sepanyol",
+    "birth_date": "{{birth date and age|1951|7|28|df=y}}",
+    "birth_place": "[[Valencia, Sepanyol|Valencia]], Sepanyol",
+    "education": "Sekolah Seni [[Universiti Valencia|Valencia]] <br>Sekolah Senibina [[Universiti Valencia|Valencia]] <br>[[Institut Teknologi Persekutuan Switzerland]]",
+    "discipline": "[[Jurutera struktur]], [[arkitek]], [[pengarca]]",
+    "institutions": "[[Institusi Jurutera Struktur]]",
+    "practice_name": "Santiago Calatrava",
+    "significant_projects": "[[Kompleks Sukan Olimpik Athens]]<br>[[Auditorio de Tenerife]]<br>[[Jambatan Alamillo]]<br>[[ Jambatan Chords]]<br>[[Ciutat de les Arts i les Ciències]]",
+    "significant_awards": "[[Pingat Emas AIA]]<br> Pingat Emas [[IStructE]] <br>Anugerah [[Eugene McDermott]]<br>[[Anugerah Putera Asturias]]"
 }
 
 tem = Template(value)
 print(tem.fields)
-
-t2 = "[http://www.jay2u.com/ jay2u.com]<br />[http://www.jvrmusic.com/artist/artist-index.asp?id=jay jvrmusic.com]"
-
-
-def parse(p_t):
-    p_t = p_t.filter(recursive=False)
-    for i, j in enumerate(p_t):
-        if isinstance(j, mwp.wikicode.Template):
-            values = [str(k.value) for k in j.params]
-            p_t[i] = mwp.parse('-'.join(values))
-        elif isinstance(j, mwp.wikicode.ExternalLink):
-            p_t[i] = j.url
-        elif isinstance(j, mwp.wikicode.Tag):
-            p_t[i] = j.contents
-        elif isinstance(j, mwp.wikicode.Wikilink):
-            p_t[i] = j.text if j.text else j.title
-        elif isinstance(j, mwp.wikicode.Argument) or isinstance(j, mwp.wikicode.Comment) or isinstance(j,
-                                                                                                       mwp.wikicode.Heading) or isinstance(
-            j, mwp.wikicode.HTMLEntity):
-            p_t[i] = mwp.parse(None)
-    if all([isinstance(ii, mwp.wikicode.Text) for ii in p_t]):
-        return p_t
-    return parse(mwp.parse(p_t))
-
-
-print(parse(mwp.parse(t2)))
