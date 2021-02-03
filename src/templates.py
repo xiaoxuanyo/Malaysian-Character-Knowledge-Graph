@@ -6,8 +6,27 @@
 """
 
 import mwparserfromhell as mwp
+import pywikibot
 
 __all__ = ['Template', 'TemplateEngineer', 'TemplateChineseActorSinger']
+
+
+class QueryEngine:
+
+    def __init__(self, code, https_proxy=None):
+        self.site = pywikibot.Site(code)
+        if https_proxy is not None:
+            import os
+            os.environ['HTTPS_PROXY'] = https_proxy
+
+    def get_wiki_page(self, title, get_redirect=False, force=False):
+        page = pywikibot.Page(self.site, title)
+        return page.get(get_redirect=get_redirect, force=force)
+
+    def get_info_template(self, title, matches, get_redirect=False, force=False):
+        text = self.get_wiki_page(title, get_redirect=get_redirect, force=force)
+        ps = mwp.parse(text)
+        return ps.filter_templates(matches=matches)
 
 
 def _is_int(ind):
@@ -18,7 +37,7 @@ def _is_int(ind):
         return False
 
 
-class TemplateEngine:
+class TemplateBase:
     fields_map = {
         'Name': ['name', 'nama'],
         'Alias': ['alias', 'othernames', 'other_names', 'others name', 'others_name', 'othername'],
@@ -40,26 +59,10 @@ class TemplateEngine:
         'Spouse': ['spouse'],
         'Parents': ['parents']
     }
-    en2zh_map = {
-        'Name': '名字',
-        'Nationality': '国籍',
-        'Birth Date': '出生日期',
-        'Birth Place': '出生地点',
-        'Education': '教育',
-        'Occupation': '职业',
-        'Years Active': '活跃年份',
-        'Origin': '源自',
-        'Alias': '别名',
-        'Website': '网站',
-        'Birth Name': '出生名',
-        'Height': '身高',
-        'Spouse': '伴侣',
-        'Parents': '父母'
-    }
 
-    _dont = [mwp.wikicode.Argument, mwp.wikicode.Comment, mwp.wikicode.Heading, mwp.wikicode.HTMLEntity]
+    _dont_parse = [mwp.wikicode.Argument, mwp.wikicode.Comment, mwp.wikicode.Heading]
 
-    def __init__(self, values):
+    def __init__(self, values, entry=None):
         self.fields = {k: [] for k in self.fields_map.keys()}
         for k, v in values.items():
             field = self._reverse_fields_map.get(k.strip())
@@ -67,12 +70,9 @@ class TemplateEngine:
                 p_v = self.parse(v.strip())
                 print(field, ': ', ''.join([str(i) for i in p_v]))
                 print('\n')
-                # print(link)
-                # print(template)
-                # print(tag)
-                # print(o_link)
-                # print('\n')
                 self.fields[field].append(''.join([str(i) for i in p_v]))
+        if entry is not None:
+            self.fields['Entry'] = [entry]
         self.fields = {k: v for k, v in self.fields.items() if v}
 
     @classmethod
@@ -90,14 +90,31 @@ class TemplateEngine:
                 p_t[i] = rs
             elif isinstance(j, mwp.wikicode.Wikilink):
                 p_t[i] = j.text if j.text else j.title
-            elif any([isinstance(j, k) for k in cls._dont]):
+            elif isinstance(j, mwp.wikicode.HTMLEntity):
+                if str(j.value) == 'ndash':
+                    p_t[i] = mwp.parse('-')
+                else:
+                    p_t[i] = mwp.parse(None)
+            elif any([isinstance(j, k) for k in cls._dont_parse]):
                 p_t[i] = mwp.parse(None)
         if all([isinstance(ii, mwp.wikicode.Text) for ii in p_t]):
             return p_t
         return cls.parse(p_t)
 
+    @property
+    def graph_tuple(self):
+        result = []
+        if self.fields.get('Entry'):
+            entry = self.fields.pop('Entry')[0]
+        else:
+            entry = self.fields['Name'][0]
+        for k, v in self.fields.items():
+            for i in v:
+                result.append((entry, k, i))
+        return result
 
-class TemplateEngineer(TemplateEngine):
+
+class TemplateEngineer(TemplateBase):
     fields_map = {
         'Discipline': ['discipline'],
         'Institutions': ['institutions'],
@@ -105,20 +122,12 @@ class TemplateEngineer(TemplateEngine):
         'Significant Projects': ['significant_projects'],
         'Significant Awards': ['significant_awards']
     }
-    en2zh_map = {
-        'Discipline': '工程学科',
-        'Institutions': '机构会员',
-        'Practice Name': '实用名称',
-        'Significant Projects': '主要项目',
-        'Significant Awards': '主要奖项'
-    }
 
-    fields_map.update(TemplateEngine.fields_map)
-    en2zh_map.update(TemplateEngine.en2zh_map)
+    fields_map.update(TemplateBase.fields_map)
     _reverse_fields_map = {i: k for k, v in fields_map.items() for i in v}
 
 
-class TemplateChineseActorSinger(TemplateEngine):
+class TemplateChineseActorSinger(TemplateBase):
     fields_map = {
         'Traditional Chinese Name': ['tradchinesename'],
         'Pinyin Chines Name': ['pinyinchinesename'],
@@ -136,50 +145,17 @@ class TemplateChineseActorSinger(TemplateEngine):
         'Voice Type': ['voicetype'],
         'Chinese Name': ['chinesename']
     }
-    en2zh_map = {
-        'Traditional Chinese Name': '繁体名字',
-        'Simplified Chinese Name': '简体名字',
-        'Pinyin Chines Name': '拼音',
-        'Music Type': '音乐类型',
-        'Record Company': '唱片公司',
-        'Musical Instrument': '乐器',
-        'Influenced': '受影响',
-        'Awards': '奖项',
-        'Associated artists': '相关艺术家',
-        'Partner': '伙伴',
-        'Voice Type': '声音类型',
-        'Chinese Name': '中文名'
-    }
-    fields_map.update(TemplateEngine.fields_map)
-    en2zh_map.update(TemplateEngine.en2zh_map)
+    fields_map.update(TemplateBase.fields_map)
     _reverse_fields_map = {i: k for k, v in fields_map.items() for i in v}
 
 
-class Template(TemplateEngineer):
+class Template(TemplateBase):
     _all = [TemplateEngineer, TemplateChineseActorSinger]
 
     fields_map = {}
-    en2zh_map = {}
 
     for t in _all:
         fields_map.update(t.fields_map)
-        en2zh_map.update(t.en2zh_map)
     _reverse_fields_map = {i: k for k, v in fields_map.items() for i in v}
 
 
-value = {
-    "caption": "Santiago Calatrava di hadapan [[Auditorio de Tenerife]].",
-    "name": "Santiago Calatrava Valls",
-    "nationality": "Sepanyol",
-    "birth_date": "{{birth date and age|1951|7|28|df=y}}",
-    "birth_place": "[[Valencia, Sepanyol|Valencia]], Sepanyol",
-    "education": "Sekolah Seni [[Universiti Valencia|Valencia]] <br>Sekolah Senibina [[Universiti Valencia|Valencia]] <br>[[Institut Teknologi Persekutuan Switzerland]]",
-    "discipline": "[[Jurutera struktur]], [[arkitek]], [[pengarca]]",
-    "institutions": "[[Institusi Jurutera Struktur]]",
-    "practice_name": "Santiago Calatrava",
-    "significant_projects": "[[Kompleks Sukan Olimpik Athens]]<br>[[Auditorio de Tenerife]]<br>[[Jambatan Alamillo]]<br>[[ Jambatan Chords]]<br>[[Ciutat de les Arts i les Ciències]]",
-    "significant_awards": "[[Pingat Emas AIA]]<br> Pingat Emas [[IStructE]] <br>Anugerah [[Eugene McDermott]]<br>[[Anugerah Putera Asturias]]"
-}
-
-tem = Template(value)
-print(tem.fields)
