@@ -7,8 +7,28 @@
 
 import mwparserfromhell as mwp
 import pywikibot
+from src.utils import LoggerUtil
+import logging
+import re
 
-__all__ = ['Template', 'TemplateEngineer', 'TemplateChineseActorSinger']
+__all__ = ['TemplateEngineer', 'TemplateChineseActorSinger', 'QueryEngine',
+           'TEMPLATE_MAP']
+
+TEMPLATE_MAP = {}
+_FILE_LOG_LEVEL = logging.DEBUG
+_CONSOLE_LOG_LEVEL = logging.DEBUG
+
+_file_log = LoggerUtil('src.templates.file', file_path='../log/templates.log',
+                       level=_FILE_LOG_LEVEL, mode='w+')
+_console_log = LoggerUtil('src.templates.console', level=_CONSOLE_LOG_LEVEL)
+
+
+def _is_int(ind):
+    try:
+        int(ind)
+        return True
+    except ValueError:
+        return False
 
 
 class QueryEngine:
@@ -29,15 +49,8 @@ class QueryEngine:
         return ps.filter_templates(matches=matches)
 
 
-def _is_int(ind):
-    try:
-        int(ind)
-        return True
-    except ValueError:
-        return False
-
-
 class TemplateBase:
+    template_name = 'Base'
     fields_map = {
         'Name': ['name', 'nama'],
         'Alias': ['alias', 'othernames', 'other_names', 'others name', 'others_name', 'othername'],
@@ -49,31 +62,46 @@ class TemplateBase:
         'Height': ['height'],
         'Weight': ['weight'],
         'Nationality': ['nationality'],
-        'Website': ['website', 'url'],
+        'Website': ['website', 'url', 'homepage'],
         'Origin': ['origin'],
         'Religion': ['religion', 'agama'],
-        'Education': ['education'],
+        'Education': ['education', 'pendidikan'],
         'Occupation': ['occupation', 'occupation(s)', 'pekerjaan'],
-        'Years Active': ['year_active', 'yearsactive', 'years active', 'years_singing', 'years_active'],
+        'Years Active': ['year_active', 'yearsactive', 'years active', 'years_singing', 'years_active', 'active'],
         'Death Date': ['death_date'],
         'Spouse': ['spouse'],
-        'Parents': ['parents']
+        'Parents': ['parents'],
+        'Children': ['children'],
+        'Gender': ['gender'],
+        'Alma Mater': ['alma_mater'],
+        'Location': ['location'],
+        'Relatives': ['relatives']
     }
 
     _dont_parse = [mwp.wikicode.Argument, mwp.wikicode.Comment, mwp.wikicode.Heading]
 
-    def __init__(self, values, entry=None):
-        self.fields = {k: [] for k in self.fields_map.keys()}
+    def __init__(self, values, entry):
+        self._fields = {'template_name': self.template_name,
+                        'fields': {k: [] for k in self.fields_map.keys()},
+                        'entry': entry}
         for k, v in values.items():
-            field = self._reverse_fields_map.get(k.strip())
+            field = None
+            for kk, vv in self.fields_map.items():
+                if isinstance(vv, list):
+                    if k.lower().strip() in vv:
+                        field = kk
+                        break
+                elif isinstance(vv, re.Pattern):
+                    if re.search(vv, k.lower().strip()):
+                        field = kk
+                        break
+                else:
+                    raise TypeError(f'不支持的类型: {type(vv)}')
             if field:
                 p_v = self.parse(v.strip())
-                print(field, ': ', ''.join([str(i) for i in p_v]))
-                print('\n')
-                self.fields[field].append(''.join([str(i) for i in p_v]))
-        if entry is not None:
-            self.fields['Entry'] = [entry]
-        self.fields = {k: v for k, v in self.fields.items() if v}
+                _console_log.logger.debug(f'\n{field}: {"".join([str(i) for i in p_v])}\n')
+                self._fields['fields'][field].append(''.join([str(i) for i in p_v]))
+        self._fields['fields'] = {k: v for k, v in self._fields['fields'].items() if v}
 
     @classmethod
     def parse(cls, p_t):
@@ -94,6 +122,7 @@ class TemplateBase:
                 if str(j.value) == 'ndash':
                     p_t[i] = mwp.parse('-')
                 else:
+                    _file_log.logger.debug(f'[{str(j)}] [{str(j.value)}]')
                     p_t[i] = mwp.parse(None)
             elif any([isinstance(j, k) for k in cls._dont_parse]):
                 p_t[i] = mwp.parse(None)
@@ -102,19 +131,12 @@ class TemplateBase:
         return cls.parse(p_t)
 
     @property
-    def graph_tuple(self):
-        result = []
-        if self.fields.get('Entry'):
-            entry = self.fields.pop('Entry')[0]
-        else:
-            entry = self.fields['Name'][0]
-        for k, v in self.fields.items():
-            for i in v:
-                result.append((entry, k, i))
-        return result
+    def fields(self):
+        return self._fields
 
 
 class TemplateEngineer(TemplateBase):
+    template_name = 'Engineer'
     fields_map = {
         'Discipline': ['discipline'],
         'Institutions': ['institutions'],
@@ -124,10 +146,10 @@ class TemplateEngineer(TemplateBase):
     }
 
     fields_map.update(TemplateBase.fields_map)
-    _reverse_fields_map = {i: k for k, v in fields_map.items() for i in v}
 
 
 class TemplateChineseActorSinger(TemplateBase):
+    template_name = 'Chinese Actor And Singer'
     fields_map = {
         'Traditional Chinese Name': ['tradchinesename'],
         'Pinyin Chines Name': ['pinyinchinesename'],
@@ -135,27 +157,39 @@ class TemplateChineseActorSinger(TemplateBase):
         'Music Type': ['genre'],
         'Record Company': ['label'],
         'Musical Instrument': ['instrument'],
-        'Influenced': ['influenced'],
-        'Awards': ['hongkongfilmwards', 'ntsawards', 'awards',
-                   'tvbanniversaryawards', 'mtvasiaawards',
-                   'goldenhorseawards', 'goldenroosterawards',
-                   'goldenbauhiniaawards', 'goldenmelodyawards'],
-        'Associated Artists': ['associatedact'],
+        'Related Influence': ['influenced', 'influences'],
         'Partner': ['partner'],
         'Voice Type': ['voicetype'],
-        'Chinese Name': ['chinesename']
+        'Awards': re.compile(r'awards'),
+        'Chinese Name': ['chinesename'],
+        'Notable Role': ['notable role'],
+        'Associated Artists': ['associatedact'],
+        'Related Works': ['associated_acts', 'associated acts'],
+        'Current Members': ['currentmembers'],
+        'Past Members': ['pastmembers'],
+        'English Name': ['nama inggeris']
     }
     fields_map.update(TemplateBase.fields_map)
-    _reverse_fields_map = {i: k for k, v in fields_map.items() for i in v}
 
 
-class Template(TemplateBase):
-    _all = [TemplateEngineer, TemplateChineseActorSinger]
-
-    fields_map = {}
-
-    for t in _all:
-        fields_map.update(t.fields_map)
-    _reverse_fields_map = {i: k for k, v in fields_map.items() for i in v}
-
-
+if __name__ == '__main__':
+    value = {
+        "name": "Boram",
+        "image": "Boram @ SC Showcase.jpg",
+        "native_name": "전보람",
+        "birth_name": "Jeon Boram",
+        "alias": "Boram",
+        "birth_date": "{{birth date and age|1986|03|22}}",
+        "birth_place": "[[Seoul]], [[Korea Selatan]]",
+        "parents": "[[Lee Mi-young]] {{small|(ibu)}}<br />Jeon Youngrok {{small|(bapa)}}",
+        "relatives": "[[D-Unit|Jeon Wooram]] {{small|(adik perempuan)}}",
+        "occupation": "{{flatlist|\n*[[Penyanyi]]\n*[[pelakon]]}}",
+        "background": "solo_singer",
+        "genre": "{{flatlist|\n*[[K-pop]]\n*[[J-pop]]\n*[[R&B]]\n*EDM\n*Electro-pop}}",
+        "years_active": "2008–present",
+        "label": "[[MBK Entertainment]]",
+        "associated_acts": "{{hlist|[[T-ara]]|QBS}}",
+        "URL": "{{url|http://www.mbk-ent.com/main_tara|T-ara}}"
+    }
+    template = TemplateChineseActorSinger(value, 'Jay Chou')
+    print(template.fields)
