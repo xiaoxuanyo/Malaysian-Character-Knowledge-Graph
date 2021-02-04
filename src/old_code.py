@@ -52,12 +52,14 @@ class TemplateBase:
     template_name = 'Base'
     fields_map = {
         'Name': (['name', 'nama'],),
-        'Alias': (['alias'], re.compile('other.*?names?')),
-        'Native Name': (re.compile('native.*?names?'),),
+        'Alias': (['alias', 'othernames', 'other_names', 'others name', 'others_name', 'othername', 'othersname',
+                   'other names', 'other_name', 'other name', 'other-names', 'others-name', 'other-name'],),
+        'Native Name': (['native_name', 'native name', 'native-name'],),
         'Birth': (['birth'],),
-        'Birth Name': (re.compile('birth.*?names?'),),
-        'Birth Date': (['born', 'date of birth', 'date  of birth'], re.compile('birth.*?date')),
-        'Birth Place': (['tempat lahir', 'place of birth', 'place  of birth'], re.compile('birth.*?place')),
+        'Birth Name': (['birth_name', 'birth name', 'birthname', 'birth-name'],),
+        'Birth Date': (
+            ['birth_date', 'born', 'birthdate', 'birth date', 'date of birth', 'date  of birth', 'birth-date'],),
+        'Birth Place': (['birth_place', 'tempat lahir', 'birthplace', 'birth place', 'place of birth', 'birth-place'],),
         'Height': (['height'],),
         'Weight': (['weight'],),
         'Nationality': (['nationality'],),
@@ -66,24 +68,27 @@ class TemplateBase:
         'Religion': (['religion', 'agama'],),
         'Education': (['education', 'pendidikan'],),
         'Occupation': (['occupation', 'occupation(s)', 'pekerjaan'],),
-        'Years Active': (['active'], re.compile('year.*?active')),
-        'Death Date': (re.compile('death.*?date'),),
+        'Years Active': (['year_active', 'yearsactive', 'years active', 'years_active', 'active',
+                          'yearactive', 'year active', 'year-active', 'years-active'],),
+        'Death Date': (['death_date', 'death date', 'death-date'],),
         'Spouse': (['spouse'],),
         'Parents': (['parents'],),
         'Children': (['children', 'issue'],),
         'Gender': (['gender'],),
-        'Alma Mater': (re.compile('alma.*?mater'),),
+        'Alma Mater': (['alma_mater', 'alma mater', 'alma-mater'],),
         'Location': (['location'],),
         'Relatives': (['relatives'],),
-        'Full Name': (re.compile('full.*?name'),),
+        'Full Name': (['full name', 'full_name', 'full-name'],),
         'Father': (['father'],),
         'Mother': (['mother'],),
         'Residence': (['residence'],),
-        'Known For': (re.compile('known.*?for'),),
+        'Known For': (['known_for', 'knownfor', 'known for', 'known-for'],),
         'Partner': (['partner'],),
         'Citizenship': (['citizenship'],),
-        'Honorific Prefix': (re.compile('honorific.*?prefix'),),
-        'Honorific Suffix': (re.compile('honorific.*?suffix'),)
+        'Honorific Prefix': (['honorific-prefix', 'honorific prefix', 'honorificprefix',
+                              'honorific_prefix'],),
+        'Honorific Suffix': (['honorific-suffix', 'honorific suffix', 'honorificsuffix',
+                              'honorific_suffix'],)
     }
 
     _dont_parse = [mwp.wikicode.Argument, mwp.wikicode.Comment, mwp.wikicode.Heading]
@@ -113,7 +118,7 @@ class TemplateBase:
                     v_r = vv[1]
                     assert isinstance(v_l, list) and isinstance(v_r,
                                                                 re.Pattern), f'列表中的第一个为list枚举类型，第二个为正则表达式类型，目前的类型为: {type(v_l)}, {type(v_r)}'
-                    if k.lower().strip() in v_l:
+                    if k.lower.strip() in v_l:
                         field = kk
                         break
                     if re.search(v_r, k.lower().strip()):
@@ -162,8 +167,8 @@ class TemplateBase:
 class TemplateMotorcycleRider(TemplateBase):
     template_name = 'Motorcycle Rider'
     fields_map = {
-        'Current Team': (re.compile('current.*?team'),),
-        'Bike Number': (re.compile('bike.*?number'),)
+        'Current Team': (['current team', 'current_team', 'currentteam', 'current-team'],),
+        'Bike Number': (['bike number', 'bike_number', 'bikenumber', 'bike-number'],)
     }
     fields_map.update(TemplateBase.fields_map)
 
@@ -173,9 +178,9 @@ class TemplateEngineer(TemplateBase):
     fields_map = {
         'Discipline': (['discipline'],),
         'Institutions': (['institutions'],),
-        'Practice Name': (re.compile('practice.*?name'),),
-        'Significant Projects': (re.compile('significant.*?projects?'),),
-        'Significant Awards': (re.compile('significant.*?awards?'),)
+        'Practice Name': (['practice_name', 'practice name', 'practice-name'],),
+        'Significant Projects': (['significant_projects', 'significant projects', 'significant-projects'],),
+        'Significant Awards': (['significant_awards', 'significant awards', 'significant-awards'],)
     }
 
     fields_map.update(TemplateBase.fields_map)
@@ -191,15 +196,15 @@ class TemplateChineseActorSinger(TemplateBase):
         'Record Company': (['label'],),
         'Musical Instrument': (['instrument'],),
         'Related Influence': (['influenced', 'influences'],),
-        'Voice Type': (re.compile('voice.*?type'),),
-        'Awards': (re.compile('awards?'),),
-        'Chinese Name': (re.compile('chinese.*?name'),),
-        'Notable Role': (re.compile('notable.*?role'),),
+        'Voice Type': (['voicetype', 'voice_type', 'voice type', 'voice-type'],),
+        'Awards': (re.compile('awards'),),
+        'Chinese Name': (['chinesename', 'chinese_name', 'chinese name', 'chinese-name'],),
+        'Notable Role': (['notable role', 'notable_role', 'notable-role'],),
         'Associated Artists': (['associatedact', 'associated act', 'associated_act', 'associated-act'],),
         'Related Works': (['associated_acts', 'associated acts', 'associatedacts', 'associated-acts'],),
-        'Current Members': (re.compile('current.*?members?'),),
-        'Past Members': (re.compile('past.*?members?'),),
-        'English Name': (re.compile('nama.*?inggeris'),)
+        'Current Members': (['currentmembers', 'current members', 'current_members', 'current-members'],),
+        'Past Members': (['pastmembers', 'past_members', 'past members', 'past-members'],),
+        'English Name': (['nama inggeris', 'nama_inggeris', 'namainggeris', 'nama-inggeris'],)
     }
     fields_map.update(TemplateBase.fields_map)
 
@@ -221,10 +226,10 @@ class TemplateRoyalty(TemplateBase):
 class TemplateModel(TemplateBase):
     template_name = 'Model'
     fields_map = {
-        'Hair Color': (['haircolour'], re.compile('hair.*?color')),
-        'Eye Color': (['eyecolour'], re.compile('eye.*?color')),
-        'Dress Size': (re.compile('dress.*?size'),),
-        'Shoe Size': (re.compile('shoe.*?size'),),
+        'Hair Color': (['haircolor', 'hair_color', 'hair color', 'haircolour', 'hair-color'],),
+        'Eye Color': (['eyecolor', 'eye_color', 'eye color', 'eyecolour', 'eye-color'],),
+        'Dress Size': (['dress size', 'dress_size', 'dresssize', 'dress-size'],),
+        'Shoe Size': (['shoesize', 'shoe size', 'shoe_size', 'shoe-size'],),
         'Measurements': (['measurements'],),
         'Ethnicity': (['ethnicity'],),
         'Agency': (['agency'],)
@@ -238,7 +243,7 @@ class TemplateMinister(TemplateBase):
         'Office': (re.compile('office'),),
         'Prime Minister': (re.compile('prime.*?minister'),),
         'Party': (['party'],),
-        'Term Start': (re.compile('term.*?start'),),
+        'Term Start': (['term_start', 'termstart', 'term start', 'term-start'],),
         'Predecessor': (re.compile('predecessor'),)
     }
     fields_map.update(TemplateBase.fields_map)
@@ -250,8 +255,7 @@ _TEMPLATE_MAP = {
     TemplateChineseActorSinger: ['infobox chinese actor and singer',
                                  'infobox chinese-language singer and actor'],
     TemplateRoyalty: ['infobox royalty'],
-    TemplateModel: ['infobox model'],
-    TemplateMinister: ['infobox minister']
+    TemplateModel: ['infobox model']
 }
 TEMPLATE_MAP = {i: k for k, v in _TEMPLATE_MAP.items() for i in v}
 
