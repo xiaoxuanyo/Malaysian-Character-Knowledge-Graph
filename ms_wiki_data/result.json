@@ -933,14 +933,6 @@
       "arresting_authority",
       "citizenship"
    ],
-   "infobox academic": [
-      "thesis_title",
-      "thesis_year",
-      "thesis_url",
-      "discipline",
-      "child",
-      "alma_mater"
-   ],
    "infobox diraja": [
       "date of birth",
       "name",

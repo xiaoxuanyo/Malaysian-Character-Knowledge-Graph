@@ -11,8 +11,6 @@ from src.utils import LoggerUtil
 import logging
 import re
 
-__all__ = ['TemplateEngineer', 'TemplateChineseActorSinger', 'QueryEngine',
-           'TEMPLATE_MAP']
 
 _FILE_LOG_LEVEL = logging.DEBUG
 _CONSOLE_LOG_LEVEL = logging.DEBUG
@@ -28,6 +26,12 @@ def _is_int(ind):
         return True
     except ValueError:
         return False
+
+
+def _re_compile(s):
+    _s = r'^'
+    _e = r'\s*\d*$'
+    return re.compile(_s + s + _e)
 
 
 class QueryEngine:
@@ -52,12 +56,14 @@ class TemplateBase:
     template_name = 'Base'
     fields_map = {
         'Name': (['name', 'nama'],),
-        'Alias': (['alias'], re.compile('other.*?names?')),
-        'Native Name': (re.compile('native.*?names?'),),
-        'Birth': (['birth'],),
-        'Birth Name': (re.compile('birth.*?names?'),),
-        'Birth Date': (['born', 'date of birth', 'date  of birth'], re.compile('birth.*?date')),
-        'Birth Place': (['tempat lahir', 'place of birth', 'place  of birth'], re.compile('birth.*?place')),
+        'Alias': (['alias', 'nickname'], _re_compile(r'other.*?names?')),
+        'Native Name': (_re_compile(r'native.*?names?'),),
+        'Birth': (['birth', 'born'],),
+        'Birth Name': (_re_compile(r'birth.*?names?'),),
+        'Birth Date': (_re_compile(r'birth.*?date|^date.*?birth'),),
+        'Birth Place': (['tempat lahir'], _re_compile(r'birth.*?place|^place.*?birth')),
+        'Birth City': (_re_compile(r'birth.*?city|^city.*?birth'),),
+        'Birth Country': (_re_compile(r'birth.*?country|^country.*?birth'),),
         'Height': (['height'],),
         'Weight': (['weight'],),
         'Nationality': (['nationality'],),
@@ -65,25 +71,34 @@ class TemplateBase:
         'Origin': (['origin'],),
         'Religion': (['religion', 'agama'],),
         'Education': (['education', 'pendidikan'],),
-        'Occupation': (['occupation', 'occupation(s)', 'pekerjaan'],),
-        'Years Active': (['active'], re.compile('year.*?active')),
-        'Death Date': (re.compile('death.*?date'),),
-        'Spouse': (['spouse'],),
+        'Occupation': (['occupation', 'occupation(s)', 'pekerjaan', 'ocupation'],),
+        'Years Active': (['active'], _re_compile(r'year.*?active')),
+        'Death Date': (_re_compile(r'death.*?date|^date.*?death'),),
+        'Death Place': (_re_compile(r'death.*?place|^place.*?death'),),
+        'Burial Place': (_re_compile(r'resting.*?place|^burial.*?place'),),
+        'Spouse': (['spouse', 'pasangan'],),
         'Parents': (['parents'],),
         'Children': (['children', 'issue'],),
         'Gender': (['gender'],),
-        'Alma Mater': (re.compile('alma.*?mater'),),
+        'Alma Mater': (_re_compile(r'alma.*?mater'),),
         'Location': (['location'],),
-        'Relatives': (['relatives'],),
-        'Full Name': (re.compile('full.*?name'),),
-        'Father': (['father'],),
+        'Relatives': (_re_compile(r'relatives?|^relations?'),),
+        'Full Name': (_re_compile(r'full.*?name'),),
+        'Father': (['father', 'bapa'],),
         'Mother': (['mother'],),
         'Residence': (['residence'],),
-        'Known For': (re.compile('known.*?for'),),
+        'Known For': (['known'], _re_compile(r'known.*?for'),),
         'Partner': (['partner'],),
         'Citizenship': (['citizenship'],),
-        'Honorific Prefix': (re.compile('honorific.*?prefix'),),
-        'Honorific Suffix': (re.compile('honorific.*?suffix'),)
+        'Honorific Prefix': (_re_compile(r'honorific.*?prefix'),),
+        'Honorific Suffix': (_re_compile(r'honorific.*?suffix'),),
+        'Home Town': (_re_compile(r'home.*?town'),),
+        'Employer': (['employer'],),
+        'Family': (['family'],),
+        'Ethnicity': (['ethnicity', 'ethnic'],),
+        'Subject': (['subject'],),
+        'Works': (['works'],),
+        'Net Worth': (_re_compile(r'net.*?worth'),),
     }
 
     _dont_parse = [mwp.wikicode.Argument, mwp.wikicode.Comment, mwp.wikicode.Heading]
@@ -116,15 +131,18 @@ class TemplateBase:
                     if k.lower().strip() in v_l:
                         field = kk
                         break
-                    if re.search(v_r, k.lower().strip()):
+                    elif re.search(v_r, k.lower().strip()):
                         field = kk
                         break
                 else:
                     raise ValueError('不支持的fields map类型')
             if field:
                 p_v = self.parse(v.strip())
-                _console_log.logger.debug(f'\n{field}: {"".join([str(i) for i in p_v])}\n')
-                self._fields['fields'][field].append(''.join([str(i) for i in p_v]))
+                h_v = ''.join([str(i) for i in p_v]).strip()
+                if h_v:
+                    _console_log.logger.debug(f'\n{field}: {h_v}\n')
+                    if h_v not in self._fields['fields']:
+                        self._fields['fields'][field].append(h_v)
         self._fields['fields'] = {k: v for k, v in self._fields['fields'].items() if v}
 
     @classmethod
@@ -162,8 +180,8 @@ class TemplateBase:
 class TemplateMotorcycleRider(TemplateBase):
     template_name = 'Motorcycle Rider'
     fields_map = {
-        'Current Team': (re.compile('current.*?team'),),
-        'Bike Number': (re.compile('bike.*?number'),)
+        'Current Team': (_re_compile(r'current.*?team'),),
+        'Bike Number': (_re_compile(r'bike.*?number'),)
     }
     fields_map.update(TemplateBase.fields_map)
 
@@ -173,9 +191,9 @@ class TemplateEngineer(TemplateBase):
     fields_map = {
         'Discipline': (['discipline'],),
         'Institutions': (['institutions'],),
-        'Practice Name': (re.compile('practice.*?name'),),
-        'Significant Projects': (re.compile('significant.*?projects?'),),
-        'Significant Awards': (re.compile('significant.*?awards?'),)
+        'Practice Name': (_re_compile(r'practice.*?names?'),),
+        'Significant Projects': (_re_compile(r'significant.*?projects?'),),
+        'Significant Awards': (_re_compile(r'significant.*?awards?'),)
     }
 
     fields_map.update(TemplateBase.fields_map)
@@ -187,19 +205,19 @@ class TemplateChineseActorSinger(TemplateBase):
         'Traditional Chinese Name': (['tradchinesename'],),
         'Pinyin Chines Name': (['pinyinchinesename'],),
         'Simplified Chinese Name': (['simpchinesename'],),
-        'Music Type': (['genre'],),
+        'Genre': (['genre'],),
         'Record Company': (['label'],),
-        'Musical Instrument': (['instrument'],),
-        'Related Influence': (['influenced', 'influences'],),
-        'Voice Type': (re.compile('voice.*?type'),),
-        'Awards': (re.compile('awards?'),),
-        'Chinese Name': (re.compile('chinese.*?name'),),
-        'Notable Role': (re.compile('notable.*?role'),),
+        'Instrument': (['instrument', 'instruments'],),
+        'Influence': (['influenced', 'influences'],),
+        'Voice Type': (_re_compile(r'voice.*?type'),),
+        'Awards': (_re_compile(r'awards?'),),
+        'Chinese Name': (_re_compile(r'chinese.*?name'),),
+        'Notable Role': (_re_compile(r'notable.*?roles?'),),
         'Associated Artists': (['associatedact', 'associated act', 'associated_act', 'associated-act'],),
         'Related Works': (['associated_acts', 'associated acts', 'associatedacts', 'associated-acts'],),
-        'Current Members': (re.compile('current.*?members?'),),
-        'Past Members': (re.compile('past.*?members?'),),
-        'English Name': (re.compile('nama.*?inggeris'),)
+        'Current Members': (_re_compile(r'current.*?members?'),),
+        'Past Members': (_re_compile(r'past.*?members?'),),
+        'English Name': (_re_compile(r'nama.*?inggeris'),)
     }
     fields_map.update(TemplateBase.fields_map)
 
@@ -221,12 +239,11 @@ class TemplateRoyalty(TemplateBase):
 class TemplateModel(TemplateBase):
     template_name = 'Model'
     fields_map = {
-        'Hair Color': (['haircolour'], re.compile('hair.*?color')),
-        'Eye Color': (['eyecolour'], re.compile('eye.*?color')),
-        'Dress Size': (re.compile('dress.*?size'),),
-        'Shoe Size': (re.compile('shoe.*?size'),),
+        'Hair Color': (['haircolour'], _re_compile(r'hair.*?color')),
+        'Eye Color': (['eyecolour'], _re_compile(r'eye.*?color')),
+        'Dress Size': (_re_compile(r'dress.*?size'),),
+        'Shoe Size': (_re_compile(r'shoe.*?size'),),
         'Measurements': (['measurements'],),
-        'Ethnicity': (['ethnicity'],),
         'Agency': (['agency'],)
     }
     fields_map.update(TemplateBase.fields_map)
@@ -235,11 +252,127 @@ class TemplateModel(TemplateBase):
 class TemplateMinister(TemplateBase):
     template_name = 'Minister'
     fields_map = {
-        'Office': (re.compile('office'),),
-        'Prime Minister': (re.compile('prime.*?minister'),),
+        'Office': (_re_compile(r'office'),),
+        'Prime Minister': (_re_compile(r'prime.*?minister'),),
         'Party': (['party'],),
-        'Term Start': (re.compile('term.*?start'),),
-        'Predecessor': (re.compile('predecessor'),)
+        'Term Start': (_re_compile(r'term.*?start'),),
+        'Predecessor': (_re_compile(r'predecessor'),)
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateOfficeholder(TemplateBase):
+    template_name = 'Officeholder'
+    fields_map = {
+        'Office': (_re_compile(r'office'),),
+        'Deputy': (_re_compile(r'deputy'),),
+        'Term Start': (_re_compile(r'term.*?start'),),
+        'Term End': (_re_compile(r'term.*?end'),),
+        'Predecessor': (_re_compile(r'predecessor'),),
+        'Successor': (_re_compile(r'successor|^succeeded'),),
+        'Prime Minister': (_re_compile(r'prime.*?minister'),),
+        'Pronunciation': (['pronunciation'],),
+        'President': (_re_compile(r'president'),),
+        'Governor': (_re_compile(r'governor'),),
+        'Serve With': (_re_compile(r'alongside'),),
+        'Vice President': (_re_compile(r'vice.*?president'),),
+        'Profession': (['profession'],),
+        'Branch': (['branch'],),
+        'Service Years': (_re_compile(r'service.*?years?'),),
+        'Leader': (_re_compile(r'leader'),),
+        'Awards': (_re_compile(r'awards?'),),
+        'Appointer': (_re_compile(r'appointer'),),
+        'Minister': (_re_compile(r'minister'),),
+        'Cabinet': (['cabinet'],),
+        'Department': (['department'],),
+        'Nominator': (_re_compile(r'nominator'),)
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateFootballPlayer(TemplateBase):
+    template_name = 'Football Player'
+    fields_map = {
+        'Player Name': (_re_compile(r'player.*?name'),),
+        'Current Club': (_re_compile(r'current.*?club'),),
+        'Club Number': (_re_compile(r'club.*?number'),),
+        'Position': (['position'],),
+        'Years': (_re_compile(r'years?|^club.*?years?'),),
+        'Clubs': (_re_compile(r'clubs?'),),
+        'Caps(Goals)': (_re_compile(r'caps\(goals\)'),),
+        'Caps': (_re_compile(r'caps?'),),
+        'Goals': (_re_compile(r'goals?'),),
+        'National Years': (_re_compile(r'national.*?years?'),),
+        'National Team': (_re_compile(r'national.*?teams?'),),
+        'National Caps(Goals)': (_re_compile(r'national.*?caps\(goals\)'),),
+        'Youth Clubs': (_re_compile(r'youth.*?clubs?'),),
+        'Youth Years': (_re_compile(r'youth.*?years?'),),
+        'Youth Caps(Goals)': (_re_compile(r'youth.*?caps\(goals\)'),),
+        'Youth Caps': (_re_compile(r'youth.*?caps?'),),
+        'Youth Goals': (_re_compile(r'youth[-_\s]*goals?'),),
+        'National Caps': (_re_compile(r'national.*?caps?'),),
+        'National Goals': (_re_compile(r'national[-_\s]*goals?'),),
+        'Total Caps': (_re_compile(r'total.*?caps?'),),
+        'Total Goals': (_re_compile(r'total.*?goals?'),),
+        'Manager Clubs': (_re_compile(r'manager.*?clubs?'),),
+        'Manager Years': (_re_compile(r'manager.*?years?'),),
+        'School': (['school'],)
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateFootballOfficial(TemplateBase):
+    template_name = 'Football Official'
+    fields_map = {
+        'League': (_re_compile(r'league'),),
+        'Role': (_re_compile(r'roles?'),),
+        'International Years': (_re_compile(r'international.*?years'),),
+        'Confederation': (_re_compile(r'confederation'),),
+        'International Role': (_re_compile(r'international.*?roles?'),)
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateAdultMale(TemplateBase):
+    template_name = 'Adult Male'
+    fields_map = {
+        'Number Films': (_re_compile(r'number.*?of.*?films'),)
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateActor(TemplateBase):
+    template_name = 'Actor'
+    fields_map = {
+        'Medium': (['medium'],),
+        'Instagram': (['instagram'],),
+        'Employer': (['employer'],),
+        'Awards': (_re_compile(r'awards?'),),
+        'Voice Type': (_re_compile(r'voice.*?type'),),
+        'Traditional Chinese Name': (['tradchinesename'],),
+        'Simplified Chinese Name': (['simpchinesename'],),
+        'Chinese Name': (_re_compile(r'chinese.*?name'),),
+        'Pinyin Chines Name': (['pinyinchinesename'],),
+        'Agent': (['agent'],),
+        'Notable Work': (_re_compile(r'notable.*?works?'),),
+        'Instrument': (['instrument'],),
+        'Television': (['television'],),
+        'Profession': (['profession'],),
+        'Notable Role': (['credits'], _re_compile(r'notable.*?roles?'),),
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateWarDetainee(TemplateBase):
+    template_name = 'War Detainee'
+    fields_map = {
+        'Arrest Place': (_re_compile(r'arrest.*?place|^place.*?arrest'),),
+        'Arrest Date': (_re_compile(r'arrest.*?date|^date.*?arrest'),),
+        'Arresting Authority': (_re_compile(r'arresting.*?authority'),),
+        'Detained At': (_re_compile(r'detained.*?at'),),
+        'Charge': (['charge'],),
+        'Id Number': (_re_compile(r'id.*?number'),),
+        'Status': (['status'],)
     }
     fields_map.update(TemplateBase.fields_map)
 
@@ -249,31 +382,35 @@ _TEMPLATE_MAP = {
     TemplateEngineer: ['infobox engineer'],
     TemplateChineseActorSinger: ['infobox chinese actor and singer',
                                  'infobox chinese-language singer and actor'],
-    TemplateRoyalty: ['infobox royalty'],
+    TemplateRoyalty: ['infobox royalty', 'infobox diraja'],
     TemplateModel: ['infobox model'],
-    TemplateMinister: ['infobox minister']
+    TemplateMinister: ['infobox minister'],
+    TemplateOfficeholder: ['infobox officeholder'],
+    TemplateFootballPlayer: ['infobox football biography', 'pemain bola infobox', 'football player infobox',
+                             'infobox football biography 2'],
+    TemplateFootballOfficial: ['infobox football official'],
+    TemplateAdultMale: ['infobox adult male'],
+    TemplateActor: ['infobox actor', 'infobox actor voice'],
+    TemplateWarDetainee: ['infobox war on terror detainee', 'infobox wot detainees']
 }
+
+
 TEMPLATE_MAP = {i: k for k, v in _TEMPLATE_MAP.items() for i in v}
 
+
 if __name__ == '__main__':
+
     value = {
-        "honorific-prefix": "[[Yang Amat Berhormat]]",
-        "honorific-suffix": "[[Ahli parlimen|AP]]",
-        "name": "Masagos Zulkifli <br> ماسڬوس ذوالكفل",
-        "birth_name": "Masagos Zulkifli bin Masagos Mohamad",
-        "image": "Masagos Zulkifli at The Pentagon, USA - 20061017.jpg",
-        "caption": "Masagos pada makan tengah hari bekerja dianjurkan oleh Amerika Syarikat Setiausaha Pertahanan Donald Rumsfeld di Pentagon pada Oktober 2006",
-        "office": "Menteri Pembangunan Sosial dan Keluarga Singapura",
-        "primeminister": "[[Lee Hsien Loong]]",
-        "term_start": "27 Julai 2020",
-        "predecessor": "[[Desmond Lee]]",
-        "office2": "[[Menteri Bertanggungjawab bagi Ehwal Masyarakat Islam]]",
-        "primeminister2": "Lee Hsien Loong",
-        "term_start2": "1 Mei 2018",
-        "predecessor2": "[[Yaacob Ibrahim]]",
-        "birth_date": "{{Birth date and age|1963|04|16|df=yes}}",
-        "birth_place": "[[Koloni Singapura|Singapura]]",
-        "party": "[[Parti Tindakan Rakyat]] (PAP)"
+        "subject_name": "Omar Ahmed Khadr",
+        "image_name": "Omar Khadr - PD-Family-released.jpg",
+        "image_size": "250px",
+        "image_caption": "Khadr semasa berumur 14 tahun",
+        "date_of_birth": "{{Birth date and age|1986|9|19}}",
+        "place_of_birth": "Toronto, Kanada",
+        "detained_at": "Guantanamo",
+        "id_number": "766",
+        "status": "Tribunal underway",
+        "parents": "[[Ahmed Said Khadr]]<br />[[Maha Elsamnah]]"
     }
-    template = TemplateMinister(value, 'Jay Chou')
-    print(template.fields)
+    tem = TemplateWarDetainee(value, 'Omar Ahmed Khadr')
+    print(tem.fields)
