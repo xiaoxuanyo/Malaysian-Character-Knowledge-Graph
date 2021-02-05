@@ -11,7 +11,6 @@ from src.utils import LoggerUtil
 import logging
 import re
 
-
 _FILE_LOG_LEVEL = logging.DEBUG
 _CONSOLE_LOG_LEVEL = logging.DEBUG
 
@@ -71,8 +70,9 @@ class TemplateBase:
         'Origin': (['origin'],),
         'Religion': (['religion', 'agama'],),
         'Education': (['education', 'pendidikan'],),
-        'Occupation': (['occupation', 'occupation(s)', 'pekerjaan', 'ocupation'],),
-        'Years Active': (['active'], _re_compile(r'year.*?active')),
+        'Occupation': (['occupation', 'occupation(s)', 'pekerjaan', 'ocupation', 'occuption',
+                        'occuoation'],),
+        'Years Active': (['active', 'yeaesactive'], _re_compile(r'year.*?active')),
         'Death Date': (_re_compile(r'death.*?date|^date.*?death'),),
         'Death Place': (_re_compile(r'death.*?place|^place.*?death'),),
         'Burial Place': (_re_compile(r'resting.*?place|^burial.*?place'),),
@@ -94,11 +94,13 @@ class TemplateBase:
         'Honorific Suffix': (_re_compile(r'honorific.*?suffix'),),
         'Home Town': (_re_compile(r'home.*?town'),),
         'Employer': (['employer'],),
+        'Leader': (_re_compile(r'leader'),),
         'Family': (['family'],),
         'Ethnicity': (['ethnicity', 'ethnic'],),
         'Subject': (['subject'],),
         'Works': (['works'],),
         'Net Worth': (_re_compile(r'net.*?worth'),),
+        'Awards': (_re_compile(r'awards?'),),
     }
 
     _dont_parse = [mwp.wikicode.Argument, mwp.wikicode.Comment, mwp.wikicode.Heading]
@@ -208,9 +210,8 @@ class TemplateChineseActorSinger(TemplateBase):
         'Genre': (['genre'],),
         'Record Company': (['label'],),
         'Instrument': (['instrument', 'instruments'],),
-        'Influence': (['influenced', 'influences'],),
+        'Influenced': (['influenced', 'influences'],),
         'Voice Type': (_re_compile(r'voice.*?type'),),
-        'Awards': (_re_compile(r'awards?'),),
         'Chinese Name': (_re_compile(r'chinese.*?name'),),
         'Notable Role': (_re_compile(r'notable.*?roles?'),),
         'Associated Artists': (['associatedact', 'associated act', 'associated_act', 'associated-act'],),
@@ -268,24 +269,26 @@ class TemplateOfficeholder(TemplateBase):
         'Deputy': (_re_compile(r'deputy'),),
         'Term Start': (_re_compile(r'term.*?start'),),
         'Term End': (_re_compile(r'term.*?end'),),
+        'Term': (_re_compile(r'term'),),
         'Predecessor': (_re_compile(r'predecessor'),),
-        'Successor': (_re_compile(r'successor|^succeeded'),),
+        'Successor': (_re_compile(r'successor|^succeeded|^succeeding'),),
         'Prime Minister': (_re_compile(r'prime.*?minister'),),
         'Pronunciation': (['pronunciation'],),
         'President': (_re_compile(r'president'),),
-        'Governor': (_re_compile(r'governor'),),
+        'Governor': (_re_compile(r'governor|^governor.*?general'),),
         'Serve With': (_re_compile(r'alongside'),),
         'Vice President': (_re_compile(r'vice.*?president'),),
         'Profession': (['profession'],),
         'Branch': (['branch'],),
         'Service Years': (_re_compile(r'service.*?years?'),),
-        'Leader': (_re_compile(r'leader'),),
-        'Awards': (_re_compile(r'awards?'),),
         'Appointer': (_re_compile(r'appointer'),),
         'Minister': (_re_compile(r'minister'),),
         'Cabinet': (['cabinet'],),
         'Department': (['department'],),
-        'Nominator': (_re_compile(r'nominator'),)
+        'Nominator': (_re_compile(r'nominator'),),
+        'Chancellor': (_re_compile(r'chancellor'),),
+        'Lieutenant': (_re_compile(r'"lieutenant"'),),
+        'Appointed': (_re_compile(r'appointed'),)
     }
     fields_map.update(TemplateBase.fields_map)
 
@@ -333,10 +336,15 @@ class TemplateFootballOfficial(TemplateBase):
     fields_map.update(TemplateBase.fields_map)
 
 
-class TemplateAdultMale(TemplateBase):
-    template_name = 'Adult Male'
+class TemplateAdultBiography(TemplateBase):
+    template_name = 'Adult Biography'
     fields_map = {
-        'Number Films': (_re_compile(r'number.*?of.*?films'),)
+        'Number Films': (_re_compile(r'number.*?of.*?films'),),
+        'Hair Color': (['haircolour'], _re_compile(r'hair.*?color')),
+        'Eye Color': (['eyecolour'], _re_compile(r'eye.*?color')),
+        'Orientation': (['orientation'],),
+        'Measurements': (['measurements'],),
+        'Films': (['films', 'film'],)
     }
     fields_map.update(TemplateBase.fields_map)
 
@@ -346,8 +354,6 @@ class TemplateActor(TemplateBase):
     fields_map = {
         'Medium': (['medium'],),
         'Instagram': (['instagram'],),
-        'Employer': (['employer'],),
-        'Awards': (_re_compile(r'awards?'),),
         'Voice Type': (_re_compile(r'voice.*?type'),),
         'Traditional Chinese Name': (['tradchinesename'],),
         'Simplified Chinese Name': (['simpchinesename'],),
@@ -377,6 +383,74 @@ class TemplateWarDetainee(TemplateBase):
     fields_map.update(TemplateBase.fields_map)
 
 
+class TemplateVicePresident(TemplateBase):
+    template_name = 'Vice President'
+    fields_map = {
+        'Term Start': (_re_compile(r'term.*?start'),),
+        'Term End': (_re_compile(r'term.*?end'),),
+        'Successor': (_re_compile(r'successor|^succeeded|^succeeding'),),
+        'President': (_re_compile(r'president'),),
+        'Profession': (['profession'],),
+        'Predecessor': (_re_compile(r'predecessor'),)
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateSwimmer(TemplateBase):
+    template_name = 'Swimmer'
+    fields_map = {
+        'Medal': (_re_compile(r'medal.*?templates?'),),
+        'National Team': (_re_compile(r'national.*?teams?'),),
+        'Coach': (['coach'],)
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateIndonesiaArtist(TemplateBase):
+    template_name = 'Indonesia Artist'
+    fields_map = {
+        'Instrument': (['instrument', 'instruments'],),
+        'Influenced': (['influenced', 'influences'],),
+        'Record Company': (['label'],),
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplatePrimeMinister(TemplateBase):
+    template_name = 'Prime Minister'
+    fields_map = {
+        'Office': (_re_compile(r'office'),),
+        'Deputy': (_re_compile(r'deputy'),),
+        'Term Start': (_re_compile(r'term.*?start'),),
+        'Term End': (_re_compile(r'term.*?end'),),
+        'Predecessor': (_re_compile(r'predecessor'),),
+        'Successor': (_re_compile(r'successor|^succeeded|^succeeding'),),
+        'Prime Minister': (_re_compile(r'prime.*?minister'),),
+        'President': (_re_compile(r'president'),),
+        'Profession': (['profession'],),
+        'Governor': (_re_compile(r'governor|^governor.*?general'),),
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateMP(TemplateBase):
+    template_name = 'Member of Parliament'
+    fields_map = {
+        'Office': (_re_compile(r'office'),),
+        'Deputy': (_re_compile(r'deputy'),),
+        'Term Start': (_re_compile(r'term.*?start'),),
+        'Term End': (_re_compile(r'term.*?end'),),
+        'Predecessor': (_re_compile(r'predecessor'),),
+        'Successor': (_re_compile(r'successor|^succeeded|^succeeding'),),
+        'Prime Minister': (_re_compile(r'prime.*?minister'),),
+        'Pronunciation': (['pronunciation'],),
+        'Profession': (['profession'],),
+        'Minister': (_re_compile(r'minister'),),
+        'President': (_re_compile(r'president'),),
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
 _TEMPLATE_MAP = {
     TemplateMotorcycleRider: ['infobox motorcycle rider'],
     TemplateEngineer: ['infobox engineer'],
@@ -389,17 +463,19 @@ _TEMPLATE_MAP = {
     TemplateFootballPlayer: ['infobox football biography', 'pemain bola infobox', 'football player infobox',
                              'infobox football biography 2'],
     TemplateFootballOfficial: ['infobox football official'],
-    TemplateAdultMale: ['infobox adult male'],
+    TemplateAdultBiography: ['infobox adult male', 'infobox adult biography'],
     TemplateActor: ['infobox actor', 'infobox actor voice'],
-    TemplateWarDetainee: ['infobox war on terror detainee', 'infobox wot detainees']
+    TemplateWarDetainee: ['infobox war on terror detainee', 'infobox wot detainees'],
+    TemplateVicePresident: ['infobox vice president'],
+    TemplateSwimmer: ['infobox swimmer'],
+    TemplateIndonesiaArtist: ['infobox artis indonesia'],
+    TemplatePrimeMinister: ['infobox_prime minister', 'infobox prime minister'],
+    TemplateMP: ['infobox mp']
 }
-
 
 TEMPLATE_MAP = {i: k for k, v in _TEMPLATE_MAP.items() for i in v}
 
-
 if __name__ == '__main__':
-
     value = {
         "subject_name": "Omar Ahmed Khadr",
         "image_name": "Omar Khadr - PD-Family-released.jpg",
