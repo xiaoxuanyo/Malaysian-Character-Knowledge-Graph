@@ -229,16 +229,18 @@ class TemplateBase:
                     if index:
                         h_v = {index: h_v}
                     self._fields['fields'][field]['values'].append(h_v)
-        fields_values = {}
         if self.multi_values_field is not None:
+            fields_values = {k: v for k, v in self._fields['fields'].items() if
+                             v['values'] and all([k not in kk[1] if len(kk) > 1 else k not in kk[0] for kk in
+                                                  self.multi_values_field.values()])}
             multi_values_field = {k: {'props': v[0], 'values': []} if isinstance(v[0], dict) else {'values': []} for
                                   k, v in self.multi_values_field.items()}
             for k, v in self._fields['fields'].items():
                 if v['values']:
                     for i_k, i_v in self.multi_values_field.items():
-                        try:
+                        if len(i_v) > 1:
                             i_f = i_v[1]
-                        except IndexError:
+                        else:
                             i_f = i_v[0]
                         if k in i_f:
                             for iii, jjj in enumerate(v['values']):
@@ -246,14 +248,13 @@ class TemplateBase:
                                     v['values'][iii] = {0: v['values'][iii]}
                                     break
                             multi_values_field[i_k]['values'].append({k: v['values']})
-                        else:
-                            fields_values[k] = v
             for v in multi_values_field.values():
                 if v['values']:
                     v['values'] = _get_multi_values(v['values'], force=force)
             multi_values_field = {k: v for k, v in multi_values_field.items() if v['values']}
             fields_values.update(multi_values_field)
         else:
+            fields_values = {}
             multi_values_field = []
             name = []
             for k, v in self._fields['fields'].items():
@@ -364,8 +365,8 @@ class TemplateRoyalty(TemplateBase):
         'Regent': ({'zh': '摄政'}, _re_compile(r'regent'),)
     }
     fields_map.update(TemplateBase.fields_map)
-    # multi_values_field = {
-    #     'Office': ({'zh': '任职信息'}, ['Successor', 'Reign', 'Coronation', 'Predecessor', 'Succession', 'Regent'])}
+    multi_values_field = {
+        'Office': ({'zh': '任职信息'}, ['Successor', 'Reign', 'Coronation', 'Predecessor', 'Succession', 'Regent'])}
 
 
 class TemplateModel(TemplateBase):
@@ -390,7 +391,7 @@ class TemplateMinister(TemplateBase):
         'Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor'),)
     }
     fields_map.update(TemplateBase.fields_map)
-    # multi_values_field = {'Office': ({'zh': '任职信息'}, ['Office', 'Prime Minister', 'Term Start', 'Predecessor'])}
+    multi_values_field = {'Office': ({'zh': '任职信息'}, ['Office', 'Prime Minister', 'Term Start', 'Predecessor'])}
 
 
 class TemplateOfficeholder(TemplateBase):
@@ -421,6 +422,9 @@ class TemplateOfficeholder(TemplateBase):
         'Appointed': ({'zh': '任职日期'}, _re_compile(r'appointed'),),
     }
     fields_map.update(TemplateBase.fields_map)
+    multi_values_field = {'Office': ({'zh': '任职信息'},
+                                     ['Office', 'Deputy', 'Term Start', 'Term End', 'Predecessor', 'Successor',
+                                      'Prime Minister', 'President', 'Governor', 'Leader'])}
 
 
 class TemplateFootballPlayer(TemplateBase):
@@ -451,6 +455,14 @@ class TemplateFootballPlayer(TemplateBase):
         'Manager Years': ({'zh': '管理俱乐部年份'}, _re_compile(r'manager.*?years?'),),
     }
     fields_map.update(TemplateBase.fields_map)
+    multi_values_field = {'Clubs': ({'zh': '服役俱乐部'}, ['Years', 'Clubs', 'Caps', 'Goals', 'Caps(Goals)']),
+                          'National Team': (
+                              {'zh': '服役国家队'}, ['National Years', 'National Team', 'National Caps', 'National Goals',
+                                                'National Caps(Goals)']),
+                          'Youth Clubs': ({'zh': '服役青年俱乐部'},
+                                          ['Youth Clubs', 'Youth Years', 'Youth Caps(Goals)', 'Youth Caps',
+                                           'Youth Goals']),
+                          'Manager Clubs': ({'zh': '管理俱乐部'}, ['Manager Clubs', 'Manager Years'])}
 
 
 class TemplateFootballOfficial(TemplateBase):
@@ -463,6 +475,8 @@ class TemplateFootballOfficial(TemplateBase):
         'International Role': (_re_compile(r'international.*?roles?'),)
     }
     fields_map.update(TemplateBase.fields_map)
+    multi_values_field = {'Office': ({'zh': '任职信息'},
+                                     ['League', 'Role', 'International Years', 'Confederation', 'International Role'])}
 
 
 class TemplateAdultBiography(TemplateBase):
@@ -523,6 +537,8 @@ class TemplateVicePresident(TemplateBase):
         'Predecessor': (_re_compile(r'predecessor'),)
     }
     fields_map.update(TemplateBase.fields_map)
+    multi_values_field = {'Office': ({'zh': '任职信息'},
+                                     ['Term Start', 'Term End', 'Successor', 'President', 'Predecessor'])}
 
 
 class TemplateSwimmer(TemplateBase):
@@ -560,6 +576,9 @@ class TemplatePrimeMinister(TemplateBase):
         'Governor': (_re_compile(r'governor|governor.*?general'),),
     }
     fields_map.update(TemplateBase.fields_map)
+    multi_values_field = {'Office': ({'zh': '任职信息'},
+                                     ['Office', 'Deputy', 'Term Start', 'Term End', 'Predecessor', 'Successor',
+                                      'Prime Minister', 'Leader'])}
 
 
 class TemplateMP(TemplateBase):
@@ -578,6 +597,9 @@ class TemplateMP(TemplateBase):
         'President': (_re_compile(r'president'),),
     }
     fields_map.update(TemplateBase.fields_map)
+    multi_values_field = {'Office': ({'zh': '任职信息'},
+                                     ['Office', 'Deputy', 'Term Start', 'Term End', 'Predecessor', 'Successor',
+                                      'Prime Minister', 'President'])}
 
 
 _TEMPLATE_MAP = {
