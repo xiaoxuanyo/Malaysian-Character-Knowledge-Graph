@@ -48,9 +48,9 @@ class KnowledgeGraph:
 if __name__ == '__main__':
     graph = KnowledgeGraph("http://localhost:7474", username="neo4j", password="XXX981110")
     with open('../ms_wiki_data/ps.json', 'r', encoding='utf-8') as f:
-        data = json.load(f)
+        j_data = json.load(f)
 
-    for i in tqdm(data.values(), '正在构建知识图谱...'):
+    for i in tqdm(j_data.values(), '正在构建知识图谱...'):
         if i.get('info'):
             for k, v in i['info'].items():
                 tem = TEMPLATE_MAP.get(k.lower().strip())

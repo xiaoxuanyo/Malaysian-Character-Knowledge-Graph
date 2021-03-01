@@ -271,9 +271,9 @@ class TemplateBase:
             if multi_values_field:
                 _console_log.logger.info(name)
                 if multi_dict is not None:
-                    if len(name) > multi_dict[self.template_name]['len']:
-                        multi_dict[self.template_name]['fields'] = name
-                        multi_dict[self.template_name]['len'] = len(name)
+                    for jj in name:
+                        if jj not in multi_dict[self.template_name]:
+                            multi_dict[self.template_name].append(jj)
                 fields_values.update({'Other Info': {'props': {'zh': '其他信息'},
                                                      'values': _get_multi_values(multi_values_field, force=force)}})
         self._fields['fields'] = fields_values
@@ -366,7 +366,8 @@ class TemplateRoyalty(TemplateBase):
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
-        'Office': ({'zh': '任职信息'}, ['Successor', 'Reign', 'Coronation', 'Predecessor', 'Succession', 'Regent'])}
+        'Office': ({'zh': '任职信息'}, ['Successor', 'Reign', 'Coronation', 'Predecessor', 'Succession', 'Regent']),
+        'Native Name': ({'zh': '本地名字'}, ['Native Name'])}
 
 
 class TemplateModel(TemplateBase):
@@ -424,7 +425,9 @@ class TemplateOfficeholder(TemplateBase):
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {'Office': ({'zh': '任职信息'},
                                      ['Office', 'Deputy', 'Term Start', 'Term End', 'Predecessor', 'Successor',
-                                      'Prime Minister', 'President', 'Governor', 'Leader'])}
+                                      'Prime Minister', 'President', 'Governor', 'Alongside', 'Minister', 'Appointer',
+                                      'Term', 'Chancellor', 'Leader', 'Lieutenant', 'Vice President', 'Nominator',
+                                      'Appointed'])}
 
 
 class TemplateFootballPlayer(TemplateBase):
@@ -577,8 +580,8 @@ class TemplatePrimeMinister(TemplateBase):
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {'Office': ({'zh': '任职信息'},
-                                     ['Office', 'Deputy', 'Term Start', 'Term End', 'Predecessor', 'Successor',
-                                      'Prime Minister', 'Leader'])}
+                                     ['Deputy', 'Term Start', 'Term End', 'Predecessor', 'Successor', 'President',
+                                      'Prime Minister', 'Office', 'Leader'])}
 
 
 class TemplateMP(TemplateBase):
@@ -598,8 +601,8 @@ class TemplateMP(TemplateBase):
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {'Office': ({'zh': '任职信息'},
-                                     ['Office', 'Deputy', 'Term Start', 'Term End', 'Predecessor', 'Successor',
-                                      'Prime Minister', 'President'])}
+                                     ['Office', 'Term Start', 'Term End', 'Predecessor', 'Successor', 'Minister',
+                                      'Deputy', 'Prime Minister', 'President'])}
 
 
 _TEMPLATE_MAP = {
@@ -626,55 +629,33 @@ _TEMPLATE_MAP = {
 
 TEMPLATE_MAP = {i: k for k, v in _TEMPLATE_MAP.items() for i in v}
 
-MULTI_DICT = {i.template_name: {'len': 0} for i in _TEMPLATE_MAP.keys()}
+MULTI_DICT = {i.template_name: [] for i in _TEMPLATE_MAP.keys()}
 
 if __name__ == '__main__':
     value = {
-        "Name": "Mario Gómez",
-        "Full name": "Roberto Carlos Mario Gómez",
-        "Position": "[[Pertahanan (bola sepak)|Pertahanan]]",
-        "Club 1 years": "1979",
-        "Club 1": "[[Club Atlético Temperley|Temperley]]",
-        "Club 1 appearances": "10",
-        "Club 1 goals": "0",
-        "Club 2 years": "1980–1987",
-        "Club 2": "[[Ferro Carril Oeste]]",
-        "Club 2 appearances": "135",
-        "Club 2 goals": "3",
-        "Manager club 1 years": "1997–1999",
-        "Manager club 1": "[[Club Atlético Lanús|Lanús]]",
-        "Manager club 2 years": "1999",
-        "Manager club 2": "[[RCD Mallorca|Mallorca]]",
-        "Manager club 3 years": "2004",
-        "Manager club 3": "[[Club de Gimnasia y Esgrima La Plata|Gimnasia La Plata]]",
-        "Manager club 4 years": "2004–2006",
-        "Manager club 4": "[[Gimnasia y Esgrima de Jujuy|Gimnasia Jujuy]]",
-        "Manager club 5 years": "2006",
-        "Manager club 5": "[[Quilmes Atlético Club|Quilmes]]",
-        "Manager club 6 years": "2006–2007",
-        "Manager club 6": "[[Gimnasia y Esgrima de Jujuy|Gimnasia Jujuy]]",
-        "Manager club 7 years": "2007",
-        "Manager club 7": "[[Club Atlético Belgrano]]",
-        "Manager club 8 years": "2009",
-        "Manager club 8": "[[Asteras Tripolis]]",
-        "Manager club 9 years": "2010",
-        "Manager club 9": "[[Club Atlético Tucumán]]",
-        "Manager club 10 years": "2011–2012",
-        "Manager club 10": "[[Ferro Carril Oeste]]",
-        "managerclubs11": "[[Gimnasia y Esgrima de Jujuy|Gimnasia Jujuy]]",
-        "managerclubs12": "[[Deportivo Cuenca]]",
-        "managerclubs13": "[[South China AA|South China]]",
-        "managerclubs14": "[[Johor Darul Ta'zim F.C.]]",
-        "manageryears11": "2012–2013",
-        "manageryears12": "2014",
-        "manageryears13": "2014–2015",
-        "manageryears14": "2015–2017",
-        "fullname": "Roberto Carlos Mario Gómez",
-        "dateofbirth": "{{birth date and age|1957|2|27 }}",
-        "cityofbirth": "[[Mar del Plata]],",
-        "countryofbirth": "[[Argentina]]",
-        "pcupdate": "10:13, 4 April 2017 (UTC)",
-        "ntupdate": "10:13, 4 April 2017 (UTC)~"
+        "honorific-prefix": "[[Yang Berhormat]]",
+        "honorific-suffix": "[[MP]]",
+        "name": "Goh Chok Tong <br /> 吴作栋",
+        "image": "Goh Chok Tong.jpg",
+        "office": "[[Menteri Kanan]]",
+        "term_start": "12 Ogos 2004",
+        "term_end": "21 Mei 2011",
+        "primeminister": "[[Lee Hsien Loong]]",
+        "predecessor": "[[Lee Kuan Yew]]",
+        "order2": "[[Perdana Menteri Singapura]] kedua",
+        "term_start2": "28 November 1990",
+        "term_end2": "12 Ogos 2004",
+        "president2": "[[Wee Kim Wee]]<br /> [[Ong Teng Cheong]]<br /> [[Sellapan Ramanathan]]",
+        "deputy2": "[[Lee Hsien Loong]] dan [[Tony Tan Keng Yam]] (1995 hingga 2004)<br />[[Ong Teng Cheong]] (1990 hingga 1993)",
+        "predecessor2": "[[Lee Kuan Yew]]",
+        "successor2": "[[Lee Hsien Loong]]",
+        "birth_date": "{{birth date and age|1941|5|20}}",
+        "birth_place": "[[Singapura]]",
+        "spouse": "[[Tan Choo Leng]]",
+        "constituency": "[[Marine Parade Group Representation Constituency]] ([[Marine Parade]])",
+        "party": "[[Parti Tindakan Rakyat]]",
+        "languagesspoken": "[[bahasa Inggeris|Inggeris]], [[bahasa Cina|Cina]] dan [[bahasa Melayu|Melayu]]"
     }
-    tem = TemplateFootballPlayer(value, 'Test')
+    tem = TemplatePrimeMinister(value, 'Test')
     print(tem.fields)
+    print(tem.graph_entities)
