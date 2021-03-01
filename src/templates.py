@@ -107,6 +107,9 @@ class QueryEngine:
         return ps.filter_templates(matches=matches)
 
 
+TEST = {'test': []}
+
+
 class TemplateBase:
     template_name = 'Base'
     multi_len = 0
@@ -133,7 +136,7 @@ class TemplateBase:
         'Death Date': ({'zh': '死亡日期'}, _re_compile(r'death.*?date|date.*?death'),),
         'Death Place': ({'zh': '死亡时间'}, _re_compile(r'death.*?place|place.*?death'),),
         'Burial Place': ({'zh': '埋葬地点'}, _re_compile(r'resting.*?place|burial.*?place'),),
-        'Spouse': ({'zh': '伴侣'}, ['spouse', 'pasangan'],),
+        'Spouse': ({'zh': '伴侣'}, ['spouse', 'pasangan', 'spouses'],),
         'Parents': ({'zh': '父母'}, ['parents'],),
         'Children': ({'zh': '孩子'}, ['children', 'issue'],),
         'Gender': ({'zh': '性别'}, ['gender'],),
@@ -155,12 +158,16 @@ class TemplateBase:
         'Family': ({'zh': '家庭'}, ['family'],),
         'Ethnicity': ({'zh': '种族'}, ['ethnicity', 'ethnic'],),
         'Subject': ({'zh': '学科'}, ['subject', 'discipline'],),
-        'Works': ({'zh': '作品'}, ['works'],),
+        'Works': ({'zh': '作品'}, ['works', 'associated_acts', 'associated acts', 'associatedacts', 'associated-acts'],
+                  _re_compile(r'notable.*?works?')),
         'Net Worth': ({'zh': '净值'}, _re_compile(r'net.*?worth'),),
-        'Awards': ({'zh': '奖项'}, _re_compile(r'awards?', mode='e'),),
+        'Awards': ({'zh': '奖项'}, ['prizes'], _re_compile(r'awards?', mode='e'),),
         'Projects': ({'zh': '项目'}, _re_compile(r'projects?', mode='e'),),
-        'Institutions': ({'zh': '机构'}, ['agency'], _re_compile(r'institutions?')),
-        'School': ({'zh': '学校'}, ['school'],)
+        'Institutions': ({'zh': '机构'}, ['agency'], _re_compile(r'institutions?|work.*?institutions?')),
+        'School': ({'zh': '学校'}, ['school'],),
+        'Hair Color': ({'zh': '发色'}, ['haircolour'], _re_compile(r'hair.*?color')),
+        'Eye Color': ({'zh': '眼睛颜色'}, ['eyecolour'], _re_compile(r'eye.*?color')),
+        'Measurements': ({'zh': '三围'}, ['measurements'],),
     }
     multi_values_field = None
 
@@ -284,7 +291,17 @@ class TemplateBase:
         p_t = p_t.filter(recursive=False)
         for i, j in enumerate(p_t):
             if isinstance(j, mwp.wikicode.Template):
-                values = [str(k.value) for k in j.params if _is_int(str(k.name))]
+                values = []
+                for k in j.params:
+
+                    # if not _is_int(str(k.name)):
+                    #     if str(k.name).strip() not in TEST['test']:
+                    #         TEST['test'].append(str(k.name).strip())
+
+                    if _is_int(str(k.name)):
+                        values.append(str(k.value))
+                    elif str(k.name) in ['m', 'end', 'reason', 'award', 'ft', 'in', 'meter', 'meters', 'cm']:
+                        values.append(f'({str(k.name)}: {str(k.value)})')
                 p_t[i] = mwp.parse('-'.join(values))
             elif isinstance(j, mwp.wikicode.ExternalLink):
                 p_t[i] = j.url
@@ -346,7 +363,6 @@ class TemplateChineseActorSinger(TemplateBase):
         'Notable Role': ({'zh': '著名角色'}, _re_compile(r'notable.*?roles?'),),
         'Associated Artists': (
             {'zh': '相关艺术家'}, ['associatedact', 'associated act', 'associated_act', 'associated-act'],),
-        'Related Works': ({'zh': '相关作品'}, ['associated_acts', 'associated acts', 'associatedacts', 'associated-acts'],),
         'Current Members': ({'zh': '现有成员'}, _re_compile(r'current.*?members?'),),
         'Past Members': ({'zh': '过去成员'}, _re_compile(r'past.*?members?'),),
         'English Name': ({'zh': '英文名'}, _re_compile(r'nama.*?inggeris'),)
@@ -373,11 +389,8 @@ class TemplateRoyalty(TemplateBase):
 class TemplateModel(TemplateBase):
     template_name = 'Model'
     fields_map = {
-        'Hair Color': ({'zh': '发色'}, ['haircolour'], _re_compile(r'hair.*?color')),
-        'Eye Color': ({'zh': '眼睛颜色'}, ['eyecolour'], _re_compile(r'eye.*?color')),
         'Dress Size': ({'zh': '服装尺码'}, _re_compile(r'dress.*?size'),),
         'Shoe Size': ({'zh': '鞋子尺码'}, _re_compile(r'shoe.*?size'),),
-        'Measurements': ({'zh': '三围'}, ['measurements'],),
     }
     fields_map.update(TemplateBase.fields_map)
 
@@ -385,7 +398,7 @@ class TemplateModel(TemplateBase):
 class TemplateMinister(TemplateBase):
     template_name = 'Minister'
     fields_map = {
-        'Office': ({'zh': '职位'}, _re_compile(r'office'),),
+        'Office': ({'zh': '职位'}, _re_compile(r'office|order'),),
         'Prime Minister': ({'zh': '总理'}, _re_compile(r'prime.*?minister'),),
         'Party': ({'zh': '政党'}, ['party'],),
         'Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
@@ -398,7 +411,11 @@ class TemplateMinister(TemplateBase):
 class TemplateOfficeholder(TemplateBase):
     template_name = 'Officeholder'
     fields_map = {
-        'Office': ({'zh': '职位'}, _re_compile(r'office'),),
+        'Office': ({'zh': '职位'}, _re_compile(r'office|order'),),
+        'Monarch': ({'zh': '君主'}, _re_compile(r'monarch')),
+        'Majority': ({'zh': '多数'}, _re_compile(r'majority')),
+        'Assembly': ({'zh': '议会'}, _re_compile(r'assembly')),
+        'State': ({'zh': '州'}, ['state']),
         'Deputy': ({'zh': '副职'}, _re_compile(r'deputy'),),
         'Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
         'Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
@@ -427,7 +444,7 @@ class TemplateOfficeholder(TemplateBase):
                                      ['Office', 'Deputy', 'Term Start', 'Term End', 'Predecessor', 'Successor',
                                       'Prime Minister', 'President', 'Governor', 'Alongside', 'Minister', 'Appointer',
                                       'Term', 'Chancellor', 'Leader', 'Lieutenant', 'Vice President', 'Nominator',
-                                      'Appointed'])}
+                                      'Appointed', 'Monarch', 'Majority', 'Assembly', 'State'])}
 
 
 class TemplateFootballPlayer(TemplateBase):
@@ -471,11 +488,11 @@ class TemplateFootballPlayer(TemplateBase):
 class TemplateFootballOfficial(TemplateBase):
     template_name = 'Football Official'
     fields_map = {
-        'League': (_re_compile(r'league'),),
-        'Role': (_re_compile(r'roles?'),),
-        'International Years': (_re_compile(r'international.*?years'),),
-        'Confederation': (_re_compile(r'confederation'),),
-        'International Role': (_re_compile(r'international.*?roles?'),)
+        'League': ({'zh': '联盟'}, _re_compile(r'league'),),
+        'Role': ({'zh': '角色'}, _re_compile(r'roles?'),),
+        'International Years': ({'zh': '国际年份'}, _re_compile(r'international.*?years'),),
+        'International League': ({'zh': '国际联盟'}, _re_compile(r'confederation'),),
+        'International Role': ({'zh': '国际角色'}, _re_compile(r'international.*?roles?'),)
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {'Office': ({'zh': '任职信息'},
@@ -485,12 +502,9 @@ class TemplateFootballOfficial(TemplateBase):
 class TemplateAdultBiography(TemplateBase):
     template_name = 'Adult Biography'
     fields_map = {
-        'Number Films': (_re_compile(r'number.*?of.*?films'),),
-        'Hair Color': (['haircolour'], _re_compile(r'hair.*?color')),
-        'Eye Color': (['eyecolour'], _re_compile(r'eye.*?color')),
-        'Orientation': (['orientation'],),
-        'Measurements': (['measurements'],),
-        'Films': (['films', 'film'],)
+        'Number Films': ({'zh': '电影数目'}, _re_compile(r'number.*?of.*?films'),),
+        'Orientation': ({'zh': '性取向'}, ['orientation'],),
+        'Films': ({'zh': '电影'}, ['films', 'film'],)
     }
     fields_map.update(TemplateBase.fields_map)
 
@@ -498,19 +512,15 @@ class TemplateAdultBiography(TemplateBase):
 class TemplateActor(TemplateBase):
     template_name = 'Actor'
     fields_map = {
-        'Medium': (['medium'],),
-        'Instagram': (['instagram'],),
-        'Voice Type': (_re_compile(r'voice.*?type'),),
-        'Traditional Chinese Name': (['tradchinesename'],),
-        'Simplified Chinese Name': (['simpchinesename'],),
-        'Chinese Name': (_re_compile(r'chinese.*?name'),),
-        'Pinyin Chines Name': (['pinyinchinesename'],),
-        'Agent': (['agent'],),
-        'Notable Work': (_re_compile(r'notable.*?works?'),),
-        'Instrument': (['instrument'],),
-        'Television': (['television'],),
-        'Profession': (['profession'],),
-        'Notable Role': (['credits'], _re_compile(r'notable.*?roles?'),),
+        'Voice Type': ({'zh': '声音类型'}, _re_compile(r'voice.*?type'),),
+        'Traditional Chinese Name': ({'zh': '繁体名字'}, ['tradchinesename'],),
+        'Simplified Chinese Name': ({'zh': '简体名字'}, ['simpchinesename'],),
+        'Chinese Name': ({'zh': '中文名'}, _re_compile(r'chinese.*?name'),),
+        'Pinyin Chines Name': ({'zh': '名字拼音'}, ['pinyinchinesename'],),
+        'Agent': ({'zh': '经纪人'}, ['agent'],),
+        'Instrument': ({'zh': '乐器'}, ['instrument'],),
+        'Television': ({'zh': '电视节目'}, ['television'],),
+        'Notable Role': ({'zh': '著名角色'}, ['credits'], _re_compile(r'notable.*?roles?'),),
     }
     fields_map.update(TemplateBase.fields_map)
 
@@ -518,13 +528,12 @@ class TemplateActor(TemplateBase):
 class TemplateWarDetainee(TemplateBase):
     template_name = 'War Detainee'
     fields_map = {
-        'Arrest Place': (_re_compile(r'arrest.*?place|place.*?arrest'),),
-        'Arrest Date': (_re_compile(r'arrest.*?date|date.*?arrest'),),
-        'Arresting Authority': (_re_compile(r'arresting.*?authority'),),
-        'Detained At': (_re_compile(r'detained.*?at'),),
-        'Charge': (['charge'],),
-        'Id Number': (_re_compile(r'id.*?number'),),
-        'Status': (['status'],)
+        'Arrest Place': ({'zh': '逮捕地点'}, _re_compile(r'arrest.*?place|place.*?arrest'),),
+        'Arrest Date': ({'zh': '逮捕日期'}, _re_compile(r'arrest.*?date|date.*?arrest'),),
+        'Arresting Authority': ({'zh': '逮捕机关'}, _re_compile(r'arresting.*?authority'),),
+        'Detained At': ({'zh': '拘留处'}, _re_compile(r'detained.*?at'),),
+        'Charge': ({'zh': '指控'}, ['charge'],),
+        'Status': ({'zh': '状态'}, ['status'],)
     }
     fields_map.update(TemplateBase.fields_map)
 
@@ -532,12 +541,11 @@ class TemplateWarDetainee(TemplateBase):
 class TemplateVicePresident(TemplateBase):
     template_name = 'Vice President'
     fields_map = {
-        'Term Start': (_re_compile(r'term.*?start'),),
-        'Term End': (_re_compile(r'term.*?end'),),
-        'Successor': (_re_compile(r'successor|succeeded|succeeding'),),
-        'President': (_re_compile(r'president'),),
-        'Profession': (['profession'],),
-        'Predecessor': (_re_compile(r'predecessor'),)
+        'Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
+        'Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
+        'Successor': ({'zh': '后任'}, _re_compile(r'successor|succeeded|succeeding'),),
+        'President': ({'zh': '总统'}, _re_compile(r'president'),),
+        'Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor'),)
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {'Office': ({'zh': '任职信息'},
@@ -547,9 +555,9 @@ class TemplateVicePresident(TemplateBase):
 class TemplateSwimmer(TemplateBase):
     template_name = 'Swimmer'
     fields_map = {
-        'Medal': (_re_compile(r'medal.*?templates?'),),
-        'National Team': (_re_compile(r'national.*?teams?'),),
-        'Coach': (['coach'],)
+        'Medal': ({'zh': '奖牌'}, _re_compile(r'medal.*?templates?'),),
+        'National Team': ({'zh': '国家队'}, _re_compile(r'national.*?teams?'),),
+        'Coach': ({'zh': '教练'}, ['coach'],)
     }
     fields_map.update(TemplateBase.fields_map)
 
@@ -557,9 +565,9 @@ class TemplateSwimmer(TemplateBase):
 class TemplateIndonesiaArtist(TemplateBase):
     template_name = 'Indonesia Artist'
     fields_map = {
-        'Instrument': (['instrument', 'instruments'],),
-        'Influenced': (['influenced', 'influences'],),
-        'Record Company': (['label'],),
+        'Instrument': ({'zh': '乐器'}, ['instrument', 'instruments'],),
+        'Influenced': ({'zh': '影响'}, ['influenced', 'influences'],),
+        'Record Company': ({'zh': '唱片公司'}, ['label'],),
     }
     fields_map.update(TemplateBase.fields_map)
 
@@ -567,42 +575,106 @@ class TemplateIndonesiaArtist(TemplateBase):
 class TemplatePrimeMinister(TemplateBase):
     template_name = 'Prime Minister'
     fields_map = {
-        'Office': (_re_compile(r'office'),),
-        'Deputy': (_re_compile(r'deputy'),),
-        'Term Start': (_re_compile(r'term.*?start'),),
-        'Term End': (_re_compile(r'term.*?end'),),
-        'Predecessor': (_re_compile(r'predecessor'),),
-        'Successor': (_re_compile(r'successor|succeeded|succeeding'),),
-        'Prime Minister': (_re_compile(r'prime.*?minister'),),
-        'President': (_re_compile(r'president'),),
-        'Profession': (['profession'],),
-        'Governor': (_re_compile(r'governor|governor.*?general'),),
+        'Office': ({'zh': '职位'}, _re_compile(r'office|order'),),
+        'Monarch': ({'zh': '君主'}, _re_compile(r'monarch')),
+        'Deputy': ({'zh': '副职'}, _re_compile(r'deputy'),),
+        'Assembly': ({'zh': '议会'}, _re_compile(r'assembly')),
+        'Majority': ({'zh': '多数'}, _re_compile(r'majority')),
+        'Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
+        'Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
+        'Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor'),),
+        'Successor': ({'zh': '后任'}, _re_compile(r'successor|succeeded|succeeding'),),
+        'Prime Minister': ({'zh': '总理'}, _re_compile(r'prime.*?minister'),),
+        'President': ({'zh': '总统'}, _re_compile(r'president'),),
+        'Governor': ({'zh': '总督'}, _re_compile(r'governor|governor.*?general'),),
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {'Office': ({'zh': '任职信息'},
                                      ['Deputy', 'Term Start', 'Term End', 'Predecessor', 'Successor', 'President',
-                                      'Prime Minister', 'Office', 'Leader'])}
+                                      'Prime Minister', 'Office', 'Leader', 'Monarch', 'Majority', 'Assembly'])}
 
 
 class TemplateMP(TemplateBase):
     template_name = 'Member of Parliament'
     fields_map = {
-        'Office': (_re_compile(r'office'),),
-        'Deputy': (_re_compile(r'deputy'),),
-        'Term Start': (_re_compile(r'term.*?start'),),
-        'Term End': (_re_compile(r'term.*?end'),),
-        'Predecessor': (_re_compile(r'predecessor'),),
-        'Successor': (_re_compile(r'successor|succeeded|succeeding'),),
-        'Prime Minister': (_re_compile(r'prime.*?minister'),),
-        'Pronunciation': (['pronunciation'],),
-        'Profession': (['profession'],),
-        'Minister': (_re_compile(r'minister'),),
-        'President': (_re_compile(r'president'),),
+        'Office': ({'zh': '职位'}, _re_compile(r'office|order'),),
+        'Monarch': ({'zh': '君主'}, _re_compile(r'monarch')),
+        'Majority': ({'zh': '多数'}, _re_compile(r'majority')),
+        'Deputy': ({'zh': '副职'}, _re_compile(r'deputy'),),
+        'Assembly': ({'zh': '议会'}, _re_compile(r'assembly')),
+        'Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
+        'Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
+        'Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor'),),
+        'Successor': ({'zh': '后任'}, _re_compile(r'successor|succeeded|succeeding'),),
+        'Prime Minister': ({'zh': '总理'}, _re_compile(r'prime.*?minister'),),
+        'Pronunciation': ({'zh': '发音'}, ['pronunciation'],),
+        'Minister': ({'zh': '部长'}, _re_compile(r'minister'),),
+        'President': ({'zh': '总统'}, _re_compile(r'president'),),
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {'Office': ({'zh': '任职信息'},
                                      ['Office', 'Term Start', 'Term End', 'Predecessor', 'Successor', 'Minister',
-                                      'Deputy', 'Prime Minister', 'President'])}
+                                      'Deputy', 'Prime Minister', 'President', 'Monarch', 'Majority', 'Assembly'])}
+
+
+class TemplateScientist(TemplateBase):
+    template_name = 'Scientist'
+    fields_map = {
+        'Workplace': ({'zh': '工作地'}, _re_compile(r'work.*?places?')),
+        'Thesis Year': ({'zh': '论文年份'}, _re_compile(r'thesis.*?years?')),
+        'Thesis Title': ({'zh': '论文标题'}, _re_compile(r'thesis.*?titles?')),
+        'Thesis Url': ({'zh': '论文链接'}, _re_compile(r'thesis.*?urls?')),
+        'Fields': ({'zh': '领域'}, ['field', 'fields']),
+        'Academic Advisors': ({'zh': '学术顾问'}, _re_compile(r'academic.*?advisors?')),
+        'Doctoral Advisors': ({'zh': '博士生导师'}, _re_compile(r'doctoral.*?advisors?')),
+        'Influenced': ({'zh': '影响'}, ['influenced', 'influences'],),
+        'Boards': ({'zh': '董事会'}, ['boards']),
+        'Doctoral Students': ({'zh': '博士生'}, _re_compile(r'doctoral.*?students?')),
+        'Notable Students': ({'zh': '著名学生'}, _re_compile(r'notable.*?students?'))
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateEconomist(TemplateBase):
+    template_name = 'Economist'
+    fields_map = {
+        'Fields': ({'zh': '领域'}, ['field', 'fields']),
+        'Contributions': ({'zh': '贡献'}, ['contributions', 'contribution']),
+        'Influenced': ({'zh': '影响'}, ['influenced', 'influences'],),
+        'Doctoral Students': ({'zh': '博士生'}, _re_compile(r'doctoral.*?students?')),
+        'Doctoral Advisors': ({'zh': '博士生导师'}, _re_compile(r'doctoral.*?advisors?')),
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateGovernor(TemplateBase):
+    template_name = 'Governor'
+    fields_map = {
+        'Deputy': ({'zh': '副职'}, _re_compile(r'deputy'),),
+        'Monarch': ({'zh': '君主'}, _re_compile(r'monarch')),
+        'Lieutenant': ({'zh': '中尉'}, _re_compile(r'lieutenant'),),
+        'Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor')),
+        'Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
+        'Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
+        'Vice Governor': ({'zh': '副总督'}, _re_compile(r'vice.*?governor')),
+        'Party': ({'zh': '政党'}, ['party'],),
+        'Office': ({'zh': '职位'}, _re_compile(r'office|order'),),
+        'Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor'),),
+        'President': ({'zh': '总统'}, _re_compile(r'president'),),
+        'Prime Minister': ({'zh': '总理'}, _re_compile(r'prime.*?minister'),),
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateSenator(TemplateBase):
+    template_name = 'Senator'
+    fields_map = {
+        'State': ({'zh': '州'}, ['state']),
+        'Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
+        'Successor': ({'zh': '后任'}, _re_compile(r'successor|succeeded|succeeding'),),
+    }
+    fields_map.update(TemplateBase.fields_map)
+    multi_values_field = {'Office': ({'zh': '任职信息'}, ['State', 'Term Start', 'Successor'])}
 
 
 _TEMPLATE_MAP = {
@@ -613,7 +685,7 @@ _TEMPLATE_MAP = {
     TemplateRoyalty: ['infobox royalty', 'infobox diraja'],
     TemplateModel: ['infobox model'],
     TemplateMinister: ['infobox minister'],
-    TemplateOfficeholder: ['infobox officeholder'],
+    TemplateOfficeholder: ['infobox officeholder', 'infobox_officeholder'],
     TemplateFootballPlayer: ['infobox football biography', 'pemain bola infobox', 'football player infobox',
                              'infobox football biography 2'],
     TemplateFootballOfficial: ['infobox football official'],
@@ -624,7 +696,11 @@ _TEMPLATE_MAP = {
     TemplateSwimmer: ['infobox swimmer'],
     TemplateIndonesiaArtist: ['infobox artis indonesia'],
     TemplatePrimeMinister: ['infobox_prime minister', 'infobox prime minister'],
-    TemplateMP: ['infobox mp']
+    TemplateMP: ['infobox mp'],
+    TemplateScientist: ['infobox ahli sains', 'infobox_scientist', 'infobox scientist'],
+    TemplateEconomist: ['infobox economist'],
+    TemplateGovernor: ['infobox governor general', 'infobox governor'],
+    TemplateSenator: ['infobox senator']
 }
 
 TEMPLATE_MAP = {i: k for k, v in _TEMPLATE_MAP.items() for i in v}
@@ -634,28 +710,47 @@ MULTI_DICT = {i.template_name: [] for i in _TEMPLATE_MAP.keys()}
 if __name__ == '__main__':
     value = {
         "honorific-prefix": "[[Yang Berhormat]]",
-        "honorific-suffix": "[[MP]]",
-        "name": "Goh Chok Tong <br /> 吴作栋",
-        "image": "Goh Chok Tong.jpg",
-        "office": "[[Menteri Kanan]]",
-        "term_start": "12 Ogos 2004",
-        "term_end": "21 Mei 2011",
+        "name": "Gan Kim Yong",
+        "native_name": "{{nobold|{{lang|zh-hans|颜金勇}}}}",
+        "native_name_lang": "zh-sg",
+        "honorific_suffix": "[[Parlimen Singapura|MP]]",
+        "image": "Gan Kim Yong at a PCF graduation ceremony - 20081113 (cropped).jpg",
+        "caption": "Gan pada 2013",
+        "order": "[[Kementerian Kesihatan Singapura|Menteri Kesihatan]]",
+        "term_start": "21 Mei 2011",
         "primeminister": "[[Lee Hsien Loong]]",
-        "predecessor": "[[Lee Kuan Yew]]",
-        "order2": "[[Perdana Menteri Singapura]] kedua",
-        "term_start2": "28 November 1990",
-        "term_end2": "12 Ogos 2004",
-        "president2": "[[Wee Kim Wee]]<br /> [[Ong Teng Cheong]]<br /> [[Sellapan Ramanathan]]",
-        "deputy2": "[[Lee Hsien Loong]] dan [[Tony Tan Keng Yam]] (1995 hingga 2004)<br />[[Ong Teng Cheong]] (1990 hingga 1993)",
-        "predecessor2": "[[Lee Kuan Yew]]",
-        "successor2": "[[Lee Hsien Loong]]",
-        "birth_date": "{{birth date and age|1941|5|20}}",
-        "birth_place": "[[Singapura]]",
-        "spouse": "[[Tan Choo Leng]]",
-        "constituency": "[[Marine Parade Group Representation Constituency]] ([[Marine Parade]])",
+        "predecessor": "[[Khaw Boon Wan]]",
+        "order2": "[[Kementerian Tenaga Manusia Singapura|Menteri Tenaga Manusia]]",
+        "term_start2": "1 April 2008",
+        "term_end2": "21 Mei 2011",
+        "primeminister2": "[[Lee Hsien Loong]]",
+        "predecessor2": "[[Ng Eng Hen]]",
+        "successor2": "[[Tharman Shanmugaratnam]]",
+        "order3": "[[Parti Tindakan Rakyat|Pengerusi Parti Tindakan Rakyat]]",
+        "term_start3": "23 November 2018",
+        "deputy3": "[[Masagos Zulkifli]]",
+        "predecessor3": "[[Khaw Boon Wan]]",
+        "constituency_MP4": "[[Kawasan Undi Perwakilan Berkumpulan Chua Chu Kang|Chua Chu Kang GRC]]",
+        "term_start4": "7 Mei 2011",
+        "predecessor4": "Kerusi dibentuk",
+        "constituency_MP5": "[[Kawasan Undi Perwakilan Ahli Perseorangan Chua Chu Kang|Chua Chu Kang SMC]]",
+        "term_start5": "6 Mei 2006",
+        "term_end5": "7 Mei 2011",
+        "predecessor5": "Low Seow Chay",
+        "successor5": "Kerusi dimansuhkan",
+        "constituency_MP6": "[[Kawasan Undi Perwakilan Berkumpulan Holland-Bukit Panjang|Holland-Bukit Panjang GRC]]<br />(Zhenghua)",
+        "term_start6": "25 Oktober 2001",
+        "term_end6": "6 Mei 2006",
+        "predecessor6": "Kerusi dibentuk",
+        "successor6": "[[Liang Eng Hwa]] (GRC Holland-Bukit Timah)",
+        "birth_name": "Gan Kim Yong",
+        "birth_date": "{{birth date and age|df=yes|1959|2|09}}",
+        "birth_place": "[[Koloni Singapura|Singapura]]",
+        "nationality": "[[Singapura]]",
         "party": "[[Parti Tindakan Rakyat]]",
-        "languagesspoken": "[[bahasa Inggeris|Inggeris]], [[bahasa Cina|Cina]] dan [[bahasa Melayu|Melayu]]"
+        "education": "[[Sekolah Tinggi Katolik , Singapura|Sekolah Tinggi Katolik]]<br />[[Maktab Rendah Kebangsaan]]",
+        "alma_mater": "[[Universiti Cambridge]] ([[Bachelor of Arts|BA]], [[Master of Arts|MA]])"
     }
-    tem = TemplatePrimeMinister(value, 'Test')
+    tem = TemplateOfficeholder(value, 'Test')
     print(tem.fields)
-    print(tem.graph_entities)
+    # print(tem.graph_entities)

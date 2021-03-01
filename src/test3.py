@@ -8,7 +8,7 @@ import json
 
 from tqdm import tqdm
 
-from src.templates import TEMPLATE_MAP, MULTI_DICT
+from src.templates import TEMPLATE_MAP, MULTI_DICT, TEST
 from src.utils import LoggerUtil
 import logging
 
@@ -26,3 +26,4 @@ for i in tqdm(data.values(), '正在构建知识图谱...'):
                 template = tem(v, i['title'], multi_dict=MULTI_DICT)
 
 _file_log.logger.info(MULTI_DICT)
+_file_log.logger.info(TEST)
