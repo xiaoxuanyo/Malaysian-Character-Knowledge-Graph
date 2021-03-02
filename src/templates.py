@@ -734,6 +734,16 @@ class TemplateFieldHockeyPlayer(TemplateBase):
                               {'zh': '服役国家队'}, ['National Years', 'National Team', 'National Caps', 'National Goals'])}
 
 
+class TemplateTennisPlayer(TemplateBase):
+    template_name = 'Tennis Player'
+    fields_map = {
+        'Competition': ({'zh': '比赛'}, _re_compile(r'result', mode='e')),
+        'Coach': ({'zh': '教练'}, ['coach']),
+        'Current Doubles Ranking': ({'zh': '目前双打排名'}, _re_compile(r'current.*?double.*?ranking'))
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
 _TEMPLATE_MAP = {
     TemplateMotorcycleRider: ['infobox motorcycle rider'],
     TemplateEngineer: ['infobox engineer'],
