@@ -10,6 +10,12 @@ import mwparserfromhell as mwp
 import pywikibot
 from src.utils import LoggerUtil
 
+"""
+从所有人名词条title中获取Infobox数据并解析成字典格式（只要确保Infobox为字典形式即可），日志信息保存在gen.log
+"""
+
+MATCHES = 'Infobox'
+
 _file_log = LoggerUtil(name='src.gen.file', file_path='../log/gen.log')
 _console_log = LoggerUtil(name='src.gen.console')
 
@@ -26,7 +32,7 @@ for i, j in names.items():
         page = pywikibot.Page(site, j)
         text = page.get(get_redirect=True)
         result = mwp.parse(text)
-        tem = result.filter_templates(matches='Infobox')
+        tem = result.filter_templates(matches=MATCHES)
         data[i]['info'] = {}
         for k in tem:
             r_v = {str(p.name).strip(): str(p.value).strip() for p in k.params if

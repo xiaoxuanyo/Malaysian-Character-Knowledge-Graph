@@ -12,7 +12,7 @@ from src.templates import TEMPLATE_MAP, MULTI_DICT, TEST
 from src.utils import LoggerUtil
 import logging
 
-_file_log = LoggerUtil('test3', file_path='../log/multi_dict.log',
+_file_log = LoggerUtil('src.analyse.file', file_path='../log/analyse.log',
                        level=logging.INFO, mode='w+')
 
 with open('../ms_wiki_data/ps.json', 'r', encoding='utf-8') as f:

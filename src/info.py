@@ -9,6 +9,13 @@ import json
 import mwparserfromhell as mwp
 from src.utils import LoggerUtil
 
+
+"""
+从ps.json数据解析出各个Infobox含有的字段，日志保存在info.log
+"""
+
+MATCHES = 'Infobox'
+
 _log = LoggerUtil(name='src.info.file', file_path='../log/info.log', mode='w+')
 _console_log = LoggerUtil(name='src.info.console')
 
@@ -22,7 +29,7 @@ for i, v in data.items():
         for name, value in v['info'].items():
             try:
                 r = mwp.parse(name)
-                r = r.filter_text(matches='Infobox')
+                r = r.filter_text(matches=MATCHES)
                 r = r[0]
                 tem.add(str(r).strip().lower())
             except IndexError as e:
@@ -36,7 +43,7 @@ for v in data.values():
     if v.get('info'):
         for name, value in v['info'].items():
             r = mwp.parse(name)
-            r = r.filter_text(matches='Infobox')
+            r = r.filter_text(matches=MATCHES)
             if r:
                 r = str(r[0]).strip().lower()
                 for k in value.keys():

@@ -72,7 +72,7 @@ def _get_multi_values(array, force=False):
     return result
 
 
-def _re_compile(s, mode='se'):
+def _re_compile(s, mode='se', split='.*?'):
     assert mode in ['s', 'e', 'se'], f'不支持{mode}'
     _s = r'^'
     _e = r'\s*(?P<e_index{}>\d*)$'
@@ -83,7 +83,7 @@ def _re_compile(s, mode='se'):
     else:
         _p = _s + '{}' + _e
     s = s.split('|')
-    s = [r'\D*?(?P<i_index{}>\d*)\D*?'.join(i.split('.*?')).format(*list(range(j, len(i.split('.*?')) + j)))
+    s = [r'\D*?(?P<i_index{}>\d*)\D*?'.join(i.split(split)).format(*list(range(j, len(i.split(split)) + j)))
          for j, i in enumerate(s)]
     s = '|'.join([_p.format(i, j) for j, i in enumerate(s)])
     return re.compile(r'%s' % s)
@@ -732,16 +732,6 @@ class TemplateFieldHockeyPlayer(TemplateBase):
     multi_values_field = {'Clubs': ({'zh': '服役俱乐部'}, ['Years', 'Clubs', 'Caps', 'Goals']),
                           'National Team': (
                               {'zh': '服役国家队'}, ['National Years', 'National Team', 'National Caps', 'National Goals'])}
-
-
-class TemplateTennisPlayer(TemplateBase):
-    template_name = 'Tennis Player'
-    fields_map = {
-        'Competition': ({'zh': '比赛'}, _re_compile(r'result', mode='e')),
-        'Coach': ({'zh': '教练'}, ['coach']),
-        'Current Doubles Ranking': ({'zh': '目前双打排名'}, _re_compile(r'current.*?double.*?ranking'))
-    }
-    fields_map.update(TemplateBase.fields_map)
 
 
 _TEMPLATE_MAP = {
