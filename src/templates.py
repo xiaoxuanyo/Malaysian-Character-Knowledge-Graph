@@ -112,7 +112,6 @@ TEST = {'test': []}
 
 class TemplateBase:
     template_name = 'Base'
-    multi_len = 0
     fields_map = {
         'Name': ({'zh': '名字'}, ['name', 'nama'],),
         'Alias': ({'zh': '别名'}, ['alias', 'nickname'], _re_compile(r'other.*?names?')),
@@ -736,7 +735,6 @@ class TemplateFieldHockeyPlayer(TemplateBase):
 
 
 class TemplateTennisPlayer(TemplateBase):
-    """ Victoria Azarenka """
     template_name = 'Tennis Player'
     fields_map = {
         'Competition': ({'zh': '比赛'}, _re_compile(r'result', mode='e')),
