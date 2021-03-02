@@ -121,6 +121,7 @@ class TemplateBase:
         'Birth Name': ({'zh': '出生名'}, _re_compile(r'birth.*?names?'),),
         'Birth Date': ({'zh': '出生日期'}, _re_compile(r'birth.*?date|date.*?birth'),),
         'Birth Place': ({'zh': '出生地点'}, ['tempat lahir'], _re_compile(r'birth.*?place|place.*?birth')),
+        'Retirement Date': ({'zh': '退休时间'}, ['retired']),
         'Birth City': ({'zh': '出生城市'}, _re_compile(r'birth.*?city|city.*?birth'),),
         'Birth Country': ({'zh': '出生国家'}, _re_compile(r'birth.*?country|country.*?birth'),),
         'Height': ({'zh': '身高'}, ['height'],),
@@ -164,7 +165,7 @@ class TemplateBase:
         'Awards': ({'zh': '奖项'}, ['prizes'], _re_compile(r'awards?', mode='e'),),
         'Projects': ({'zh': '项目'}, _re_compile(r'projects?', mode='e'),),
         'Institutions': ({'zh': '机构'}, ['agency'], _re_compile(r'institutions?|work.*?institutions?')),
-        'School': ({'zh': '学校'}, ['school'],),
+        'School': ({'zh': '学校'}, ['school', 'college'],),
         'Hair Color': ({'zh': '发色'}, ['haircolour'], _re_compile(r'hair.*?color')),
         'Eye Color': ({'zh': '眼睛颜色'}, ['eyecolour'], _re_compile(r'eye.*?color')),
         'Measurements': ({'zh': '三围'}, ['measurements'],),
@@ -298,7 +299,7 @@ class TemplateBase:
                     #     if str(k.name).strip() not in TEST['test']:
                     #         TEST['test'].append(str(k.name).strip())
 
-                    if _is_int(str(k.name)):
+                    if _is_int(str(k.name)) and str(k.value) not in ['zh-hans']:
                         values.append(str(k.value))
                     elif str(k.name) in ['m', 'end', 'reason', 'award', 'ft', 'in', 'meter', 'meters', 'cm']:
                         values.append(f'({str(k.name)}: {str(k.value)})')
@@ -677,6 +678,47 @@ class TemplateSenator(TemplateBase):
     multi_values_field = {'Office': ({'zh': '任职信息'}, ['State', 'Term Start', 'Successor'])}
 
 
+class TemplateGolfer(TemplateBase):
+    template_name = 'Golfer'
+    fields_map = {
+        'Years': ({'zh': '获奖年份'}, _re_compile(r'years?'))
+    }
+    fields_map.update(TemplateBase.fields_map)
+    multi_values_field = {
+        'Awards': ({'zh': '奖项'}, ['Awards', 'Years'])
+    }
+
+
+class TemplateFieldHockeyPlayer(TemplateBase):
+    template_name = 'Field Hockey Player'
+    fields_map = {
+        'Position': ({'zh': '运动员定位'}, ['position'],),
+        'Years': ({'zh': '服役年份'}, _re_compile(r'years?|club.*?years?'),),
+        'Clubs': ({'zh': '服役俱乐部'}, _re_compile(r'clubs?'),),
+        'Caps': ({'zh': '出场数'}, _re_compile(r'caps?'),),
+        'Goals': ({'zh': '进球数'}, _re_compile(r'goals?'),),
+        'National Years': ({'zh': '国家队服役年份'}, _re_compile(r'national.*?years?'),),
+        'National Team': ({'zh': '国家队'}, _re_compile(r'national.*?teams?'),),
+        'National Caps': ({'zh': '在国家队出场数'}, _re_compile(r'national.*?caps?'),),
+        'National Goals': ({'zh': '在国家队进球数'}, _re_compile(r'national[-_\s]*goals?'),),
+    }
+    fields_map.update(TemplateBase.fields_map)
+    multi_values_field = {'Clubs': ({'zh': '服役俱乐部'}, ['Years', 'Clubs', 'Caps', 'Goals']),
+                          'National Team': (
+                              {'zh': '服役国家队'}, ['National Years', 'National Team', 'National Caps', 'National Goals'])}
+
+
+class TemplateTennisPlayer(TemplateBase):
+    """ Victoria Azarenka """
+    template_name = 'Tennis Player'
+    fields_map = {
+        'Competition': ({'zh': '比赛'}, _re_compile(r'result', mode='e')),
+        'Coach': ({'zh': '教练'}, ['coach']),
+        'Current Doubles Ranking': ({'zh': '目前双打排名'}, _re_compile(r'current.*?double.*?ranking'))
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
 _TEMPLATE_MAP = {
     TemplateMotorcycleRider: ['infobox motorcycle rider'],
     TemplateEngineer: ['infobox engineer'],
@@ -700,7 +742,9 @@ _TEMPLATE_MAP = {
     TemplateScientist: ['infobox ahli sains', 'infobox_scientist', 'infobox scientist'],
     TemplateEconomist: ['infobox economist'],
     TemplateGovernor: ['infobox governor general', 'infobox governor'],
-    TemplateSenator: ['infobox senator']
+    TemplateSenator: ['infobox senator'],
+    TemplateGolfer: ['infobox golfer'],
+    TemplateFieldHockeyPlayer: ['infobox field hockey player']
 }
 
 TEMPLATE_MAP = {i: k for k, v in _TEMPLATE_MAP.items() for i in v}
@@ -709,48 +753,13 @@ MULTI_DICT = {i.template_name: [] for i in _TEMPLATE_MAP.keys()}
 
 if __name__ == '__main__':
     value = {
-        "honorific-prefix": "[[Yang Berhormat]]",
-        "name": "Gan Kim Yong",
-        "native_name": "{{nobold|{{lang|zh-hans|颜金勇}}}}",
-        "native_name_lang": "zh-sg",
-        "honorific_suffix": "[[Parlimen Singapura|MP]]",
-        "image": "Gan Kim Yong at a PCF graduation ceremony - 20081113 (cropped).jpg",
-        "caption": "Gan pada 2013",
-        "order": "[[Kementerian Kesihatan Singapura|Menteri Kesihatan]]",
-        "term_start": "21 Mei 2011",
-        "primeminister": "[[Lee Hsien Loong]]",
-        "predecessor": "[[Khaw Boon Wan]]",
-        "order2": "[[Kementerian Tenaga Manusia Singapura|Menteri Tenaga Manusia]]",
-        "term_start2": "1 April 2008",
-        "term_end2": "21 Mei 2011",
-        "primeminister2": "[[Lee Hsien Loong]]",
-        "predecessor2": "[[Ng Eng Hen]]",
-        "successor2": "[[Tharman Shanmugaratnam]]",
-        "order3": "[[Parti Tindakan Rakyat|Pengerusi Parti Tindakan Rakyat]]",
-        "term_start3": "23 November 2018",
-        "deputy3": "[[Masagos Zulkifli]]",
-        "predecessor3": "[[Khaw Boon Wan]]",
-        "constituency_MP4": "[[Kawasan Undi Perwakilan Berkumpulan Chua Chu Kang|Chua Chu Kang GRC]]",
-        "term_start4": "7 Mei 2011",
-        "predecessor4": "Kerusi dibentuk",
-        "constituency_MP5": "[[Kawasan Undi Perwakilan Ahli Perseorangan Chua Chu Kang|Chua Chu Kang SMC]]",
-        "term_start5": "6 Mei 2006",
-        "term_end5": "7 Mei 2011",
-        "predecessor5": "Low Seow Chay",
-        "successor5": "Kerusi dimansuhkan",
-        "constituency_MP6": "[[Kawasan Undi Perwakilan Berkumpulan Holland-Bukit Panjang|Holland-Bukit Panjang GRC]]<br />(Zhenghua)",
-        "term_start6": "25 Oktober 2001",
-        "term_end6": "6 Mei 2006",
-        "predecessor6": "Kerusi dibentuk",
-        "successor6": "[[Liang Eng Hwa]] (GRC Holland-Bukit Timah)",
-        "birth_name": "Gan Kim Yong",
-        "birth_date": "{{birth date and age|df=yes|1959|2|09}}",
-        "birth_place": "[[Koloni Singapura|Singapura]]",
-        "nationality": "[[Singapura]]",
-        "party": "[[Parti Tindakan Rakyat]]",
-        "education": "[[Sekolah Tinggi Katolik , Singapura|Sekolah Tinggi Katolik]]<br />[[Maktab Rendah Kebangsaan]]",
-        "alma_mater": "[[Universiti Cambridge]] ([[Bachelor of Arts|BA]], [[Master of Arts|MA]])"
+        "name": "Lalit Upadhyay",
+        "birth_date": "{{birth date and age|1993|12|1|df=yes}}",
+        "birth_place": "[[Varanasi]], [[Uttar Pradesh]], [[India]]<ref>{{cite web|title=Hapless victim of a TV sting, this hockey player is now a rising star|url=http://archive.indianexpress.com/news/hapless-victim-of-a-tv-sting-this-hockey-player-is-now-a-rising-star/938634/|publisher=The Indian Express|accessdate=27 July 2016}}</ref>",
+        "position": "Pertahanan",
+        "nationalteam1": "{{nfh|India}}",
+        "updated": "8 Julai 2016"
     }
-    tem = TemplateOfficeholder(value, 'Test')
+    tem = TemplateFieldHockeyPlayer(value, 'Test')
     print(tem.fields)
     # print(tem.graph_entities)
