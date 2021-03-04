@@ -114,14 +114,14 @@ class TemplateBase:
     template_name = 'Base'
     fields_map = {
         'Name': ({'zh': '名字'}, ['name', 'nama'],),
-        'Alias': ({'zh': '别名'}, ['alias', 'nickname'], _re_compile(r'other.*?names?')),
+        'Alias': ({'zh': '别名'}, ['alias', 'nickname', 'hangul'], _re_compile(r'other.*?names?|real.*?name')),
         'Native Name': ({'zh': '本地名字'}, _re_compile(r'native.*?names?'),),
         'Birth': ({'zh': '出生信息'}, ['birth', 'born'],),
         'Death': ({'zh': '死亡信息'}, ['died']),
         'Birth Name': ({'zh': '出生名'}, _re_compile(r'birth.*?names?'),),
         'Birth Date': ({'zh': '出生日期'}, _re_compile(r'birth.*?date|date.*?birth'),),
         'Birth Place': ({'zh': '出生地点'}, ['tempat lahir'], _re_compile(r'birth.*?place|place.*?birth')),
-        'Retirement Date': ({'zh': '退休时间'}, ['retired']),
+        'Retirement Date': ({'zh': '退休时间'}, ['retired'], _re_compile(r'date.*?ret')),
         'Birth City': ({'zh': '出生城市'}, _re_compile(r'birth.*?city|city.*?birth'),),
         'Birth Country': ({'zh': '出生国家'}, _re_compile(r'birth.*?country|country.*?birth'),),
         'Height': ({'zh': '身高'}, ['height'],),
@@ -132,8 +132,8 @@ class TemplateBase:
         'Religion': ({'zh': '宗教'}, ['religion', 'agama'],),
         'Education': ({'zh': '教育'}, ['education', 'pendidikan'],),
         'Occupation': ({'zh': '职业'}, ['occupation', 'occupation(s)', 'pekerjaan', 'ocupation', 'occuption',
-                                      'occuoation', 'profession'],),
-        'Years Active': ({'zh': '活跃年份'}, ['active', 'yeaesactive'], _re_compile(r'year.*?active')),
+                                      'occuoation', 'profession'], _re_compile(r'current.*?occupation')),
+        'Years Active': ({'zh': '活跃年份'}, ['active', 'yeaesactive', 'era'], _re_compile(r'year.*?active')),
         'Death Date': ({'zh': '死亡日期'}, _re_compile(r'death.*?date|date.*?death'),),
         'Death Place': ({'zh': '死亡时间'}, _re_compile(r'death.*?place|place.*?death'),),
         'Burial Place': ({'zh': '埋葬地点'}, _re_compile(r'resting.*?place|burial.*?place'),),
@@ -143,7 +143,7 @@ class TemplateBase:
         'Children': ({'zh': '孩子'}, ['children', 'issue'],),
         'Gender': ({'zh': '性别'}, ['gender'],),
         'Alma Mater': ({'zh': '母校'}, _re_compile(r'alma.*?mater'),),
-        'Relatives': ({'zh': '关系'}, _re_compile(r'relatives?|relations?'),),
+        'Relatives': ({'zh': '关系'}, ['relatives,husband'], _re_compile(r'relatives?|relations?'),),
         'Full Name': ({'zh': '全名'}, _re_compile(r'full.*?name'),),
         'Father': ({'zh': '父亲'}, ['father', 'bapa'],),
         'Mother': ({'zh': '目前'}, ['mother'],),
@@ -173,6 +173,15 @@ class TemplateBase:
         'Car': ({'zh': '汽车'}, ['car']),
         'Ancestry': ({'zh': '祖籍'}, ['ancestry']),
         'Blood Type': ({'zh': '血型'}, _re_compile(r'blood.*?type')),
+        'Country': ({'zh': '国家'}, ['country']),
+        'Influenced': ({'zh': '受影响'}, ['influenced'],),
+        'Influences': ({'zh': '影响'}, ['influences'],),
+        'Interests': ({'zh': '兴趣'}, _re_compile(r'main.*?interests?')),
+        'Previous Occupation': ({'zh': '以前的职业'}, _re_compile(r'previous.*?occupation')),
+        'Title': ({'zh': '头衔'}, ['title']),
+        'Status': ({'zh': '状态'}, ['status'],),
+        'Company': ({'zh': '公司'}, ['company']),
+        'Type': ({'zh': '种类'}, ['type']),
     }
     multi_values_field = None
 
@@ -303,18 +312,18 @@ class TemplateBase:
                     #     if str(k.name).strip() not in TEST['test']:
                     #         TEST['test'].append(str(k.name).strip())
 
-                    if _is_int(str(k.name)) and str(k.value) not in ['zh-hans']:
-                        values.append(str(k.value))
-                    elif str(k.name) in ['m', 'end', 'reason', 'award', 'ft', 'in', 'meter', 'meters', 'cm']:
-                        values.append(f'({str(k.name)}: {str(k.value)})')
-                p_t[i] = mwp.parse('-'.join(values))
+                    if _is_int(str(k.name).strip(' ')) and str(k.value).strip(' ') not in ['zh-hans']:
+                        values.append(str(k.value).strip(' '))
+                    elif str(k.name).strip(' ') in ['m', 'end', 'reason', 'award', 'ft', 'in', 'meter', 'meters', 'cm']:
+                        values.append(f"({str(k.name).strip(' ')}: {str(k.value).strip(' ')})")
+                p_t[i] = mwp.parse(', '.join(values))
             elif isinstance(j, mwp.wikicode.ExternalLink):
-                p_t[i] = j.url
+                p_t[i] = mwp.parse(str(j.url).strip(' '))
             elif isinstance(j, mwp.wikicode.Tag):
-                rs = mwp.parse('\n') if str(j.tag) == 'br' else j.contents
+                rs = mwp.parse('\n') if str(j.tag) == 'br' else mwp.parse(str(j.contents).strip(' '))
                 p_t[i] = rs
             elif isinstance(j, mwp.wikicode.Wikilink):
-                p_t[i] = j.text if j.text else j.title
+                p_t[i] = mwp.parse(str(j.title).strip(' '))
             elif isinstance(j, mwp.wikicode.HTMLEntity):
                 p_t[i] = mwp.parse(j.normalize())
             elif any([isinstance(j, k) for k in cls._dont_parse]):
@@ -362,7 +371,6 @@ class TemplateChineseActorSinger(TemplateBase):
         'Genre': ({'zh': '类型'}, ['genre'],),
         'Label': ({'zh': '唱片公司'}, ['label'],),
         'Instrument': ({'zh': '乐器'}, ['instrument', 'instruments'],),
-        'Influenced': ({'zh': '影响'}, ['influenced', 'influences'],),
         'Voice Type': ({'zh': '声音类型'}, _re_compile(r'voice.*?type'),),
         'Chinese Name': ({'zh': '中文名'}, _re_compile(r'chinese.*?name'),),
         'Notable Role': ({'zh': '著名角色'}, _re_compile(r'notable.*?roles?'),),
@@ -512,7 +520,7 @@ class TemplateFootballOfficial(TemplateBase):
 class TemplateAdultBiography(TemplateBase):
     template_name = 'Adult Biography'
     fields_map = {
-        'Number Films': ({'zh': '电影数目'}, _re_compile(r'number.*?of.*?films'),),
+        'Number Films': ({'zh': '电影数目'}, _re_compile(r'number.*?films'),),
         'Orientation': ({'zh': '性取向'}, ['orientation'],),
         'Films': ({'zh': '电影'}, ['films', 'film'],),
         'Location': ({'zh': '表演场地/外景拍摄地'}, ['location']),
@@ -547,7 +555,6 @@ class TemplateWarDetainee(TemplateBase):
         'Arresting Authority': ({'zh': '逮捕机关'}, _re_compile(r'arresting.*?authority'),),
         'Detained At': ({'zh': '拘留处'}, _re_compile(r'detained.*?at'),),
         'Charge': ({'zh': '指控'}, ['charge'],),
-        'Status': ({'zh': '状态'}, ['status'],)
     }
     fields_map.update(TemplateBase.fields_map)
 
@@ -583,7 +590,6 @@ class TemplateIndonesiaArtist(TemplateBase):
     template_name = 'Indonesia Artist'
     fields_map = {
         'Instrument': ({'zh': '乐器'}, ['instrument', 'instruments'],),
-        'Influenced': ({'zh': '影响'}, ['influenced', 'influences'],),
         'Label': ({'zh': '唱片公司'}, ['label'],),
         'Genre': ({'zh': '类型'}, ['genre'],),
     }
@@ -646,7 +652,6 @@ class TemplateScientist(TemplateBase):
         'Fields': ({'zh': '领域'}, ['field', 'fields']),
         'Academic Advisors': ({'zh': '学术顾问'}, _re_compile(r'academic.*?advisors?')),
         'Doctoral Advisors': ({'zh': '博士生导师'}, _re_compile(r'doctoral.*?advisors?')),
-        'Influenced': ({'zh': '影响'}, ['influenced', 'influences'],),
         'Boards': ({'zh': '董事会'}, ['boards']),
         'Doctoral Students': ({'zh': '博士生'}, _re_compile(r'doctoral.*?students?')),
         'Notable Students': ({'zh': '著名学生'}, _re_compile(r'notable.*?students?'))
@@ -662,7 +667,6 @@ class TemplateEconomist(TemplateBase):
     fields_map = {
         'Fields': ({'zh': '领域'}, ['field', 'fields']),
         'Contributions': ({'zh': '贡献'}, ['contributions', 'contribution']),
-        'Influenced': ({'zh': '影响'}, ['influenced', 'influences'],),
         'Doctoral Students': ({'zh': '博士生'}, _re_compile(r'doctoral.*?students?')),
         'Doctoral Advisors': ({'zh': '博士生导师'}, _re_compile(r'doctoral.*?advisors?')),
     }
@@ -737,10 +741,78 @@ class TemplateFieldHockeyPlayer(TemplateBase):
 class TemplateTennisPlayer(TemplateBase):
     template_name = 'Tennis Player'
     fields_map = {
-        'Competition': ({'zh': '比赛'}, _re_compile(r'result', mode='e')),
+        'Player Name': ({'zh': '运动员名称'}, _re_compile(r'player.*?name'),),
+        'Competition': ({'zh': '比赛'}, _re_compile(r'results?', mode='e')),
         'Coach': ({'zh': '教练'}, ['coach']),
-        'Current Doubles Ranking': ({'zh': '目前双打排名'}, _re_compile(r'current.*?double.*?ranking'))
+        'Style': ({'zh': '风格'}, _re_compile(r'plays?')),
+        'Turned Pro': ({'zh': '成为职业选手'}, _re_compile(r'turned.*?pro')),
+        'Career Prize Money': ({'zh': '职业奖金'}, _re_compile(r'career.*?prize.*?money')),
+        'Singles Record': ({'zh': '单打纪录'}, _re_compile(r'single.*?record')),
+        'Singles Titles': ({'zh': '单打冠军'}, _re_compile(r'single.*?titles?')),
+        'Highest Singles Ranking': ({'zh': '最高单打排名'}, _re_compile(r'highest.*?single.*?ranking')),
+        'Current Singles Ranking': ({'zh': '目前单打排名'}, _re_compile(r'current.*?single.*?ranking')),
+        'Doubles Record': ({'zh': '双打记录'}, _re_compile(r'double.*?record')),
+        'Doubles Titles': ({'zh': '双打冠军'}, _re_compile(r'double.*?titles?')),
+        'Highest Doubles Ranking': ({'zh': '最高双打排名'}, _re_compile(r'highest.*?double.*?ranking')),
+        'Current Doubles Ranking': ({'zh': '目前双打排名'}, _re_compile(r'current.*?double.*?ranking')),
+        'Mixed Titles': ({'zh': '混打冠军'}, _re_compile(r'mixed.*?titles?')),
+        'Mixed Record': ({'zh': '混打记录'}, _re_compile(r'mixed.*?record'))
     }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateBoxer(TemplateBase):
+    template_name = 'Boxer'
+    fields_map = {
+        'Ko': ({'zh': 'ko胜利次数'}, ['ko']),
+        'Total': ({'zh': '总次数'}, ['total']),
+        'Style': ({'zh': '风格'}, ['style']),
+        'Wins': ({'zh': '获胜次数'}, _re_compile(r'wins?')),
+        'Draws': ({'zh': '平局次数'}, _re_compile(r'draws?')),
+        'Losses': ({'zh': '失败次数'}, _re_compile(r'losses|loss'))
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateTwitchStreamer(TemplateBase):
+    template_name = 'Twitch Streamer'
+    fields_map = {
+        'Channel Name': ({'zh': '频道名'}, _re_compile(r'channel.*?name')),
+        'Followers': ({'zh': '订阅者'}, _re_compile(r'followers?')),
+        'Views': ({'zh': '观看数'}, _re_compile(r'views?'))
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplatePhilosopher(TemplateBase):
+    template_name = 'Philosopher'
+    fields_map = {
+        'Notable Ideas': ({'zh': '著名想法'}, _re_compile(r'notable.*?ideas?')),
+        'Philosophy': ({'zh': '哲学'}, ['region'])
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateAstronaut(TemplateBase):
+    template_name = 'Astronaut'
+    fields_map = {
+        'Eva': ({'zh': '舱外活动'}, _re_compile(r'eva')),
+        'Mission': ({'zh': '使命'}, ['mission']),
+        'Space Time': ({'zh': '时间'}, ['time'], _re_compile(r'space.*?time')),
+        'Selection': ({'zh': '选拔'}, ['selection']),
+        'Rank': ({'zh': '等级'}, ['rank']),
+        'Evas': ({'zh': '舱外活动'}, ['evas']),
+        'Eva Time': ({'zh': '舱外活动'}, _re_compile(r'eva.*?time'))
+    }
+    fields_map.update(TemplateBase.fields_map)
+    multi_values_field = {
+        'Eva': ({'zh': '舱外活动'}, ['Eva', 'Eva Time', 'Evas'])
+    }
+
+
+class TemplatePerson(TemplateBase):
+    template_name = 'Person'
+    fields_map = {}
     fields_map.update(TemplateBase.fields_map)
 
 
@@ -769,7 +841,12 @@ _TEMPLATE_MAP = {
     TemplateGovernor: ['infobox governor general', 'infobox governor'],
     TemplateSenator: ['infobox senator'],
     TemplateGolfer: ['infobox golfer'],
-    TemplateFieldHockeyPlayer: ['infobox field hockey player']
+    TemplateFieldHockeyPlayer: ['infobox field hockey player'],
+    TemplateTennisPlayer: ['infobox tennis biography', 'infobox tennis player'],
+    TemplateBoxer: ['infobox peninju', 'infobox boxer'],
+    TemplateTwitchStreamer: ['infobox twitch streamer'],
+    TemplatePhilosopher: ['infobox philosopher', 'infobox philosopher'],
+    TemplateAstronaut: ['infobox angkasawan', 'infobox astronaut']
 }
 
 TEMPLATE_MAP = {i: k for k, v in _TEMPLATE_MAP.items() for i in v}
@@ -778,32 +855,23 @@ MULTI_DICT = {i.template_name: [] for i in _TEMPLATE_MAP.keys()}
 
 if __name__ == '__main__':
     value = {
-        "name": "Sir Fraser Stoddart",
-        "birth_name": "James Fraser Stoddart",
-        "image": "Nobel Laureates Fraser Stoddart 2016 (31117136180).jpg",
-        "caption": "Stoddart di sidang akhbar Nobel di Stockholm, Sweden, Disember 2016",
-        "birth_date": "{{Birth date and age|df=yes|1942|05|24}}",
-        "birth_place": "[[Edinburgh]], [[Scotland]], [[UK]]",
-        "residence": "UK, US",
-        "citizenship": "[[Amerika Syarikat]]",
-        "nationality": "[[United Kingdom|British]]",
-        "website": "{{URL|http://stoddart.northwestern.edu}}",
-        "thesis1_title": "Studies on plant gums of the Acacia group",
-        "thesis1_url": "http://ethos.bl.uk/OrderDetails.do?uin=uk.bl.ethos.662504",
-        "thesis1_year": "1967",
-        "thesis2_title": "Some adventures in stereochemistry",
-        "thesis2_url": "http://hdl.handle.net/1842/14487",
-        "thesis2_year": "1980",
-        "children": "2",
-        "spouse": "{{marriage|Norma Agnes Scholan|1968|2004|end=her death}}<ref name=\"Scotsman\">{{cite news|title=Norma Stoddart (Obituary)|url=http://www.scotsman.com/news/obituaries/norma-stoddart-1-513988|accessdate=27 May 2016|work=The Scotsman|date=16 February 2004}}</ref>",
-        "field": "[[Supramolecular chemistry]]",
-        "work_institution": "[[Queen's University]] (1967–70)<br />[[Universiti Sheffield]] (1970–1990)<br />[[Universiti Birmingham]] (1990–1997)<br />[[Universiti California, Los Angeles]] (1997–2008)<br />[[Northwestern University]] (2008– )<br />[[Universiti New South Wales]] (2019– )",
-        "alma_mater": "[[Universiti Edinburgh]]",
-        "doctoral_advisor": "{{Plainlist|\n* [[Edmund Langley Hirst]]<ref name=cv>{{cite web|archiveurl=https://web.archive.org/web/20161005211334/http://stoddart.northwestern.edu/Fraser_Stoddart/Stoddart%20CV%20full.pdf |archivedate=2016-10-05 |url=http://stoddart.northwestern.edu/Fraser_Stoddart/Stoddart%20CV%20full.pdf |website=stoddart.northwestern.edu |title=James Fraser Stoddart: Curriculum Vitae, Full Version |deadurl=yes |df= }}</ref>\n*  D M W Anderson<ref name=cv/>}}",
-        "doctoral_students": "[[David Leigh]]<ref>{{cite web|title=2009 winner of the RSC Merck Award|url=http://www.rsc.org/ScienceAndTechnology/Awards/MerckAward/2009winner.asp|publisher=Royal Society of Chemistry|accessdate=6 October 2016}}</ref>",
-        "known_for": "[[Mechanically interlocked molecular architectures|Mechanically interlocked molecular architectures (MIMAs)]]",
-        "awards": "{{Plainlist|\n* [[Fellow of the Royal Society]] <small>(1990)</small><ref name=frs>{{cite web|archiveurl=https://web.archive.org/web/20160815114707/https://royalsociety.org/people/james-stoddart-12357/|archivedate=2016-08-15|url=https://royalsociety.org/people/james-stoddart-12357/|publisher=[[Royal Society]]|location=London|author=Anon|year=1994|title=Sir James Stoddart FRS|website=royalsociety.org}} One or more of the preceding sentences incorporates text from the royalsociety.org website where: {{quote|All text published under the heading 'Biography' on Fellow profile pages is available under [[Creative Commons license|Creative Commons Attribution 4.0 International License]].\" --{{cite web |url=https://royalsociety.org/about-us/terms-conditions-policies/ |title=Royal Society Terms, conditions and policies |accessdate=2016-03-09 |deadurl=bot: unknown |archiveurl=https://web.archive.org/web/20150925220834/https://royalsociety.org/about-us/terms-conditions-policies/ |archivedate=25 September 2015 |df=dmy-all }}}}</ref>\n* [[Fellow of the Royal Society of Edinburgh]] (2008)\n* [[Knight Bachelor]] <small>(2007)</small>\n* [[Albert Einstein World Award of Science]] <small>(2007)</small>\n* [[Davy Medal]] {{small|(2008)}}</small>\n* [[Nobel Prize in Chemistry]] {{small|(2016)}}<ref name=\"NP-20161005\" />}}"
+        "name": "Shane Kimbrough",
+        "image": "Shanekimbroughv2.jpg",
+        "type": "[[Angkasawan]] [[NASA]]",
+        "status": "Active",
+        "nationality": "American",
+        "birth_date": "{{Birth date and age|1967|06|4}}",
+        "birth_place": "[[Killeen, Texas]], U.S.",
+        "occupation": "[[Army aviation|Army aviator]]",
+        "rank": "{{Dodseal|USAO6|25}} [[Colonel|Colonel, retired (United States)]], [[United States Army|USA]]",
+        "alma_mater": "[[United States Military Academy|West Point]], B.S. 1989<br>[[Georgia Institute of Technology|Georgia Tech]], M.S. 1998",
+        "selection": "[[List of astronauts by selection#2004|2004 NASA Group 19]]",
+        "time": "188 days 23 hours 15 minutes",
+        "eva1": "6",
+        "eva2": "39 hours",
+        "mission": "[[STS-126]], [[Soyuz MS-02]] ([[Expedition 49]]/[[Expedition 50|50]])",
+        "insignia": "[[File:STS-126 patch.svg|40px]] [[File:Soyuz-MS-02-Mission-Patch.png|45px]][[File:ISS Expedition 49 Patch.png|48px]] [[File:ISS Expedition 50 Patch.png|45px]]"
     }
-    tem = TemplateScientist(value, 'Test')
+    tem = TemplateAstronaut(value, 'Test')
     print(tem.fields)
     # print(tem.graph_entities)
