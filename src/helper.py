@@ -5,9 +5,7 @@
 @email  : xiexx@xiaopeng.com
 """
 
-
 import json
-
 
 with open('../ms_wiki_data/ps.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
@@ -28,7 +26,6 @@ def get_keys(templates, keys):
 
 
 if __name__ == '__main__':
-
-    template = ['infobox squash player']
-    key = 'event'
+    template = ['infobox f1 driver']
+    key = 'teams'
     print(get_keys(template, key))

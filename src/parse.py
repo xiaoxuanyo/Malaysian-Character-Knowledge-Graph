@@ -54,8 +54,8 @@ def parse(p_t):
 
 def _re_compile(s, mode='se', split='.*?'):
     assert mode in ['s', 'e', 'se'], f'不支持{mode}'
-    _s = r'^'
-    _e = r'\s*(?P<e_index{}>\d*)$'
+    _s = r'^\s*?'
+    _e = r'\D*?(?P<e_index{}>\d*)\s*?$'
     if mode == 's':
         _p = _s + '{}'
     elif mode == 'e':
@@ -73,5 +73,9 @@ def _re_compile(s, mode='se', split='.*?'):
         ss.append(r'\D*?(?P<s_index{}>\d*)\D*?'.format(j) + r'\D*?(?P<{}_index{}>\d*)\D*?'.join(i_split).format(*index))
     s = ss
     s = '|'.join([_p.format(i, j) for j, i in enumerate(s)])
+    print(s)
     return re.compile(r'%s' % s)
+
+
+_re_compile(r'results?')
 

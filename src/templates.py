@@ -34,38 +34,26 @@ def _is_include_dict(array):
     return False
 
 
-def _get_key(array, mode='max'):
-    assert mode in ['min', 'max'], f'不支持的mode{mode}'
-    m_k = None
-    if mode == 'min':
-        m_v = float('inf')
-        for i in array:
-            for k, v in i.items():
-                if len(v) < m_v:
-                    m_k = [j for i in v for j in i.keys()]
-                    m_v = len(v)
-    else:
-        m_v = -float('inf')
-        for i in array:
-            for k, v in i.items():
-                if len(v) > m_v:
-                    m_k = [j for i in v for j in i.keys()]
-                    m_v = len(v)
-    return m_k
+def _get_key(array):
+    keys = []
+    for i in array:
+        for v in i.values():
+            for k in v:
+                e = list(k.keys())[0]
+                if e not in keys:
+                    keys.append(e)
+    return keys
 
 
-def _get_multi_values(array, force=False):
-    mode = 'max' if not force else 'min'
-    ky = _get_key(array, mode)
+def _get_multi_values(array):
+    ky = _get_key(array)
     ky = {k: [] for k in ky}
     for i in array:
         for k, v in i.items():
             for ii in v:
-                for kk, vv in ii.items():
-                    try:
-                        ky[kk].append(k.lower() + ':' + vv)
-                    except KeyError:
-                        pass
+                kk = list(ii.keys())[0]
+                vv = ii[kk]
+                ky[kk].append(k.lower() + ':' + vv)
     result = []
     for i in ky.values():
         result.append('\n'.join(i))
@@ -74,8 +62,8 @@ def _get_multi_values(array, force=False):
 
 def _re_compile(s, mode='se', split='.*?'):
     assert mode in ['s', 'e', 'se'], f'不支持{mode}'
-    _s = r'^'
-    _e = r'\s*(?P<e_index{}>\d*)$'
+    _s = r'^\s*?'
+    _e = r'\D*?(?P<e_index{}>\d*)\s*?$'
     if mode == 's':
         _p = _s + '{}'
     elif mode == 'e':
@@ -194,7 +182,7 @@ class TemplateBase:
 
     _dont_parse = [mwp.wikicode.Argument, mwp.wikicode.Comment, mwp.wikicode.Heading]
 
-    def __init__(self, values, entry, force=False, multi_dict=None):
+    def __init__(self, values, entry, multi_dict=None):
         self._fields = {'template_name': self.template_name,
                         'fields': {k: {'props': v[0], 'values': []} if isinstance(v[0], dict) else {'values': []} for
                                    k, v in self.fields_map.items()},
@@ -265,12 +253,13 @@ class TemplateBase:
                         if k in i_f:
                             for iii, jjj in enumerate(v['values']):
                                 if not isinstance(jjj, dict):
-                                    v['values'][iii] = {0: v['values'][iii]}
-                                    break
+                                    v['values'][iii] = {str(0) + str(iii): v['values'][iii]}
+                                    # v['values'][iii] = {0: v['values'][iii]}
+                                    # break
                             multi_values_field[i_k]['values'].append({k: v['values']})
             for v in multi_values_field.values():
                 if v['values']:
-                    v['values'] = _get_multi_values(v['values'], force=force)
+                    v['values'] = _get_multi_values(v['values'])
             multi_values_field = {k: v for k, v in multi_values_field.items() if v['values']}
             fields_values.update(multi_values_field)
         else:
@@ -282,8 +271,9 @@ class TemplateBase:
                     if _is_include_dict(v['values']):
                         for iii, jjj in enumerate(v['values']):
                             if not isinstance(jjj, dict):
-                                v['values'][iii] = {0: v['values'][iii]}
-                                break
+                                v['values'][iii] = {str(0) + str(iii): v['values'][iii]}
+                                # v['values'][iii] = {0: v['values'][iii]}
+                                # break
                         name.append(k)
                         multi_values_field.append({k: v['values']})
                     else:
@@ -295,7 +285,7 @@ class TemplateBase:
                         if jj not in multi_dict[self.template_name]:
                             multi_dict[self.template_name].append(jj)
                 fields_values.update({'Other Info': {'props': {'zh': '其他信息'},
-                                                     'values': _get_multi_values(multi_values_field, force=force)}})
+                                                     'values': _get_multi_values(multi_values_field)}})
         self._fields['fields'] = fields_values
 
     @classmethod
@@ -882,6 +872,32 @@ class TemplateSquashPlayer(TemplateBase):
     fields_map.update(TemplateBase.fields_map)
 
 
+class TemplateF1Driver(TemplateBase):
+    template_name = 'F1 Driver'
+    fields_map = {
+        'Car Number': ({'zh': '车号'}, _re_compile(r'car.*?number')),
+        'Years': ({'zh': '年份'}, _re_compile(r'years?')),
+        'Last Win': ({'zh': '最后一次胜利'}, _re_compile(r'last.*?win')),
+        'Championships': ({'zh': '锦标赛'}, _re_compile(r'championships?')),
+        'Poles': ({'zh': '极点'}, _re_compile(r'poles?')),
+        'Teams': ({'zh': '团队'}, ['team(s)'], _re_compile(r'teams?')),
+        'First Win': ({'zh': '第一次胜利'}, _re_compile(r'first.*?win')),
+        'Last Season': ({'zh': '最后一个赛季'}, _re_compile(r'last.*?season')),
+        'Races': ({'zh': '竞赛信息'}, _re_compile(r'races?')),
+        'Fastest Laps': ({'zh': '最快圈速'}, _re_compile(r'fastest.*?laps?')),
+        'Last Race': ({'zh': '最后一场竞赛'}, _re_compile(r'last.*?race')),
+        'First Race': ({'zh': '第一场竞赛'}, _re_compile(r'first.*?race')),
+        'Wins': ({'zh': '获胜次数'}, _re_compile(r'wins?')),
+        'Podiums': ({'zh': '领奖台次数'}, _re_compile(r'podiums?')),
+        'Points': ({'zh': '点/分'}, _re_compile(r'points?')),
+        'Last Position': ({'zh': '最后位置'}, _re_compile(r'last.*?position'))
+    }
+    fields_map.update(TemplateBase.fields_map)
+    multi_values_field = {
+        'Teams': ({'zh': '团队'}, ['Teams', 'Car Number'])
+    }
+
+
 _TEMPLATE_MAP = {
     TemplateMotorcycleRider: ['infobox motorcycle rider'],
     TemplateEngineer: ['infobox engineer'],
@@ -916,7 +932,8 @@ _TEMPLATE_MAP = {
     TemplateJudge: ['infobox judge'],
     TemplatePresident: ['infobox president', 'infobox_president'],
     TemplateCelebrity: ['infobox celebrity', 'infobox_celebrity'],
-    TemplateSquashPlayer: ['infobox squash player']
+    TemplateSquashPlayer: ['infobox squash player'],
+    TemplateF1Driver: ['infobox f1 driver']
 }
 
 TEMPLATE_MAP = {i: k for k, v in _TEMPLATE_MAP.items() for i in v}
@@ -925,37 +942,26 @@ MULTI_DICT = {i.template_name: [] for i in _TEMPLATE_MAP.keys()}
 
 if __name__ == '__main__':
     value = {
-        "honorific-prefix": "[[Jeneral]]",
-        "name": "Sonthi Boonyaratglin",
-        "native_name": "สนธิ บุญยรัตกลิน",
-        "image": "Sonthi Boonyaratglin (cropped).png",
-        "office": "President of the [[Council for National Security|Administrative Reform Council of Thailand]]",
-        "monarch": "[[Bhumibol Adulyadej]]",
-        "term_start": "19 September 2006",
-        "term_end": "1 October 2006",
-        "predecessor": "[[Thaksin Shinawatra]] <small>(Prime Minister)</small>",
-        "successor": "[[Surayud Chulanont]] <small>(Prime Minister)</small>",
-        "order2": "[[List of Commanders of the Royal Thai Army|Commander in Chief of <br> the Royal Thai Army]]",
-        "term_start2": "1 October 2005",
-        "term_end2": "30 September 2007",
-        "primeminister2": "[[Thaksin Shinawatra]]",
-        "predecessor2": "[[Prawit Wongsuwan]]",
-        "successor2": "[[Anupong Paochinda]]",
-        "birth_date": "{{birth date and age|1946|10|2|df=y}}",
-        "birth_place": "[[Pathum Thani Province|Pathum Thani]], [[Thailand]]",
-        "party": "[[Matubhum Party]] <small>(2009-present)</small>",
-        "spouse": "Sukanya Boonyaratglin<br>Piyada Boonyaratglin",
-        "alma_mater": "[[Armed Forces Academies Preparatory School]]<br>[[Chulachomklao Royal Military Academy]]",
-        "profession": "[[Soldier]]",
-        "religion": "[[Islam]]",
-        "rank": "[[File:RTA OF-9 (General).svg|15px]] [[General officer|General]]",
-        "allegiance": "{{flag|Thailand}}",
-        "branch": "{{flagicon image|Flag of the Royal Thai Army.svg}} [[Royal Thai Army]]",
-        "serviceyears": "1969–2007",
-        "commands": "[[List of Commanders of the Royal Thai Army|Commander-in-Chief]]",
-        "battles": "[[Vietnam War]]<br>[[South Thailand insurgency]]",
-        "signature": "Signature of Sondhi Boonyaratglin.svg"
+        "Name": "Romain Grosjean",
+        "Image": "Romain Grosjean 2016 Malaysia.jpg",
+        "caption": "Grosjean di 2016",
+        "Nationality": "{{flagicon|FRA}} [[Perancis]]",
+        "birth_date": "{{Birth date and age|df=yes|1986|4|17}}",
+        "birth_place": "[[Geneva]], Switzerland",
+        "2013 Team": "[[Lotus F1|Lotus]]-[[Renault F1|Renault]]",
+        "2013 Car number": "8",
+        "Races": "38",
+        "Championships": "0",
+        "Wins": "0",
+        "Podiums": "4",
+        "Points": "153",
+        "Poles": "0",
+        "Fastest laps": "1",
+        "First race": "[[Grand Prix Eropah 2009]]",
+        "Last race": "{{Latest F1GP}}",
+        "Last season": "2012",
+        "Last position": "Ke-8 (96 mata)"
     }
-    tem = TemplateOfficeholder(value, 'Test')
+    tem = TemplateF1Driver(value, 'Test')
     print(tem.fields)
     # print(tem.graph_entities)
