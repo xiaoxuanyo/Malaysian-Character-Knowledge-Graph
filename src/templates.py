@@ -898,6 +898,28 @@ class TemplateF1Driver(TemplateBase):
     }
 
 
+class TemplateJournalist(TemplateBase):
+    template_name = 'Journalist'
+
+
+class TemplateFashionDesigner(TemplateBase):
+    template_name = 'Fashion Designer'
+    fields_map = {
+        'Tag': ({'zh': '标签'}, _re_compile(r'label.*?name'))
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateMilitaryPerson(TemplateBase):
+    template_name = 'Military Person'
+    fields_map = {
+        'Office': ({'zh': '任职信息'}, _re_compile(r'commands?')),
+        'Branch': ({'zh': '政府分支'}, _re_compile(r'branch')),
+        'Unit': ({'zh': '小队'}, _re_compile(r'unit'))
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
 _TEMPLATE_MAP = {
     TemplateMotorcycleRider: ['infobox motorcycle rider'],
     TemplateEngineer: ['infobox engineer'],
@@ -933,7 +955,9 @@ _TEMPLATE_MAP = {
     TemplatePresident: ['infobox president', 'infobox_president'],
     TemplateCelebrity: ['infobox celebrity', 'infobox_celebrity'],
     TemplateSquashPlayer: ['infobox squash player'],
-    TemplateF1Driver: ['infobox f1 driver']
+    TemplateF1Driver: ['infobox f1 driver'],
+    TemplateJournalist: ['infobox journalist'],
+    TemplateFashionDesigner: ['infobox fashion designer']
 }
 
 TEMPLATE_MAP = {i: k for k, v in _TEMPLATE_MAP.items() for i in v}
@@ -942,26 +966,20 @@ MULTI_DICT = {i.template_name: [] for i in _TEMPLATE_MAP.keys()}
 
 if __name__ == '__main__':
     value = {
-        "Name": "Romain Grosjean",
-        "Image": "Romain Grosjean 2016 Malaysia.jpg",
-        "caption": "Grosjean di 2016",
-        "Nationality": "{{flagicon|FRA}} [[Perancis]]",
-        "birth_date": "{{Birth date and age|df=yes|1986|4|17}}",
-        "birth_place": "[[Geneva]], Switzerland",
-        "2013 Team": "[[Lotus F1|Lotus]]-[[Renault F1|Renault]]",
-        "2013 Car number": "8",
-        "Races": "38",
-        "Championships": "0",
-        "Wins": "0",
-        "Podiums": "4",
-        "Points": "153",
-        "Poles": "0",
-        "Fastest laps": "1",
-        "First race": "[[Grand Prix Eropah 2009]]",
-        "Last race": "{{Latest F1GP}}",
-        "Last season": "2012",
-        "Last position": "Ke-8 (96 mata)"
+        "image": "annasuioffice.jpg",
+        "image_size": "200px",
+        "caption": "Anna Sui di pejabatnya di New York",
+        "name": "Anna Sui",
+        "nationality": "Amerika",
+        "residence": "Bandar Raya New York",
+        "birth_date": "{{Birth date and age|1952|8|4}}",
+        "birth_place": "[[Detroit]], [[Michigan]], A.S.",
+        "education": "Parsons The New School for Design",
+        "label_name": "Anna Sui<br />Dolly Girl by Anna Sui<ref name=\"DollyGirl\">{{cite web |url=http://www.onward.co.jp/dollygirl/ |title=Dolly Girl by Anna Sui |last1= |first1= |last2= |first2= |date=2016 |website=onward.co.jp |publisher=Onward Kashiyama Co., Ltd. |access-date=October 6, 2016 |quote=|archiveurl=https://web.archive.org/web/20161006154004/http://www.onward.co.jp/dollygirl/ |archivedate=October 6, 2016 |df=mdy-all }}</ref><br />Anna Sui Mini<ref>{{cite web |url=http://www.annasui-mini.com/ |title=Anna Sui Mini |last1= |first1= |last2= |first2= |date=2016 |website=annasui-mini.com |publisher=Narumiya Online |access-date=October 6, 2016 |quote=}}</ref><br />Anna Sui Vision<ref>{{cite web |url=https://annasuivision.com/ |title=Anna Sui Vision |last= |first= |date=2017 |website=annasuivision.com |publisher=Anna Sui Corporation |access-date=February 16, 2017 |quote=}}</ref><br />The Souvenir Shop Anna Sui<ref>{{cite web |url=http://www.mammina.co.jp/thesouvenirshop_annasui.html |title=The Souvenir Shop Anna Sui |last1= |first1= |last2= |first2= |date=2016 |website=mammina.co.jp |publisher=Mammina |access-date=October 6, 2016 |quote= |archive-url=https://web.archive.org/web/20161009100429/http://www.mammina.co.jp/thesouvenirshop_annasui.html |archive-date=October 9, 2016 |df=mdy-all }}</ref>",
+        "awards": "[[Council of Fashion Designers of America|CFDA]] Perry Ellis New Talent Award<br />[[Time Magazine]] – Top 5 Fashion Icons of the Decade<ref name=\"week\">{{cite web|url=http://www.asianweek.com/2010/02/12/chinese-american-heroine-anna-sui/ |title=Chinese American Heroine: Anna Sui |date=February 12, 2010 |work=[[AsianWeek]] |access-date=August 29, 2014 |archiveurl=https://web.archive.org/web/20140621013515/http://www.asianweek.com/2010/02/12/chinese-american-heroine-anna-sui/ |archivedate=June 21, 2014 }}</ref><br />[[Council of Fashion Designers of America|CFDA]] Geoffrey Beene Lifetime Achievement Award<ref>{{cite web |url=http://cfda.com/cfda-fashion-awards#past-winners |title=Past Winners |author=<!--Staff writer(s); no by-line.--> |date= |work=cfda.com |publisher=Council of Fashion Designers of America |access-date=October 23, 2015}}</ref><br />Bravo A-List Award<br />Classic Icon of Fashion and Design<br />Identities – Leadership in the Arts Award<br />2017 Honorary Doctorate Recipient, The New School<ref>{{cite web |url=https://www.newschool.edu/pressroom/pressreleases/2017/commencement2017.htm |title=\nANNA SUI, AI-JEN POO, AND BARBARA HILLARY NAMED HONORARY DEGREE RECIPIENTS BY THE NEW SCHOOL |archivedate=March 29, 2017 }}</ref>",
+        "occupation": "Pereka fesyen",
+        "website": "{{url|https://annasui.com/}}"
     }
-    tem = TemplateF1Driver(value, 'Test')
+    tem = TemplateFashionDesigner(value, 'Test')
     print(tem.fields)
     # print(tem.graph_entities)

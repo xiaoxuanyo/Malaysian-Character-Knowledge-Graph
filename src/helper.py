@@ -26,6 +26,6 @@ def get_keys(templates, keys):
 
 
 if __name__ == '__main__':
-    template = ['infobox f1 driver']
-    key = 'teams'
+    template = ['infobox military person']
+    key = 'unit'
     print(get_keys(template, key))
