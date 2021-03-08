@@ -53,7 +53,7 @@ def _get_multi_values(array):
             for ii in v:
                 kk = list(ii.keys())[0]
                 vv = ii[kk]
-                ky[kk].append(k.lower() + ':' + vv)
+                ky[kk].append(k.lower().split('_')[-1] + ':' + vv)
     result = []
     for i in ky.values():
         result.append('\n'.join(i))
@@ -62,8 +62,8 @@ def _get_multi_values(array):
 
 def _re_compile(s, mode='se', split='.*?'):
     assert mode in ['s', 'e', 'se'], f'不支持{mode}'
-    _s = r'^\s*?'
-    _e = r'\D*?(?P<e_index{}>\d*)\s*?$'
+    _s = r'^'
+    _e = r'$'
     if mode == 's':
         _p = _s + '{}'
     elif mode == 'e':
@@ -78,7 +78,8 @@ def _re_compile(s, mode='se', split='.*?'):
         for k in range(len(i_split)):
             index.append('i' + str(j))
             index.append(str(j + k))
-        ss.append(r'\D*?(?P<s_index{}>\d*)\D*?'.format(j) + r'\D*?(?P<{}_index{}>\d*)\D*?'.join(i_split).format(*index))
+        ss.append(r'\s*?(?P<s_index{}>\d*)\s*?'.format(j) + r'\D*?(?P<{}_index{}>\d*)\D*?'.join(i_split).format(
+            *index) + r'\s*?(?P<e_index{}>\d*)\s*?'.format(j))
     s = ss
     s = '|'.join([_p.format(i, j) for j, i in enumerate(s)])
     return re.compile(r'%s' % s)
@@ -109,7 +110,7 @@ class TemplateBase:
     template_name = 'Base'
     fields_map = {
         'Name': ({'zh': '名字'}, ['name', 'nama'],),
-        'Alias': ({'zh': '别名'}, ['alias', 'nickname', 'hangul'], _re_compile(r'other.*?names?|real.*?name')),
+        'Alias': ({'zh': '别名'}, ['alias', 'nickname', 'hangul', 'id'], _re_compile(r'other.*?names?|real.*?name')),
         'Native Name': ({'zh': '本地名字'}, _re_compile(r'native.*?names?'),),
         'Birth': ({'zh': '出生信息'}, ['birth', 'born'],),
         'Death': ({'zh': '死亡信息'}, ['died']),
@@ -144,7 +145,7 @@ class TemplateBase:
         'Mother': ({'zh': '目前'}, ['mother'],),
         'Residence': ({'zh': '住宅'}, ['residence', 'residential'],),
         'Known For': ({'zh': '著名'}, ['known'], _re_compile(r'known.*?for'),),
-        'Partner': ({'zh': '伙伴'}, ['partner'],),
+        'Partner': ({'zh': '伙伴'}, ['partner'], _re_compile(r'former.*?partner')),
         'Citizenship': ({'zh': '市民'}, ['citizenship'],),
         'Honorific Prefix': ({'zh': '尊称前缀'}, _re_compile(r'honorific.*?prefix'),),
         'Honorific Suffix': ({'zh': '尊称后缀'}, _re_compile(r'honorific.*?suffix'),),
@@ -156,7 +157,7 @@ class TemplateBase:
         'Works': ({'zh': '作品'}, ['works'],
                   _re_compile(r'notable.*?works?|associated.*?acts')),
         'Net Worth': ({'zh': '净值'}, _re_compile(r'net.*?worth'),),
-        'Awards': ({'zh': '奖项'}, ['prizes'], _re_compile(r'awards?', mode='e'),),
+        'Awards': ({'zh': '奖项'}, ['prizes'], _re_compile(r'wards?', mode='e'),),
         'Projects': ({'zh': '项目'}, _re_compile(r'projects?', mode='e'),),
         'Institutions': ({'zh': '机构'}, ['agency'], _re_compile(r'institutions?|work.*?institutions?')),
         'School': ({'zh': '学校'}, ['school', 'college'], _re_compile(r'high.*?school')),
@@ -305,7 +306,11 @@ class TemplateBase:
                         values.append(str(k.value).strip(' '))
                     elif str(k.name).strip(' ') in ['m', 'end', 'reason', 'award', 'ft', 'in', 'meter', 'meters', 'cm']:
                         values.append(f"({str(k.name).strip(' ')}: {str(k.value).strip(' ')})")
-                p_t[i] = mwp.parse(', '.join(values))
+                if re.search(r'medal', str(j.name).strip().lower()):
+                    res = f"({str(j.name).strip()}: {', '.join(values)})"
+                else:
+                    res = ', '.join(values)
+                p_t[i] = mwp.parse(res)
             elif isinstance(j, mwp.wikicode.ExternalLink):
                 p_t[i] = j.url
             elif isinstance(j, mwp.wikicode.Tag):
@@ -376,17 +381,17 @@ class TemplateChineseActorSinger(TemplateBase):
 class TemplateRoyalty(TemplateBase):
     template_name = 'Royalty'
     fields_map = {
-        'Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor|succeeded|succeeding')),
-        'Reign': ({'zh': '在位'}, _re_compile(r'reign'),),
-        'Coronation': ({'zh': '加冕礼'}, _re_compile(r'coronation'),),
-        'Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor|preceded|preceding'),),
-        'Succession': ({'zh': '继承'}, _re_compile(r'succession'),),
-        'Regent': ({'zh': '摄政'}, _re_compile(r'regent'),),
+        '_Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor|succeeded|succeeding')),
+        '_Reign': ({'zh': '在位'}, _re_compile(r'reign'),),
+        '_Coronation': ({'zh': '加冕礼'}, _re_compile(r'coronation'),),
+        '_Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor|preceded|preceding'),),
+        '_Succession': ({'zh': '继承'}, _re_compile(r'succession'),),
+        '_Regent': ({'zh': '摄政'}, _re_compile(r'regent'),),
         'Royal Anthem': ({'zh': '皇家国歌'}, _re_compile(r'royal.*?anthem'))
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
-        'Office': ({'zh': '任职信息'}, ['Successor', 'Reign', 'Coronation', 'Predecessor', 'Succession', 'Regent']),
+        'Office': ({'zh': '任职信息'}, ['_Successor', '_Reign', '_Coronation', '_Predecessor', '_Succession', '_Regent']),
         'Native Name': ({'zh': '本地名字'}, ['Native Name'])}
 
 
@@ -403,53 +408,55 @@ class TemplateModel(TemplateBase):
 class TemplateMinister(TemplateBase):
     template_name = 'Minister'
     fields_map = {
-        'Office': ({'zh': '职位'}, _re_compile(r'office|order'),),
-        'Prime Minister': ({'zh': '总理'}, _re_compile(r'prime.*?minister'),),
-        'Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
-        'Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
-        'Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor|preceded|preceding'),)
+        '_Office': ({'zh': '职位'}, _re_compile(r'office|order'),),
+        '_Prime Minister': ({'zh': '总理'}, _re_compile(r'prime.*?minister'),),
+        '_Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
+        '_Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
+        '_Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor|preceded|preceding'),)
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
-        'Office': ({'zh': '任职信息'}, ['Office', 'Prime Minister', 'Term Start', 'Predecessor', 'Term End'])}
+        'Office': ({'zh': '任职信息'}, ['_Office', '_Prime Minister', '_Term Start', '_Predecessor', '_Term End'])}
 
 
 class TemplateOfficeholder(TemplateBase):
     template_name = 'Officeholder'
     fields_map = {
-        'Office': ({'zh': '职位'}, _re_compile(r'office|order'),),
-        'Monarch': ({'zh': '君主'}, _re_compile(r'monarch')),
-        'Majority': ({'zh': '多数'}, _re_compile(r'majority')),
-        'Assembly': ({'zh': '议会'}, _re_compile(r'assembly')),
-        'State': ({'zh': '州'}, _re_compile(r'state')),
-        'Deputy': ({'zh': '副职'}, _re_compile(r'deputy'),),
-        'Leader': ({'zh': '领导'}, _re_compile(r'leader'),),
-        'Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
-        'Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
-        'Term': ({'zh': '在位时间'}, _re_compile(r'term'),),
-        'Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor|preceded|preceding'),),
-        'Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor|succeeded|succeeding'),),
-        'Prime Minister': ({'zh': '总理'}, _re_compile(r'prime.*?minister'),),
-        'Alongside': ({'zh': '合作'}, _re_compile(r'alongside'),),
-        'President': ({'zh': '总统'}, _re_compile(r'president'),),
-        'Governor': ({'zh': '总督'}, _re_compile(r'governor|governor.*?general'),),
-        'Vice President': ({'zh': '副总统'}, _re_compile(r'vice.*?president'),),
-        'Appointer': ({'zh': '任命者'}, _re_compile(r'appointer'),),
-        'Minister': ({'zh': '部长'}, _re_compile(r'minister'),),
+        '_Office': ({'zh': '职位'}, _re_compile(r'office|order'),),
+        '_Monarch': ({'zh': '君主'}, _re_compile(r'monarch')),
+        '_Majority': ({'zh': '多数'}, _re_compile(r'majority')),
+        '_Assembly': ({'zh': '议会'}, _re_compile(r'assembly')),
+        '_State': ({'zh': '州'}, _re_compile(r'state')),
+        '_Deputy': ({'zh': '副职'}, _re_compile(r'deputy'),),
+        '_Leader': ({'zh': '领导'}, _re_compile(r'leader'),),
+        '_Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
+        '_Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
+        '_Term': ({'zh': '在位时间'}, _re_compile(r'term'),),
+        '_Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor|preceded|preceding'),),
+        '_Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor|succeeded|succeeding'),),
+        '_Prime Minister': ({'zh': '总理'}, _re_compile(r'prime.*?minister'),),
+        '_Alongside': ({'zh': '合作'}, _re_compile(r'alongside'),),
+        '_President': ({'zh': '总统'}, _re_compile(r'president'),),
+        '_Governor': ({'zh': '总督'}, _re_compile(r'governor|governor.*?general'),),
+        '_Vice President': ({'zh': '副总统'}, _re_compile(r'vice.*?president'),),
+        '_Appointer': ({'zh': '任命者'}, _re_compile(r'appointer'),),
+        '_Minister': ({'zh': '部长'}, _re_compile(r'minister'),),
         'Cabinet': ({'zh': '内阁'}, ['cabinet'],),
         'Department': ({'zh': '部门'}, ['department'],),
-        'Nominator': ({'zh': '提名人'}, _re_compile(r'nominator'),),
-        'Chancellor': ({'zh': '校长'}, _re_compile(r'chancellor'),),
-        'Lieutenant': ({'zh': '中尉'}, _re_compile(r'lieutenant'),),
-        'Appointed': ({'zh': '任职日期'}, _re_compile(r'appointed'),),
+        'Allegiance': ({'zh': '忠诚'}, _re_compile(r'allegiance')),
+        '_Nominator': ({'zh': '提名人'}, _re_compile(r'nominator'),),
+        '_Chancellor': ({'zh': '校长'}, _re_compile(r'chancellor'),),
+        '_Lieutenant': ({'zh': '中尉'}, _re_compile(r'lieutenant'),),
+        '_Appointed': ({'zh': '任职日期'}, _re_compile(r'appointed'),),
         'Service Years': ({'zh': '服务年限'}, _re_compile(r'service.*?years?'))
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {'Office': ({'zh': '任职信息'},
-                                     ['Office', 'Deputy', 'Term Start', 'Term End', 'Predecessor', 'Successor',
-                                      'Prime Minister', 'President', 'Governor', 'Alongside', 'Minister', 'Appointer',
-                                      'Term', 'Chancellor', 'Leader', 'Lieutenant', 'Vice President', 'Nominator',
-                                      'Appointed', 'Monarch', 'Majority', 'Assembly', 'State'])}
+                                     ['_Office', '_Deputy', '_Term Start', '_Term End', '_Predecessor', '_Successor',
+                                      '_Prime Minister', '_President', '_Governor', '_Alongside', '_Minister',
+                                      '_Appointer',
+                                      '_Term', '_Chancellor', '_Leader', '_Lieutenant', '_Vice President', '_Nominator',
+                                      '_Appointed', '_Monarch', '_Majority', '_Assembly', '_State'])}
 
 
 class TemplateFootballPlayer(TemplateBase):
@@ -459,51 +466,53 @@ class TemplateFootballPlayer(TemplateBase):
         'Current Club': ({'zh': '目前俱乐部'}, _re_compile(r'current.*?club'),),
         'Club Number': ({'zh': '运动员编号'}, _re_compile(r'club.*?number'),),
         'Position': ({'zh': '运动员定位'}, ['position'],),
-        'Years': ({'zh': '服役年份'}, _re_compile(r'years?|club.*?years?'),),
-        'Clubs': ({'zh': '服役俱乐部'}, _re_compile(r'clubs?'),),
-        'Caps(Goals)': ({'zh': '出场数(进球数)'}, _re_compile(r'caps\(goals\)'),),
-        'Caps': ({'zh': '出场数'}, _re_compile(r'caps?'),),
-        'Goals': ({'zh': '进球数'}, _re_compile(r'goals?'),),
-        'National Years': ({'zh': '国家队服役年份'}, _re_compile(r'national.*?years?'),),
-        'National Team': ({'zh': '国家队'}, _re_compile(r'national.*?teams?'),),
-        'National Caps(Goals)': ({'zh': '在国家队出场数(在国家队进球数)'}, _re_compile(r'national.*?caps\(goals\)'),),
-        'Youth Clubs': ({'zh': '青年俱乐部'}, _re_compile(r'youth.*?clubs?'),),
-        'Youth Years': ({'zh': '青年俱乐部服役年份'}, _re_compile(r'youth.*?years?'),),
-        'Youth Caps(Goals)': ({'zh': '在青年俱乐部出场数(在青年俱乐部进球数)'}, _re_compile(r'youth.*?caps\(goals\)'),),
-        'Youth Caps': ({'zh': '在青年俱乐部出场数'}, _re_compile(r'youth.*?caps?'),),
-        'Youth Goals': ({'zh': '在青年俱乐部进球数'}, _re_compile(r'youth[-_\s]*goals?'),),
-        'National Caps': ({'zh': '在国家队出场数'}, _re_compile(r'national.*?caps?'),),
-        'National Goals': ({'zh': '在国家队进球数'}, _re_compile(r'national[-_\s]*goals?'),),
+        '_Years': ({'zh': '服役年份'}, _re_compile(r'years?|club.*?years?'),),
+        '_Clubs': ({'zh': '服役俱乐部'}, _re_compile(r'clubs?'),),
+        '_Caps(Goals)': ({'zh': '出场数(进球数)'}, _re_compile(r'caps\(goals\)'),),
+        '_Caps': ({'zh': '出场数'}, _re_compile(r'caps?'),),
+        '_Goals': ({'zh': '进球数'}, _re_compile(r'goals?'),),
+        '_National Years': ({'zh': '国家队服役年份'}, _re_compile(r'national.*?years?'),),
+        '_National Team': ({'zh': '国家队'}, _re_compile(r'national.*?teams?'),),
+        '_National Caps(Goals)': ({'zh': '在国家队出场数(在国家队进球数)'}, _re_compile(r'national.*?caps\(goals\)'),),
+        '_Youth Clubs': ({'zh': '青年俱乐部'}, _re_compile(r'youth.*?clubs?'),),
+        '_Youth Years': ({'zh': '青年俱乐部服役年份'}, _re_compile(r'youth.*?years?'),),
+        '_Youth Caps(Goals)': ({'zh': '在青年俱乐部出场数(在青年俱乐部进球数)'}, _re_compile(r'youth.*?caps\(goals\)'),),
+        '_Youth Caps': ({'zh': '在青年俱乐部出场数'}, _re_compile(r'youth.*?caps?'),),
+        '_Youth Goals': ({'zh': '在青年俱乐部进球数'}, _re_compile(r'youth[-_\s]*goals?'),),
+        '_National Caps': ({'zh': '在国家队出场数'}, _re_compile(r'national.*?caps?'),),
+        '_National Goals': ({'zh': '在国家队进球数'}, _re_compile(r'national[-_\s]*goals?'),),
         'Total Caps': ({'zh': '总出场数'}, _re_compile(r'total.*?caps?'),),
         'Total Goals': ({'zh': '总进球数'}, _re_compile(r'total.*?goals?'),),
-        'Manager Clubs': ({'zh': '管理俱乐部'}, _re_compile(r'manager.*?clubs?'),),
-        'Manager Years': ({'zh': '管理俱乐部年份'}, _re_compile(r'manager.*?years?'),),
+        '_Manager Clubs': ({'zh': '管理俱乐部'}, _re_compile(r'manager.*?clubs?'),),
+        '_Manager Years': ({'zh': '管理俱乐部年份'}, _re_compile(r'manager.*?years?'),),
     }
     fields_map.update(TemplateBase.fields_map)
-    multi_values_field = {'Clubs': ({'zh': '服役俱乐部'}, ['Years', 'Clubs', 'Caps', 'Goals', 'Caps(Goals)']),
+    multi_values_field = {'Clubs': ({'zh': '服役俱乐部'}, ['_Years', '_Clubs', '_Caps', '_Goals', '_Caps(Goals)']),
                           'National Team': (
-                              {'zh': '服役国家队'}, ['National Years', 'National Team', 'National Caps', 'National Goals',
-                                                'National Caps(Goals)']),
+                              {'zh': '服役国家队'},
+                              ['_National Years', '_National Team', '_National Caps', '_National Goals',
+                               '_National Caps(Goals)']),
                           'Youth Clubs': ({'zh': '服役青年俱乐部'},
-                                          ['Youth Clubs', 'Youth Years', 'Youth Caps(Goals)', 'Youth Caps',
-                                           'Youth Goals']),
-                          'Manager Clubs': ({'zh': '管理俱乐部'}, ['Manager Clubs', 'Manager Years'])}
+                                          ['_Youth Clubs', '_Youth Years', '_Youth Caps(Goals)', '_Youth Caps',
+                                           '_Youth Goals']),
+                          'Manager Clubs': ({'zh': '管理俱乐部'}, ['_Manager Clubs', '_Manager Years'])}
 
 
 class TemplateFootballOfficial(TemplateBase):
     template_name = 'Football Official'
     fields_map = {
-        'League': ({'zh': '联盟'}, _re_compile(r'league'),),
-        'Role': ({'zh': '角色'}, _re_compile(r'roles?'),),
-        'Years': ({'zh': '年份'}, _re_compile(r'years?'),),
-        'International Years': ({'zh': '国际年份'}, _re_compile(r'international.*?years'),),
-        'International League': ({'zh': '国际联盟'}, _re_compile(r'confederation'),),
-        'International Role': ({'zh': '国际角色'}, _re_compile(r'international.*?roles?'),)
+        '_League': ({'zh': '联盟'}, _re_compile(r'league'),),
+        '_Role': ({'zh': '角色'}, _re_compile(r'roles?'),),
+        '_Years': ({'zh': '年份'}, _re_compile(r'years?'),),
+        '_International Years': ({'zh': '国际年份'}, _re_compile(r'international.*?years'),),
+        '_International League': ({'zh': '国际联盟'}, _re_compile(r'confederation'),),
+        '_International Role': ({'zh': '国际角色'}, _re_compile(r'international.*?roles?'),)
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
-        'League': ({'zh': '联盟'}, ['League', 'Role', 'Years']),
-        'International League': ({'zh': '国际联盟'}, ['International League', 'International Role', 'International Years'])
+        'League': ({'zh': '联盟'}, ['_League', '_Role', '_Years']),
+        'International League': (
+            {'zh': '国际联盟'}, ['_International League', '_International Role', '_International Years'])
     }
 
 
@@ -552,28 +561,28 @@ class TemplateWarDetainee(TemplateBase):
 class TemplateVicePresident(TemplateBase):
     template_name = 'Vice President'
     fields_map = {
-        'Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
-        'Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
-        'Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor|succeeded|succeeding'),),
-        'President': ({'zh': '总统'}, _re_compile(r'president'),),
-        'Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor|preceded|preceding'),)
+        '_Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
+        '_Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
+        '_Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor|succeeded|succeeding'),),
+        '_President': ({'zh': '总统'}, _re_compile(r'president'),),
+        '_Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor|preceded|preceding'),)
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {'Office': ({'zh': '任职信息'},
-                                     ['Term Start', 'Term End', 'Successor', 'President', 'Predecessor'])}
+                                     ['_Term Start', '_Term End', '_Successor', '_President', '_Predecessor'])}
 
 
 class TemplateSwimmer(TemplateBase):
     template_name = 'Swimmer'
     fields_map = {
         'Medal': ({'zh': '奖牌'}, _re_compile(r'medal.*?templates?'),),
-        'National Team': ({'zh': '国家队'}, _re_compile(r'national.*?teams?'),),
-        'National Years': ({'zh': '国家队服役年份'}, _re_compile(r'national.*?years?'),),
+        '_National Team': ({'zh': '国家队'}, _re_compile(r'national.*?teams?'),),
+        '_National Years': ({'zh': '国家队服役年份'}, _re_compile(r'national.*?years?'),),
         'Coach': ({'zh': '教练'}, ['coach'],)
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {'National Team': (
-        {'zh': '服役国家队'}, ['National Years', 'National Team'])}
+        {'zh': '服役国家队'}, ['_National Years', '_National Team'])}
 
 
 class TemplateIndonesiaArtist(TemplateBase):
@@ -589,56 +598,57 @@ class TemplateIndonesiaArtist(TemplateBase):
 class TemplatePrimeMinister(TemplateBase):
     template_name = 'Prime Minister'
     fields_map = {
-        'Office': ({'zh': '职位'}, _re_compile(r'office|order'),),
-        'Monarch': ({'zh': '君主'}, _re_compile(r'monarch')),
-        'Deputy': ({'zh': '副职'}, _re_compile(r'deputy'),),
-        'Leader': ({'zh': '领导'}, _re_compile(r'leader'),),
-        'Assembly': ({'zh': '议会'}, _re_compile(r'assembly')),
-        'Majority': ({'zh': '多数'}, _re_compile(r'majority')),
-        'Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
-        'Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
-        'Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor|preceded|preceding'),),
-        'Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor|succeeded|succeeding'),),
-        'Prime Minister': ({'zh': '总理'}, _re_compile(r'prime.*?minister'),),
-        'President': ({'zh': '总统'}, _re_compile(r'president'),),
-        'Governor': ({'zh': '总督'}, _re_compile(r'governor|governor.*?general'),),
+        '_Office': ({'zh': '职位'}, _re_compile(r'office|order'),),
+        '_Monarch': ({'zh': '君主'}, _re_compile(r'monarch')),
+        '_Deputy': ({'zh': '副职'}, _re_compile(r'deputy'),),
+        '_Leader': ({'zh': '领导'}, _re_compile(r'leader'),),
+        '_Assembly': ({'zh': '议会'}, _re_compile(r'assembly')),
+        '_Majority': ({'zh': '多数'}, _re_compile(r'majority')),
+        '_Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
+        '_Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
+        '_Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor|preceded|preceding'),),
+        '_Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor|succeeded|succeeding'),),
+        '_Prime Minister': ({'zh': '总理'}, _re_compile(r'prime.*?minister'),),
+        '_President': ({'zh': '总统'}, _re_compile(r'president'),),
+        '_Governor': ({'zh': '总督'}, _re_compile(r'governor|governor.*?general'),),
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {'Office': ({'zh': '任职信息'},
-                                     ['Deputy', 'Term Start', 'Term End', 'Predecessor', 'Successor', 'President',
-                                      'Prime Minister', 'Office', 'Leader', 'Monarch', 'Majority', 'Assembly',
-                                      'Governor'])}
+                                     ['_Deputy', '_Term Start', '_Term End', '_Predecessor', '_Successor', '_President',
+                                      '_Prime Minister', '_Office', '_Leader', '_Monarch', '_Majority', '_Assembly',
+                                      '_Governor'])}
 
 
 class TemplateMP(TemplateBase):
     template_name = 'Member of Parliament'
     fields_map = {
-        'Office': ({'zh': '职位'}, _re_compile(r'office|order'),),
-        'Monarch': ({'zh': '君主'}, _re_compile(r'monarch')),
-        'Majority': ({'zh': '多数'}, _re_compile(r'majority')),
-        'Deputy': ({'zh': '副职'}, _re_compile(r'deputy'),),
-        'Assembly': ({'zh': '议会'}, _re_compile(r'assembly')),
-        'Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
-        'Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
-        'Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor|preceded|preceding'),),
-        'Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor|succeeded|succeeding'),),
-        'Prime Minister': ({'zh': '总理'}, _re_compile(r'prime.*?minister'),),
-        'Minister': ({'zh': '部长'}, _re_compile(r'minister'),),
-        'President': ({'zh': '总统'}, _re_compile(r'president'),),
+        '_Office': ({'zh': '职位'}, _re_compile(r'office|order'),),
+        '_Monarch': ({'zh': '君主'}, _re_compile(r'monarch')),
+        '_Majority': ({'zh': '多数'}, _re_compile(r'majority')),
+        '_Deputy': ({'zh': '副职'}, _re_compile(r'deputy'),),
+        '_Assembly': ({'zh': '议会'}, _re_compile(r'assembly')),
+        '_Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
+        '_Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
+        '_Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor|preceded|preceding'),),
+        '_Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor|succeeded|succeeding'),),
+        '_Prime Minister': ({'zh': '总理'}, _re_compile(r'prime.*?minister'),),
+        '_Minister': ({'zh': '部长'}, _re_compile(r'minister'),),
+        '_President': ({'zh': '总统'}, _re_compile(r'president'),),
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {'Office': ({'zh': '任职信息'},
-                                     ['Office', 'Term Start', 'Term End', 'Predecessor', 'Successor', 'Minister',
-                                      'Deputy', 'Prime Minister', 'President', 'Monarch', 'Majority', 'Assembly'])}
+                                     ['_Office', '_Term Start', '_Term End', '_Predecessor', '_Successor', '_Minister',
+                                      '_Deputy', '_Prime Minister', '_President', '_Monarch', '_Majority',
+                                      '_Assembly'])}
 
 
 class TemplateScientist(TemplateBase):
     template_name = 'Scientist'
     fields_map = {
         'Workplace': ({'zh': '工作地'}, _re_compile(r'work.*?places?')),
-        'Thesis Year': ({'zh': '论文年份'}, _re_compile(r'thesis.*?years?')),
-        'Thesis Title': ({'zh': '论文标题'}, _re_compile(r'thesis.*?titles?')),
-        'Thesis Url': ({'zh': '论文链接'}, _re_compile(r'thesis.*?urls?')),
+        '_Thesis Year': ({'zh': '论文年份'}, _re_compile(r'thesis.*?years?')),
+        '_Thesis Title': ({'zh': '论文标题'}, _re_compile(r'thesis.*?titles?')),
+        '_Thesis Url': ({'zh': '论文链接'}, _re_compile(r'thesis.*?urls?')),
         'Fields': ({'zh': '领域'}, ['field', 'fields']),
         'Academic Advisors': ({'zh': '学术顾问'}, _re_compile(r'academic.*?advisors?')),
         'Doctoral Advisors': ({'zh': '博士生导师'}, _re_compile(r'doctoral.*?advisors?')),
@@ -648,7 +658,7 @@ class TemplateScientist(TemplateBase):
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
-        'Thesis': ({'zh': '论文'}, ['Thesis Title', 'Thesis Year', 'Thesis Url'])
+        'Thesis': ({'zh': '论文'}, ['_Thesis Title', '_Thesis Year', '_Thesis Url'])
     }
 
 
@@ -666,46 +676,46 @@ class TemplateEconomist(TemplateBase):
 class TemplateGovernor(TemplateBase):
     template_name = 'Governor'
     fields_map = {
-        'Deputy': ({'zh': '副职'}, _re_compile(r'deputy'),),
-        'Monarch': ({'zh': '君主'}, _re_compile(r'monarch')),
-        'Lieutenant': ({'zh': '中尉'}, _re_compile(r'lieutenant'),),
-        'Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor|succeeded|succeeding')),
-        'Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
-        'Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
-        'Vice Governor': ({'zh': '副总督'}, _re_compile(r'vice.*?governor')),
-        'Office': ({'zh': '职位'}, _re_compile(r'office|order'),),
-        'Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor|preceded|preceding'),),
-        'President': ({'zh': '总统'}, _re_compile(r'president'),),
-        'Prime Minister': ({'zh': '总理'}, _re_compile(r'prime.*?minister'),),
+        '_Deputy': ({'zh': '副职'}, _re_compile(r'deputy'),),
+        '_Monarch': ({'zh': '君主'}, _re_compile(r'monarch')),
+        '_Lieutenant': ({'zh': '中尉'}, _re_compile(r'lieutenant'),),
+        '_Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor|succeeded|succeeding')),
+        '_Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
+        '_Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
+        '_Vice Governor': ({'zh': '副总督'}, _re_compile(r'vice.*?governor')),
+        '_Office': ({'zh': '职位'}, _re_compile(r'office|order'),),
+        '_Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor|preceded|preceding'),),
+        '_President': ({'zh': '总统'}, _re_compile(r'president'),),
+        '_Prime Minister': ({'zh': '总理'}, _re_compile(r'prime.*?minister'),),
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
-        'Office': ({'zh': '职位信息'}, ['Deputy', 'Monarch', 'Lieutenant', 'Successor',
-                                    'Term Start', 'Vice Governor', 'Office', 'Predecessor',
-                                    'President', 'Prime Minister', 'Term End'])
+        'Office': ({'zh': '职位信息'}, ['_Deputy', '_Monarch', '_Lieutenant', '_Successor',
+                                    '_Term Start', '_Vice Governor', '_Office', '_Predecessor',
+                                    '_President', '_Prime Minister', '_Term End'])
     }
 
 
 class TemplateSenator(TemplateBase):
     template_name = 'Senator'
     fields_map = {
-        'State': ({'zh': '州'}, _re_compile(r'state')),
-        'Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
-        'Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
-        'Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor|succeeded|succeeding'),),
+        '_State': ({'zh': '州'}, _re_compile(r'state')),
+        '_Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
+        '_Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
+        '_Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor|succeeded|succeeding'),),
     }
     fields_map.update(TemplateBase.fields_map)
-    multi_values_field = {'Office': ({'zh': '任职信息'}, ['State', 'Term Start', 'Term End', 'Successor'])}
+    multi_values_field = {'Office': ({'zh': '任职信息'}, ['_State', '_Term Start', '_Term End', '_Successor'])}
 
 
 class TemplateGolfer(TemplateBase):
     template_name = 'Golfer'
     fields_map = {
-        'Years': ({'zh': '获奖年份'}, _re_compile(r'years?'))
+        '_Years': ({'zh': '获奖年份'}, _re_compile(r'years?'))
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
-        'Awards': ({'zh': '奖项'}, ['Awards', 'Years'])
+        'Awards': ({'zh': '奖项'}, ['Awards', '_Years'])
     }
 
 
@@ -713,19 +723,20 @@ class TemplateFieldHockeyPlayer(TemplateBase):
     template_name = 'Field Hockey Player'
     fields_map = {
         'Position': ({'zh': '运动员定位'}, ['position'],),
-        'Years': ({'zh': '服役年份'}, _re_compile(r'years?|club.*?years?'),),
-        'Clubs': ({'zh': '服役俱乐部'}, _re_compile(r'clubs?'),),
-        'Caps': ({'zh': '出场数'}, _re_compile(r'caps?'),),
-        'Goals': ({'zh': '进球数'}, _re_compile(r'goals?'),),
-        'National Years': ({'zh': '国家队服役年份'}, _re_compile(r'national.*?years?'),),
-        'National Team': ({'zh': '国家队'}, _re_compile(r'national.*?teams?'),),
-        'National Caps': ({'zh': '在国家队出场数'}, _re_compile(r'national.*?caps?'),),
-        'National Goals': ({'zh': '在国家队进球数'}, _re_compile(r'national[-_\s]*goals?'),),
+        '_Years': ({'zh': '服役年份'}, _re_compile(r'years?|club.*?years?'),),
+        '_Clubs': ({'zh': '服役俱乐部'}, _re_compile(r'clubs?'),),
+        '_Caps': ({'zh': '出场数'}, _re_compile(r'caps?'),),
+        '_Goals': ({'zh': '进球数'}, _re_compile(r'goals?'),),
+        '_National Years': ({'zh': '国家队服役年份'}, _re_compile(r'national.*?years?'),),
+        '_National Team': ({'zh': '国家队'}, _re_compile(r'national.*?teams?'),),
+        '_National Caps': ({'zh': '在国家队出场数'}, _re_compile(r'national.*?caps?'),),
+        '_National Goals': ({'zh': '在国家队进球数'}, _re_compile(r'national[-_\s]*goals?'),),
     }
     fields_map.update(TemplateBase.fields_map)
-    multi_values_field = {'Clubs': ({'zh': '服役俱乐部'}, ['Years', 'Clubs', 'Caps', 'Goals']),
+    multi_values_field = {'Clubs': ({'zh': '服役俱乐部'}, ['_Years', '_Clubs', '_Caps', '_Goals']),
                           'National Team': (
-                              {'zh': '服役国家队'}, ['National Years', 'National Team', 'National Caps', 'National Goals'])}
+                              {'zh': '服役国家队'},
+                              ['_National Years', '_National Team', '_National Caps', '_National Goals'])}
 
 
 class TemplateTennisPlayer(TemplateBase):
@@ -786,64 +797,63 @@ class TemplatePhilosopher(TemplateBase):
 class TemplateAstronaut(TemplateBase):
     template_name = 'Astronaut'
     fields_map = {
-        'Eva': ({'zh': '舱外活动'}, _re_compile(r'eva')),
         'Mission': ({'zh': '使命'}, ['mission']),
         'Space Time': ({'zh': '时间'}, ['time'], _re_compile(r'space.*?time')),
         'Selection': ({'zh': '选拔'}, ['selection']),
         'Rank': ({'zh': '等级'}, ['rank']),
-        'Evas': ({'zh': '舱外活动'}, ['evas']),
-        'Eva Time': ({'zh': '舱外活动'}, _re_compile(r'eva.*?time'))
+        '_Eva': ({'zh': '舱外活动'}, _re_compile(r'evas?|eva.*?time')),
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
-        'Eva': ({'zh': '舱外活动'}, ['Eva', 'Eva Time', 'Evas'])
+        'Eva': ({'zh': '舱外活动'}, ['_Eva'])
     }
 
 
 class TemplateJudge(TemplateBase):
     template_name = 'Judge'
     fields_map = {
-        'Appointer': ({'zh': '任命者'}, _re_compile(r'appointer'),),
-        'Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
-        'Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
-        'Nominator': ({'zh': '提名人'}, _re_compile(r'nominator'),),
-        'Office': ({'zh': '职位'}, _re_compile(r'office|order'),),
-        'Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor|succeeded|succeeding'),),
-        'Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor|preceded|preceding'),),
+        '_Appointer': ({'zh': '任命者'}, _re_compile(r'appointer'),),
+        '_Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
+        '_Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
+        '_Nominator': ({'zh': '提名人'}, _re_compile(r'nominator'),),
+        '_Office': ({'zh': '职位'}, _re_compile(r'office|order'),),
+        '_Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor|succeeded|succeeding'),),
+        '_Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor|preceded|preceding'),),
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {'Office': ({'zh': '任职信息'},
-                                     ['Office', 'Term Start', 'Term End', 'Predecessor', 'Successor', 'Nominator',
-                                      'Appointer'])}
+                                     ['_Office', '_Term Start', '_Term End', '_Predecessor', '_Successor', '_Nominator',
+                                      '_Appointer'])}
 
 
 class TemplatePresident(TemplateBase):
     template_name = 'President'
     fields_map = {
-        'Prime Minister': ({'zh': '总理'}, _re_compile(r'prime.*?minister'),),
-        'Vice President': ({'zh': '副总统'}, _re_compile(r'vice.*?president'),),
-        'Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
-        'Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
-        'Office': ({'zh': '职位'}, _re_compile(r'office|order'),),
-        'Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor|succeeded|succeeding'),),
-        'Lieutenant': ({'zh': '中尉'}, _re_compile(r'lieutenant'),),
-        'Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor|preceded|preceding'),),
-        'Assembly': ({'zh': '议会'}, _re_compile(r'assembly')),
-        'Term': ({'zh': '在位时间'}, _re_compile(r'term'),),
-        'Alongside': ({'zh': '合作'}, _re_compile(r'alongside'),),
-        'President': ({'zh': '总统'}, _re_compile(r'president'),),
-        'Monarch': ({'zh': '君主'}, _re_compile(r'monarch')),
-        'State': ({'zh': '州'}, _re_compile(r'state')),
-        'Leader': ({'zh': '领导'}, _re_compile(r'leader'),),
+        '_Prime Minister': ({'zh': '总理'}, _re_compile(r'prime.*?minister'),),
+        '_Vice President': ({'zh': '副总统'}, _re_compile(r'vice.*?president'),),
+        '_Term Start': ({'zh': '开始时间'}, _re_compile(r'term.*?start'),),
+        '_Term End': ({'zh': '结束时间'}, _re_compile(r'term.*?end'),),
+        '_Office': ({'zh': '职位'}, _re_compile(r'office|order'),),
+        '_Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor|succeeded|succeeding'),),
+        '_Lieutenant': ({'zh': '中尉'}, _re_compile(r'lieutenant'),),
+        '_Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor|preceded|preceding'),),
+        '_Assembly': ({'zh': '议会'}, _re_compile(r'assembly')),
+        '_Term': ({'zh': '在位时间'}, _re_compile(r'term'),),
+        '_Alongside': ({'zh': '合作'}, _re_compile(r'alongside'),),
+        '_President': ({'zh': '总统'}, _re_compile(r'president'),),
+        '_Monarch': ({'zh': '君主'}, _re_compile(r'monarch')),
+        '_State': ({'zh': '州'}, _re_compile(r'state')),
+        '_Leader': ({'zh': '领导'}, _re_compile(r'leader'),),
         'Service Years': ({'zh': '服务年限'}, _re_compile(r'service.*?years?')),
         'Rank': ({'zh': '等级'}, ['rank']),
+        'Allegiance': ({'zh': '忠诚'}, _re_compile(r'allegiance')),
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {'Office': ({'zh': '任职信息'},
-                                     ['Office', 'Term Start', 'Term End', 'Predecessor', 'Successor',
-                                      'Prime Minister', 'President', 'Alongside',
-                                      'Term', 'Leader', 'Lieutenant', 'Vice President',
-                                      'Monarch', 'Assembly', 'State'])}
+                                     ['_Office', '_Term Start', '_Term End', '_Predecessor', '_Successor',
+                                      '_Prime Minister', '_President', '_Alongside',
+                                      '_Term', '_Leader', '_Lieutenant', '_Vice President',
+                                      '_Monarch', '_Assembly', '_State'])}
 
 
 class TemplateCelebrity(TemplateBase):
@@ -875,12 +885,12 @@ class TemplateSquashPlayer(TemplateBase):
 class TemplateF1Driver(TemplateBase):
     template_name = 'F1 Driver'
     fields_map = {
-        'Car Number': ({'zh': '车号'}, _re_compile(r'car.*?number')),
+        '_Car Number': ({'zh': '车号'}, _re_compile(r'car.*?number')),
         'Years': ({'zh': '年份'}, _re_compile(r'years?')),
         'Last Win': ({'zh': '最后一次胜利'}, _re_compile(r'last.*?win')),
         'Championships': ({'zh': '锦标赛'}, _re_compile(r'championships?')),
         'Poles': ({'zh': '极点'}, _re_compile(r'poles?')),
-        'Teams': ({'zh': '团队'}, ['team(s)'], _re_compile(r'teams?')),
+        '_Teams': ({'zh': '团队'}, ['team(s)'], _re_compile(r'teams?')),
         'First Win': ({'zh': '第一次胜利'}, _re_compile(r'first.*?win')),
         'Last Season': ({'zh': '最后一个赛季'}, _re_compile(r'last.*?season')),
         'Races': ({'zh': '竞赛信息'}, _re_compile(r'races?')),
@@ -894,7 +904,7 @@ class TemplateF1Driver(TemplateBase):
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
-        'Teams': ({'zh': '团队'}, ['Teams', 'Car Number'])
+        'Teams': ({'zh': '团队'}, ['_Teams', '_Car Number'])
     }
 
 
@@ -915,7 +925,46 @@ class TemplateMilitaryPerson(TemplateBase):
     fields_map = {
         'Office': ({'zh': '任职信息'}, _re_compile(r'commands?')),
         'Branch': ({'zh': '政府分支'}, _re_compile(r'branch')),
-        'Unit': ({'zh': '小队'}, _re_compile(r'unit'))
+        'Unit': ({'zh': '小队'}, _re_compile(r'unit')),
+        'Allegiance': ({'zh': '忠诚'}, _re_compile(r'allegiance')),
+        'Service Years': ({'zh': '服务年限'}, _re_compile(r'service.*?years?')),
+        'Battles': ({'zh': '战争'}, _re_compile(r'battles?')),
+        'Rank': ({'zh': '等级'}, ['rank']),
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateVideoGamePlayer(TemplateBase):
+    template_name = 'Video Game Player'
+    fields_map = {
+        'Role': ({'zh': '角色'}, _re_compile(r'roles?'),),
+        '_Years': ({'zh': '年份'}, _re_compile(r'years?')),
+        '_Teams': ({'zh': '团队'}, _re_compile(r'teams?')),
+        '_Coach Years': ({'zh': '教练年份'}, _re_compile(r'cyears?')),
+        '_Coach Teams': ({'zh': '教练团队'}, _re_compile(r'cteams?')),
+        'League': ({'zh': '联盟'}, _re_compile(r'leagues?')),
+        'Games': ({'zh': '游戏'}, _re_compile(r'games?'))
+    }
+    fields_map.update(TemplateBase.fields_map)
+    multi_values_field = {
+        'Teams': ({'zh': '团队'}, ['_Teams', '_Years']),
+        'Coach Teams': ({'zh': '教练团队'}, ['_Coach Teams', '_Coach Years'])
+    }
+
+
+class TemplateSportPerson(TemplateBase):
+    template_name = 'Sport Person'
+    fields_map = {
+        'Head Coach': ({'zh': '总教练'}, _re_compile(r'head.*?coach')),
+        'Clubs': ({'zh': '服役俱乐部'}, _re_compile(r'clubs?')),
+        'Sports': ({'zh': '运动'}, _re_compile(r'sports?')),
+        'Medal': ({'zh': '奖牌'}, _re_compile(r'medal.*?templates?'),),
+        'Teams': ({'zh': '团队'}, _re_compile(r'teams?')),
+        'Coach': ({'zh': '教练'}, ['coach'], _re_compile(r'former.*?coach')),
+        'Training': ({'zh': '训练'}, ['training']),
+        'College Team': ({'zh': '大学团队'}, _re_compile(r'college.*?teams?')),
+        'Event': ({'zh': '比赛项目'}, ['event']),
+        'Position': ({'zh': '运动员定位'}, ['position'],)
     }
     fields_map.update(TemplateBase.fields_map)
 
@@ -957,7 +1006,10 @@ _TEMPLATE_MAP = {
     TemplateSquashPlayer: ['infobox squash player'],
     TemplateF1Driver: ['infobox f1 driver'],
     TemplateJournalist: ['infobox journalist'],
-    TemplateFashionDesigner: ['infobox fashion designer']
+    TemplateFashionDesigner: ['infobox fashion designer'],
+    TemplateMilitaryPerson: ['infobox military person'],
+    TemplateVideoGamePlayer: ['infobox video game player'],
+    TemplateSportPerson: ['infobox sportsperson']
 }
 
 TEMPLATE_MAP = {i: k for k, v in _TEMPLATE_MAP.items() for i in v}
@@ -966,20 +1018,25 @@ MULTI_DICT = {i.template_name: [] for i in _TEMPLATE_MAP.keys()}
 
 if __name__ == '__main__':
     value = {
-        "image": "annasuioffice.jpg",
-        "image_size": "200px",
-        "caption": "Anna Sui di pejabatnya di New York",
-        "name": "Anna Sui",
-        "nationality": "Amerika",
-        "residence": "Bandar Raya New York",
-        "birth_date": "{{Birth date and age|1952|8|4}}",
-        "birth_place": "[[Detroit]], [[Michigan]], A.S.",
-        "education": "Parsons The New School for Design",
-        "label_name": "Anna Sui<br />Dolly Girl by Anna Sui<ref name=\"DollyGirl\">{{cite web |url=http://www.onward.co.jp/dollygirl/ |title=Dolly Girl by Anna Sui |last1= |first1= |last2= |first2= |date=2016 |website=onward.co.jp |publisher=Onward Kashiyama Co., Ltd. |access-date=October 6, 2016 |quote=|archiveurl=https://web.archive.org/web/20161006154004/http://www.onward.co.jp/dollygirl/ |archivedate=October 6, 2016 |df=mdy-all }}</ref><br />Anna Sui Mini<ref>{{cite web |url=http://www.annasui-mini.com/ |title=Anna Sui Mini |last1= |first1= |last2= |first2= |date=2016 |website=annasui-mini.com |publisher=Narumiya Online |access-date=October 6, 2016 |quote=}}</ref><br />Anna Sui Vision<ref>{{cite web |url=https://annasuivision.com/ |title=Anna Sui Vision |last= |first= |date=2017 |website=annasuivision.com |publisher=Anna Sui Corporation |access-date=February 16, 2017 |quote=}}</ref><br />The Souvenir Shop Anna Sui<ref>{{cite web |url=http://www.mammina.co.jp/thesouvenirshop_annasui.html |title=The Souvenir Shop Anna Sui |last1= |first1= |last2= |first2= |date=2016 |website=mammina.co.jp |publisher=Mammina |access-date=October 6, 2016 |quote= |archive-url=https://web.archive.org/web/20161009100429/http://www.mammina.co.jp/thesouvenirshop_annasui.html |archive-date=October 9, 2016 |df=mdy-all }}</ref>",
-        "awards": "[[Council of Fashion Designers of America|CFDA]] Perry Ellis New Talent Award<br />[[Time Magazine]] – Top 5 Fashion Icons of the Decade<ref name=\"week\">{{cite web|url=http://www.asianweek.com/2010/02/12/chinese-american-heroine-anna-sui/ |title=Chinese American Heroine: Anna Sui |date=February 12, 2010 |work=[[AsianWeek]] |access-date=August 29, 2014 |archiveurl=https://web.archive.org/web/20140621013515/http://www.asianweek.com/2010/02/12/chinese-american-heroine-anna-sui/ |archivedate=June 21, 2014 }}</ref><br />[[Council of Fashion Designers of America|CFDA]] Geoffrey Beene Lifetime Achievement Award<ref>{{cite web |url=http://cfda.com/cfda-fashion-awards#past-winners |title=Past Winners |author=<!--Staff writer(s); no by-line.--> |date= |work=cfda.com |publisher=Council of Fashion Designers of America |access-date=October 23, 2015}}</ref><br />Bravo A-List Award<br />Classic Icon of Fashion and Design<br />Identities – Leadership in the Arts Award<br />2017 Honorary Doctorate Recipient, The New School<ref>{{cite web |url=https://www.newschool.edu/pressroom/pressreleases/2017/commencement2017.htm |title=\nANNA SUI, AI-JEN POO, AND BARBARA HILLARY NAMED HONORARY DEGREE RECIPIENTS BY THE NEW SCHOOL |archivedate=March 29, 2017 }}</ref>",
-        "occupation": "Pereka fesyen",
-        "website": "{{url|https://annasui.com/}}"
+        "name": "David Boudia",
+        "image": "David Boudia at the 2016 Summer Olympics – Men's synchronized 10 metre platform.jpg",
+        "fullname": "David Alasdair Boudia",
+        "country": "{{USA}}",
+        "birth_date": "{{Birth date and age|1989|4|24}}",
+        "birth_place": "[[Abilene, Texas]]",
+        "hometown": "[[Noblesville, Indiana]]",
+        "training": "[[West Lafayette, Indiana]]",
+        "height": "{{height|ft=5|in=9}}",
+        "event": "10m, 10m segerak",
+        "club": "National Training Center",
+        "collegeteam": "[[Purdue University]]",
+        "partner": "[[Steele Johnson]]",
+        "former_partner": "[[Nick McCrory]],[[Thomas Finchum]]",
+        "headcoach": "Adam Soldati,\nJohn Wingfield",
+        "medaltemplates": "{{MedalCompetition|[[Sukan Olimpik]]}}\n{{MedalGold|[[Sukan Olimpik Musim Panas 2012|2012 London]]|[[Terjun di Sukan Olimpik Musim Panas 2012|10 m platform]]}}\n{{MedalBronze|[[Sukan Olimpik Musim Panas 2012|2012 London]]|[[Terjun di Sukan Olimpik Musim Panas 2012|10 m segerak]]}}\n{{MedalCompetition|Kejohanan Dunia Akuatik}}\n{{MedalSilver|[[Diving at the 2009 World Aquatics Championships|2009 Rome]]|10 m segerak}}\n{{MedalSilver|[[Diving at the 2011 World Aquatics Championships|2011 Shanghai]]|10 m}}\n{{MedalSilver|[[Diving at the 2013 World Aquatics Championships|2013 Barcelona]]|10 m}}\n{{MedalSilver|[[Diving at the 2015 World Aquatics Championships|2015 Kazan]]|10 m}}\n{{MedalBronze|[[Diving at the 2007 World Aquatics Championships|2007 Melbourne]]|10 m segerak}}\n{{MedalCompetition|Pan American Games}}\n{{MedalGold|[[Diving at the 2007 Pan American Games|2007 Rio]]|10 m segerak}}\n{{MedalCompetition|[[Piala Dunia Terjun FINA]]}}\n{{MedalGold|[[2010 FINA Diving World Cup|2010 Changzhou]]|Pasukan}}\n{{MedalBronze|[[2008 FINA Diving World Cup|2008 Beijing]]|10 m platform}}"
     }
-    tem = TemplateFashionDesigner(value, 'Test')
-    print(tem.fields)
+    tem = TemplateSportPerson(value, 'Test')
+    # print(tem.fields)
+    for i in tem.fields['fields']['Medal']['values']:
+        print(i, '\n')
     # print(tem.graph_entities)

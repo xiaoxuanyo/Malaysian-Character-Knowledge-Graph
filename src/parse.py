@@ -35,7 +35,11 @@ def parse(p_t):
                     values.append(str(k.value).strip(' '))
                 elif str(k.name).strip(' ') in ['m', 'end', 'reason', 'award', 'ft', 'in', 'meter', 'meters', 'cm']:
                     values.append(f"({str(k.name).strip(' ')}: {str(k.value).strip(' ')})")
-            p_t[i] = mwp.parse(', '.join(values))
+            if re.search(r'medal', str(j.name).strip().lower()):
+                res = f"({str(j.name).strip()}: {', '.join(values)})"
+            else:
+                res = ', '.join(values)
+            p_t[i] = mwp.parse(res)
         elif isinstance(j, mwp.wikicode.ExternalLink):
             p_t[i] = j.url
         elif isinstance(j, mwp.wikicode.Tag):
@@ -54,8 +58,8 @@ def parse(p_t):
 
 def _re_compile(s, mode='se', split='.*?'):
     assert mode in ['s', 'e', 'se'], f'不支持{mode}'
-    _s = r'^\s*?'
-    _e = r'\D*?(?P<e_index{}>\d*)\s*?$'
+    _s = r'^'
+    _e = r'$'
     if mode == 's':
         _p = _s + '{}'
     elif mode == 'e':
@@ -70,12 +74,14 @@ def _re_compile(s, mode='se', split='.*?'):
         for k in range(len(i_split)):
             index.append('i' + str(j))
             index.append(str(j + k))
-        ss.append(r'\D*?(?P<s_index{}>\d*)\D*?'.format(j) + r'\D*?(?P<{}_index{}>\d*)\D*?'.join(i_split).format(*index))
+        ss.append(r'\s*?(?P<s_index{}>\d*)\s*?'.format(j) + r'\D*?(?P<{}_index{}>\d*)\D*?'.join(i_split).format(
+            *index) + r'\s*?(?P<e_index{}>\d*)\s*?'.format(j))
     s = ss
     s = '|'.join([_p.format(i, j) for j, i in enumerate(s)])
     print(s)
     return re.compile(r'%s' % s)
 
 
-_re_compile(r'results?')
-
+r = '{{MedalCompetition|[[Sukan Olimpik]]}}'
+r = parse(r)
+print(''.join([str(i) for i in r]))
