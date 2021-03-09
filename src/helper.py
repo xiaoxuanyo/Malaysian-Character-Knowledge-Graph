@@ -26,6 +26,6 @@ def get_keys(templates, keys):
 
 
 if __name__ == '__main__':
-    template = ['infobox sportsperson']
-    key = 'collegeteam'
+    template = ['infobox archbishop']
+    key = 'ended'
     print(get_keys(template, key))

@@ -8,15 +8,50 @@ import re
 
 import mwparserfromhell as mwp
 
-_dont_parse = [mwp.wikicode.Argument, mwp.wikicode.Comment, mwp.wikicode.Heading]
+dont_parse = [mwp.wikicode.Argument, mwp.wikicode.Comment, mwp.wikicode.Heading]
+retain_template_name = (re.compile(r'medal'),)
+discard_template_value = (['zh-hans'],)
+retain_template_param = (['m', 'end', 'reason', 'award', 'ft', 'in', 'meter', 'meters',
+                          'cm'], re.compile(r'\d+'))
 
 
-def _is_int(ind):
-    try:
-        int(ind)
-        return True
-    except ValueError:
-        return False
+def _matches(string, match):
+    def match1(i_s, i_m):
+        assert isinstance(i_m, list) or isinstance(i_m, re.Pattern), f'类型不符，match类型{type(i_m)}'
+        if isinstance(i_m, list):
+            if i_s in i_m:
+                return True, None
+            else:
+                return False, None
+        else:
+            res = re.search(i_m, i_s)
+            if res:
+                return True, res
+            else:
+                return False, None
+
+    def match2(i_s, m_l, m_r):
+        assert isinstance(m_l, list) and isinstance(m_r,
+                                                    re.Pattern), f'类型不符，match[0]类型{type(m_l)}，match[1]类型{type(m_r)}'
+        if i_s in m_l:
+            return True, None
+        elif re.search(m_r, i_s):
+            return True, re.search(m_r, i_s)
+        else:
+            return False, None
+
+    assert isinstance(match, tuple), f'不支持的match类型{type(match)}'
+    if len(match) == 1:
+        return match1(string, match[0])
+    elif len(match) == 2:
+        if isinstance(match[0], dict):
+            return match1(string, match[1])
+        else:
+            return match2(string, match[0], match[1])
+    elif len(match) == 3:
+        return match2(string, match[1], match[2])
+    else:
+        raise ValueError(f'不支持的match参数, {match}')
 
 
 def parse(p_t):
@@ -26,30 +61,28 @@ def parse(p_t):
         if isinstance(j, mwp.wikicode.Template):
             values = []
             for k in j.params:
-
-                # if not _is_int(str(k.name)):
-                #     if str(k.name).strip() not in TEST['test']:
-                #         TEST['test'].append(str(k.name).strip())
-
-                if _is_int(str(k.name).strip(' ')) and str(k.value).strip(' ') not in ['zh-hans']:
-                    values.append(str(k.value).strip(' '))
-                elif str(k.name).strip(' ') in ['m', 'end', 'reason', 'award', 'ft', 'in', 'meter', 'meters', 'cm']:
-                    values.append(f"({str(k.name).strip(' ')}: {str(k.value).strip(' ')})")
-            if re.search(r'medal', str(j.name).strip().lower()):
-                res = f"({str(j.name).strip()}: {', '.join(values)})"
+                tag, res = _matches(k.name.strip_code().strip(' ').lower(), retain_template_param)
+                if tag and not _matches(k.value.strip_code().strip(' ').lower(), discard_template_value)[0]:
+                    if res:
+                        values.append(k.value.strip_code().strip(' '))
+                    else:
+                        values.append(f"({k.name.strip_code().strip(' ')}: {k.value.strip_code().strip(' ')})")
+            if _matches(j.name.strip_code().strip(' ').lower(), retain_template_name)[0]:
+                res = f"({j.name.strip_code().strip(' ')}: {', '.join(values)})"
             else:
                 res = ', '.join(values)
             p_t[i] = mwp.parse(res)
         elif isinstance(j, mwp.wikicode.ExternalLink):
             p_t[i] = j.url
         elif isinstance(j, mwp.wikicode.Tag):
-            rs = mwp.parse('\n') if str(j.tag) == 'br' else mwp.parse(str(j.contents).strip(' '))
+            rs = mwp.parse('\n') if j.tag.strip_code().strip(' ') == 'br' else mwp.parse(
+                j.contents.strip_code().strip(' '))
             p_t[i] = rs
         elif isinstance(j, mwp.wikicode.Wikilink):
-            p_t[i] = mwp.parse(str(j.title).strip(' '))
+            p_t[i] = mwp.parse(j.title.strip_code().strip(' '))
         elif isinstance(j, mwp.wikicode.HTMLEntity):
             p_t[i] = mwp.parse(j.normalize())
-        elif any([isinstance(j, k) for k in _dont_parse]):
+        elif any([isinstance(j, k) for k in dont_parse]):
             p_t[i] = mwp.parse(None)
     if all([isinstance(ii, mwp.wikicode.Text) for ii in p_t]):
         return p_t
@@ -82,6 +115,4 @@ def _re_compile(s, mode='se', split='.*?'):
     return re.compile(r'%s' % s)
 
 
-r = '{{MedalCompetition|[[Sukan Olimpik]]}}'
-r = parse(r)
-print(''.join([str(i) for i in r]))
+print(parse('https://ms.wikipedia.org/wiki/David_Boudia'))

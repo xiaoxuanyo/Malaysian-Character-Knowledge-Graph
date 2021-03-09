@@ -19,14 +19,6 @@ _file_log = LoggerUtil('src.templates.file', file_path='../log/templates.log',
 _console_log = LoggerUtil('src.templates.console', level=_CONSOLE_LOG_LEVEL)
 
 
-def _is_int(ind):
-    try:
-        int(ind)
-        return True
-    except ValueError:
-        return False
-
-
 def _is_include_dict(array):
     for i in array:
         if isinstance(i, dict):
@@ -85,6 +77,45 @@ def _re_compile(s, mode='se', split='.*?'):
     return re.compile(r'%s' % s)
 
 
+def _matches(string, match):
+    def match1(i_s, i_m):
+        assert isinstance(i_m, list) or isinstance(i_m, re.Pattern), f'类型不符，match类型{type(i_m)}'
+        if isinstance(i_m, list):
+            if i_s in i_m:
+                return True, None
+            else:
+                return False, None
+        else:
+            res = re.search(i_m, i_s)
+            if res:
+                return True, res
+            else:
+                return False, None
+
+    def match2(i_s, m_l, m_r):
+        assert isinstance(m_l, list) and isinstance(m_r,
+                                                    re.Pattern), f'类型不符，match[0]类型{type(m_l)}，match[1]类型{type(m_r)}'
+        if i_s in m_l:
+            return True, None
+        elif re.search(m_r, i_s):
+            return True, re.search(m_r, i_s)
+        else:
+            return False, None
+
+    assert isinstance(match, tuple), f'不支持的match类型{type(match)}'
+    if len(match) == 1:
+        return match1(string, match[0])
+    elif len(match) == 2:
+        if isinstance(match[0], dict):
+            return match1(string, match[1])
+        else:
+            return match2(string, match[0], match[1])
+    elif len(match) == 3:
+        return match2(string, match[1], match[2])
+    else:
+        raise ValueError(f'不支持的match参数, {match}')
+
+
 class QueryEngine:
 
     def __init__(self, code, https_proxy=None):
@@ -101,9 +132,6 @@ class QueryEngine:
         text = self.get_wiki_page(title, get_redirect=get_redirect, force=force)
         ps = mwp.parse(text)
         return ps.filter_templates(matches=matches)
-
-
-TEST = {'test': []}
 
 
 class TemplateBase:
@@ -173,7 +201,7 @@ class TemplateBase:
         'Influenced': ({'zh': '受影响'}, ['influenced'],),
         'Influences': ({'zh': '影响'}, ['influences'],),
         'Interests': ({'zh': '兴趣'}, _re_compile(r'main.*?interests?')),
-        'Previous Occupation': ({'zh': '以前的职业'}, _re_compile(r'previous.*?occupation')),
+        'Previous Occupation': ({'zh': '以前的职业'}, _re_compile(r'previous.*?occupation|previous.*?post')),
         'Title': ({'zh': '头衔'}, ['title']),
         'Status': ({'zh': '状态'}, ['status', 'dead'],),
         'Company': ({'zh': '公司'}, ['company']),
@@ -181,7 +209,11 @@ class TemplateBase:
     }
     multi_values_field = None
 
-    _dont_parse = [mwp.wikicode.Argument, mwp.wikicode.Comment, mwp.wikicode.Heading]
+    dont_parse = [mwp.wikicode.Argument, mwp.wikicode.Comment, mwp.wikicode.Heading]
+    retain_template_name = (re.compile(r'medal'),)
+    discard_template_value = (['zh-hans'],)
+    retain_template_param = (['m', 'end', 'reason', 'award', 'ft', 'in', 'meter', 'meters',
+                              'cm'], re.compile(r'\d+'))
 
     def __init__(self, values, entry, multi_dict=None):
         self._fields = {'template_name': self.template_name,
@@ -192,44 +224,14 @@ class TemplateBase:
             field = None
             index = None
             for kk, vv in self.fields_map.items():
-                assert isinstance(vv, tuple), f'fields map中的value为不支持的类型: {type(vv)}'
-                if len(vv) == 2 or len(vv) == 1:
-                    try:
-                        vvv = vv[1]
-                    except IndexError:
-                        vvv = vv[0]
-                    if isinstance(vvv, list):
-                        if k.lower().strip() in vvv:
-                            field = kk
-                            break
-                    elif isinstance(vvv, re.Pattern):
-                        res = re.search(vvv, k.lower().strip())
-                        if res:
-                            groups = [int(i) for i in res.groups() if i]
-                            if groups:
-                                index = groups.pop()
-                            field = kk
-                            break
-                    else:
-                        raise TypeError(f'fields map中的value为不支持的类型: {type(vvv)}')
-                elif len(vv) == 3:
-                    v_l = vv[1]
-                    v_r = vv[2]
-                    assert isinstance(v_l, list) and isinstance(v_r,
-                                                                re.Pattern), f'列表中的第一个为list枚举类型，第二个为正则表达式类型，目前的类型为: {type(v_l)}, {type(v_r)}'
-                    if k.lower().strip() in v_l:
-                        field = kk
-                        break
-                    else:
-                        res = re.search(v_r, k.lower().strip())
-                        if res:
-                            groups = [int(i) for i in res.groups() if i]
-                            if groups:
-                                index = groups.pop()
-                            field = kk
-                            break
-                else:
-                    raise ValueError('不支持的fields map类型')
+                tag, res = _matches(k.lower().strip(), vv)
+                if tag:
+                    field = kk
+                    if res:
+                        groups = [int(i) for i in res.groups() if i]
+                        if groups:
+                            index = groups.pop()
+                    break
             if field:
                 p_v = self.parse(v.strip())
                 h_v = ''.join([str(i) for i in p_v]).strip()
@@ -297,30 +299,28 @@ class TemplateBase:
             if isinstance(j, mwp.wikicode.Template):
                 values = []
                 for k in j.params:
-
-                    # if not _is_int(str(k.name)):
-                    #     if str(k.name).strip() not in TEST['test']:
-                    #         TEST['test'].append(str(k.name).strip())
-
-                    if _is_int(str(k.name).strip(' ')) and str(k.value).strip(' ') not in ['zh-hans']:
-                        values.append(str(k.value).strip(' '))
-                    elif str(k.name).strip(' ') in ['m', 'end', 'reason', 'award', 'ft', 'in', 'meter', 'meters', 'cm']:
-                        values.append(f"({str(k.name).strip(' ')}: {str(k.value).strip(' ')})")
-                if re.search(r'medal', str(j.name).strip().lower()):
-                    res = f"({str(j.name).strip()}: {', '.join(values)})"
+                    tag, res = _matches(k.name.strip_code().strip(' ').lower(), cls.retain_template_param)
+                    if tag and not _matches(k.value.strip_code().strip(' ').lower(), cls.discard_template_value)[0]:
+                        if res:
+                            values.append(k.value.strip_code().strip(' '))
+                        else:
+                            values.append(f"({k.name.strip_code().strip(' ')}: {k.value.strip_code().strip(' ')})")
+                if _matches(j.name.strip_code().strip(' ').lower(), cls.retain_template_name)[0]:
+                    res = f"({j.name.strip_code().strip(' ')}: {', '.join(values)})"
                 else:
                     res = ', '.join(values)
                 p_t[i] = mwp.parse(res)
             elif isinstance(j, mwp.wikicode.ExternalLink):
                 p_t[i] = j.url
             elif isinstance(j, mwp.wikicode.Tag):
-                rs = mwp.parse('\n') if str(j.tag) == 'br' else mwp.parse(str(j.contents).strip(' '))
+                rs = mwp.parse('\n') if j.tag.strip_code().strip(' ') == 'br' else mwp.parse(
+                    j.contents.strip_code().strip(' '))
                 p_t[i] = rs
             elif isinstance(j, mwp.wikicode.Wikilink):
-                p_t[i] = mwp.parse(str(j.title).strip(' '))
+                p_t[i] = mwp.parse(j.title.strip_code().strip(' '))
             elif isinstance(j, mwp.wikicode.HTMLEntity):
                 p_t[i] = mwp.parse(j.normalize())
-            elif any([isinstance(j, k) for k in cls._dont_parse]):
+            elif any([isinstance(j, k) for k in cls.dont_parse]):
                 p_t[i] = mwp.parse(None)
         if all([isinstance(ii, mwp.wikicode.Text) for ii in p_t]):
             return p_t
@@ -969,6 +969,41 @@ class TemplateSportPerson(TemplateBase):
     fields_map.update(TemplateBase.fields_map)
 
 
+class TemplateArchitect(TemplateBase):
+    template_name = 'Architect'
+    fields_map = {
+        'Buildings': ({'zh': '建筑物'}, _re_compile(r'significant.*?buildings?'))
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateArchbishop(TemplateBase):
+    template_name = 'Archbishop'
+    fields_map = {
+        '_Enthroned': ({'zh': '即位时间'}, ['enthroned']),
+        '_Archbishop Of': ({'zh': '大主教'}, _re_compile(r'archbishop', mode='s')),
+        '_Consecration': ({'zh': '祝胜礼/授职礼'}, ['consecration']),
+        'Motto': ({'zh': '座右铭'}, ['motto']),
+        '_Ordination': ({'zh': '派立礼/授神职礼'}, ['ordination']),
+        '_Consecrated By': ({'zh': '被祝胜/被授职'}, _re_compile(r'consecrated', mode='s')),
+        '_Ordained By': ({'zh': '被派立/被授神职'}, _re_compile(r'ordained', mode='s')),
+        '_Successor': ({'zh': '后任'}, ['heir'], _re_compile(r'successor|succeeded|succeeding')),
+        '_Predecessor': ({'zh': '前任'}, _re_compile(r'predecessor|preceded|preceding'),),
+        '_Ended': ({'zh': '结束时间'}, ['ended'])
+    }
+    fields_map.update(TemplateBase.fields_map)
+    multi_values_field = {'Office': ({'zh': '任职信息'},
+                                     ['_Enthroned', '_Ended', '_Successor', '_Predecessor',
+                                      '_Consecration', '_Consecrated By', '_Ordination', '_Ordained By',
+                                      '_Archbishop Of'])}
+
+
+class TemplateAM(TemplateBase):
+    template_name = 'Assembly Member'
+    fields_map = {}
+    fields_map.update(TemplateBase.fields_map)
+
+
 _TEMPLATE_MAP = {
     TemplateMotorcycleRider: ['infobox motorcycle rider'],
     TemplateEngineer: ['infobox engineer'],
@@ -1009,7 +1044,9 @@ _TEMPLATE_MAP = {
     TemplateFashionDesigner: ['infobox fashion designer'],
     TemplateMilitaryPerson: ['infobox military person'],
     TemplateVideoGamePlayer: ['infobox video game player'],
-    TemplateSportPerson: ['infobox sportsperson']
+    TemplateSportPerson: ['infobox sportsperson'],
+    TemplateArchitect: ['infobox arkitek', 'infobox architect'],
+    TemplateArchbishop: ['infobox archbishop']
 }
 
 TEMPLATE_MAP = {i: k for k, v in _TEMPLATE_MAP.items() for i in v}
@@ -1018,25 +1055,28 @@ MULTI_DICT = {i.template_name: [] for i in _TEMPLATE_MAP.keys()}
 
 if __name__ == '__main__':
     value = {
-        "name": "David Boudia",
-        "image": "David Boudia at the 2016 Summer Olympics – Men's synchronized 10 metre platform.jpg",
-        "fullname": "David Alasdair Boudia",
-        "country": "{{USA}}",
-        "birth_date": "{{Birth date and age|1989|4|24}}",
-        "birth_place": "[[Abilene, Texas]]",
-        "hometown": "[[Noblesville, Indiana]]",
-        "training": "[[West Lafayette, Indiana]]",
-        "height": "{{height|ft=5|in=9}}",
-        "event": "10m, 10m segerak",
-        "club": "National Training Center",
-        "collegeteam": "[[Purdue University]]",
-        "partner": "[[Steele Johnson]]",
-        "former_partner": "[[Nick McCrory]],[[Thomas Finchum]]",
-        "headcoach": "Adam Soldati,\nJohn Wingfield",
-        "medaltemplates": "{{MedalCompetition|[[Sukan Olimpik]]}}\n{{MedalGold|[[Sukan Olimpik Musim Panas 2012|2012 London]]|[[Terjun di Sukan Olimpik Musim Panas 2012|10 m platform]]}}\n{{MedalBronze|[[Sukan Olimpik Musim Panas 2012|2012 London]]|[[Terjun di Sukan Olimpik Musim Panas 2012|10 m segerak]]}}\n{{MedalCompetition|Kejohanan Dunia Akuatik}}\n{{MedalSilver|[[Diving at the 2009 World Aquatics Championships|2009 Rome]]|10 m segerak}}\n{{MedalSilver|[[Diving at the 2011 World Aquatics Championships|2011 Shanghai]]|10 m}}\n{{MedalSilver|[[Diving at the 2013 World Aquatics Championships|2013 Barcelona]]|10 m}}\n{{MedalSilver|[[Diving at the 2015 World Aquatics Championships|2015 Kazan]]|10 m}}\n{{MedalBronze|[[Diving at the 2007 World Aquatics Championships|2007 Melbourne]]|10 m segerak}}\n{{MedalCompetition|Pan American Games}}\n{{MedalGold|[[Diving at the 2007 Pan American Games|2007 Rio]]|10 m segerak}}\n{{MedalCompetition|[[Piala Dunia Terjun FINA]]}}\n{{MedalGold|[[2010 FINA Diving World Cup|2010 Changzhou]]|Pasukan}}\n{{MedalBronze|[[2008 FINA Diving World Cup|2008 Beijing]]|10 m platform}}"
+        "honorific-prefix": "{{small|[[Gelaran|Yang Berhormat]]}} {{br}} {{small|[[Gelaran|Tan Sri]] [[Datuk]]}}",
+        "name": "Murphy Pakiam",
+        "honorific-suffix": "[[Darjah kebesaran Melayu|PSM]] [[Panglima Jasa Negara|PJN]]",
+        "archbishop_of": "[[Keuskupan Agung Kuala Lumpur|Emeritus Uskup Agung Kuala Lumpur]]",
+        "image": "Archbishop Murphy Pakiam.jpg",
+        "caption": "Moto: Belas Kasihan dan Keamanan<ref name=GCath>[http://www.gcatholic.org/dioceses/diocese/kual0.htm#2965 GCatholic.org]. Retrieved 26 April 2010.</ref>",
+        "see": "[[Keuskupan Agung Kuala Lumpur]] <br>{{lang-la|Archidioecesis Kuala Lumpurensis}}",
+        "enthroned": "29 Mei 2003",
+        "ended": "13 Disember 2013",
+        "predecessor": "[[Anthony Soter Fernandez]]",
+        "successor": "[[Julian Leow Beng Kim]]",
+        "ordination": "10 Mei 1964",
+        "consecration": "4 Oktober 1995",
+        "birth_name": "Murphy Nicholas Xavier Pakiam",
+        "birth_date": "{{Birth date and age|df=yes|1938|12|06}}",
+        "birth_place": "[[Tapah]], [[Perak]], [[Negeri-negeri Melayu Bersekutu]] (kini [[Malaysia]])",
+        "religion": "[[Roman Katolik]]",
+        "residence": "Rumah Uskup Agung, Bukit Nanas, Kuala Lumpur",
+        "alma_mater": "Universiti Lateran"
     }
-    tem = TemplateSportPerson(value, 'Test')
-    # print(tem.fields)
-    for i in tem.fields['fields']['Medal']['values']:
-        print(i, '\n')
+    tem = TemplateArchbishop(value, 'Test')
+    print(tem.fields)
+    # for i in tem.fields['fields']['Office']['values']:
+    #     print(i, '\n')
     # print(tem.graph_entities)
