@@ -237,8 +237,9 @@ class TemplateBase:
         """
         # 每个字段含有的props和values
         self._fields = {'template_name': self.template_name,
-                        'fields': {k: {'props': v[0], 'values': []} if isinstance(v[0], dict) else {'values': []} for
-                                   k, v in self.fields_map.items()},
+                        'fields': {
+                            k: {'props': v[0], 'values': []} if isinstance(v[0], dict) else {'values': []} for
+                            k, v in self.fields_map.items()},
                         'entry': entry}
         # 对待解析的字典数据做字段匹配
         for k, v in values.items():
@@ -268,14 +269,14 @@ class TemplateBase:
         # 多值属性不为空时，将多值属性解析成一一对应
         if self.multi_values_field is not None:
             fields_values = {k: v for k, v in self._fields['fields'].items() if
-                             v['values'] and all([k not in kk[1] if len(kk) > 1 else k not in kk[0] for kk in
+                             v['values'] and all([k not in kk[-1] for kk in
                                                   self.multi_values_field.values()])}
-            multi_values_field = {k: {'props': v[0], 'values': []} if isinstance(v[0], dict) else {'values': []} for
-                                  k, v in self.multi_values_field.items()}
+            multi_values_field = {
+                k: {'props': v[0], 'values': []} if isinstance(v[0], dict) else {'values': []} for
+                k, v in self.multi_values_field.items()}
             for k, v in self._fields['fields'].items():
                 if v['values']:
                     for i_k, i_v in self.multi_values_field.items():
-                        assert isinstance(i_v[-1], list), f'多值字段应为list类型，目前类型为{type(i_v[-1])}'
                         i_f = i_v[-1]
                         if k in i_f:
                             for iii, jjj in enumerate(v['values']):
@@ -287,6 +288,7 @@ class TemplateBase:
                     v['values'] = _get_multi_values(v['values'])
             multi_values_field = {k: v for k, v in multi_values_field.items() if v['values']}
             fields_values.update(multi_values_field)
+            self._fields['multi_values_field'] = '\n'.join(list(self.multi_values_field.keys()))
 
             # 检查不在多值属性要求的字段是否包含多值数据，如果包含，抛出异常
             _values = set([j for i in self.multi_values_field.values() for j in i[-1]])
@@ -310,6 +312,7 @@ class TemplateBase:
             if multi_values_field:
                 fields_values.update({'Other Info': {'props': {'zh': '其他信息'},
                                                      'values': _get_multi_values(multi_values_field)}})
+                self._fields['multi_values_field'] = 'Other Info'
         self._fields['fields'] = fields_values
 
     @classmethod
@@ -1080,60 +1083,18 @@ MULTI_DICT = {i.template_name: [] for i in _TEMPLATE_MAP.keys()}
 
 if __name__ == '__main__':
     value = {
-        "name": "Marcos Antônio",
-        "fullname": "Marcos Antônio Elias Santos",
-        "birth_date": "{{Birth date and age|1983|5|25|df=y}}",
-        "birth_place": "[[Alagoinhas|Alagoinhas, Brazil]]",
-        "height": "{{Height|m=1.87|precision=0}}",
-        "position": "[[Pertahanan (bola sepak)|Pertahanan]]",
-        "currentclub": "[[Johor Darul Takzim F.C.]]",
-        "clubnumber": "6",
-        "youthyears1": "2001",
-        "youthclubs1": "[[Sport Club Corinthians Alagoano|Corinthians Alagoano]]",
-        "years1": "2002–2003",
-        "clubs1": "[[F.C. Porto|Porto B]]",
-        "caps1": "16",
-        "goals1": "1",
-        "years2": "2003",
-        "clubs2": "→ [[Associação Académica de Coimbra – O.A.F.|Académica]] (pinjam)",
-        "caps2": "12",
-        "goals2": "0",
-        "years3": "2003–2006",
-        "clubs3": "[[Gil Vicente F.C.|Gil Vicente]]",
-        "caps3": "62",
-        "goals3": "4",
-        "years4": "2006–2007",
-        "clubs4": "→ [[U.D. Leiria|União Leiria]] (pinjam)",
-        "caps4": "29",
-        "goals4": "1",
-        "years5": "2007–2009",
-        "clubs5": "[[AJ Auxerre|Auxerre]]",
-        "caps5": "10",
-        "goals5": "0",
-        "years6": "2008–2009",
-        "clubs6": "→ [[PAOK F.C.|PAOK]] (pinjam)",
-        "caps6": "12",
-        "goals6": "1",
-        "years7": "2010",
-        "clubs7": "[[C.F. Os Belenenses|Belenenses]]",
-        "caps7": "14",
-        "goals7": "0",
-        "years8": "2010–2012",
-        "clubs8": "[[FC Rapid Bucureşti|Rapid Bucureşti]]",
-        "caps8": "62",
-        "goals8": "3",
-        "years9": "2012–2014",
-        "clubs9": "[[1. FC Nuremberg]]",
-        "caps9": "1",
-        "goals9": "0",
-        "years10": "2014–2018",
-        "clubs10": "[[Johor Darul Takzim F.C.]]",
-        "caps10": "8",
-        "goals10": "0",
-        "club-update": "Oktober 14, 2014",
-        "nationalteam-update": "Oktober 14, 2014"
+        "name": "Zhang Yimou",
+        "image": "Opening Film CROPPED.jpg",
+        "caption": "Zhang di [[Festival Filem Antarabangsa Busan]] ke-15",
+        "chinesename": "[[wikt:张|张]][[wikt:艺|艺]][[wikt:谋|谋]] / [[wikt:張|張]][[wikt:藝|藝]][[wikt:謀|謀]]",
+        "birth_date": "{{Birth date and age|df=yes|1950|04|02}}",
+        "birth_place": "[[Xi'an]], [[Shaanxi]], [[China]]",
+        "occupation": "[[Pengarah filem]], [[penerbit filem]], [[pakar sinematografi]] dan [[pelakon]]",
+        "spouse": "{{marriage|Xiao Hua (肖华)|1978|1988}}<br >{{marriage|Chen Ting (陈婷)|2011}}",
+        "awards": "'''[[BAFTA Award for Best Film Not in the English Language|BAFTA Best Film Not in the English Language]]'''<br>1991 ''[[Raise the Red Lantern]]''<br>1994 ''[[To Live (1994 film)|To Live]]''<br>'''[[Golden Bear]] - [[Pesta Filem Antarabangsa Berlin]]'''<br>1987 ''[[Red Sorghum (film)|Red Sorghum]]'' <br> '''[[Silver Lion]] - [[Festival Filem Venezia]]'''<br>1991 ''[[Raise the Red Lantern]]'' <br> '''[[Singa Emas]] - [[Festival Filem Venezia]]'''<br>1992 ''[[The Story of Qiu Ju]]''<br>1999 ''[[Not One Less]]'' <br> '''[[Grand Prix (Cannes Film Festival)|Grand Jury Prize]] - [[Pesta Filem Cannes]]''' <br>1994 ''[[To Live (1994 film)|To Live]]''<br>'''[[Boston Society of Film Critics Award for Best Director|BSFC Award for Best Director]]'''<br>2004 ''[[House of Flying Daggers]]'' <br> '''[[National Society of Film Critics Award for Best Director|NSFC Award for Best Director]]'''<br>2004 ''[[Hero (2002 film)|Hero]]'' ; ''[[House of Flying Daggers]]''",
+        "goldenroosterawards": "'''Best Director'''<br />1999 ''Not One Less''<br />2000 ''The Road Home''<br />2003 ''Hero''<br />'''Best Actor'''<br />1988 ''Old Well''"
     }
-    tem = TemplateFootballPlayer(value, 'Test')
+    tem = TemplateChineseActorSinger(value, 'Test')
     print(tem.fields)
     # for i in tem.fields['fields']['Office']['values']:
     #     print(i, '\n')
