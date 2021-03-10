@@ -19,6 +19,14 @@ _file_log = LoggerUtil('src.templates.file', file_path='../log/templates.log',
 _console_log = LoggerUtil('src.templates.console', level=_CONSOLE_LOG_LEVEL)
 
 
+def _is_int(string):
+    try:
+        int(string)
+        return True
+    except (TypeError, ValueError):
+        return False
+
+
 def _is_include_dict(array):
     for i in array:
         if isinstance(i, dict):
@@ -135,7 +143,10 @@ class QueryEngine:
 
 
 class TemplateBase:
+    # 模板名称，在构建图谱时模板名对当成节点的标签名
     template_name = 'Base'
+    # 定义需要获取的字段，以下划线开头的字段表示为多值属性字段
+    # 元组中第一个字典形式的数据在构建图谱时是作为边的公共属性
     fields_map = {
         'Name': ({'zh': '名字'}, ['name', 'nama'],),
         'Alias': ({'zh': '别名'}, ['alias', 'nickname', 'hangul', 'id'], _re_compile(r'other.*?names?|real.*?name')),
@@ -207,39 +218,54 @@ class TemplateBase:
         'Company': ({'zh': '公司'}, ['company']),
         'Type': ({'zh': '种类'}, ['type']),
     }
+    # 多值属性字段
     multi_values_field = None
-
-    dont_parse = [mwp.wikicode.Argument, mwp.wikicode.Comment, mwp.wikicode.Heading]
+    # 在解析时跳过的类型
+    dont_parse_type = [mwp.wikicode.Argument, mwp.wikicode.Comment, mwp.wikicode.Heading]
+    # 解析wiki对象template时需要保存的模板名，通常情况下是因为模板名保存了必要的信息，比如某次比赛中的名次（金牌、银牌等）保存在模板名中
     retain_template_name = (re.compile(r'medal'),)
+    # 解析wiki对象template时需要剔除的特殊值，这些值往往无意义
     discard_template_value = (['zh-hans'],)
+    # 解析wiki对象template时需要保存的参数名，通常情况下是因为身高体重等字段的参数名中含有度量单位，例如m: 1.76，这些参数名需要保存，确保信息准确
     retain_template_param = (['m', 'end', 'reason', 'award', 'ft', 'in', 'meter', 'meters',
                               'cm'], re.compile(r'\d+'))
 
-    def __init__(self, values, entry, multi_dict=None):
+    def __init__(self, values, entry):
+        """
+        :param values: 待解析的字典数据
+        :param entry: title，词条名
+        """
+        # 每个字段含有的props和values
         self._fields = {'template_name': self.template_name,
                         'fields': {k: {'props': v[0], 'values': []} if isinstance(v[0], dict) else {'values': []} for
                                    k, v in self.fields_map.items()},
                         'entry': entry}
+        # 对待解析的字典数据做字段匹配
         for k, v in values.items():
             field = None
             index = None
             for kk, vv in self.fields_map.items():
+                # 字段匹配
                 tag, res = _matches(k.lower().strip(), vv)
                 if tag:
                     field = kk
+                    # 是否包含多值数据，检查下标
                     if res:
                         groups = [int(i) for i in res.groups() if i]
                         if groups:
                             index = groups.pop()
                     break
             if field:
+                # 对wiki对象递归解析
                 p_v = self.parse(v.strip())
                 h_v = ''.join([str(i) for i in p_v]).strip()
                 if h_v:
                     _console_log.logger.debug(f'\n{field}: {h_v}\n')
                     if index:
                         h_v = {index: h_v}
-                    self._fields['fields'][field]['values'].append(h_v)
+                    if h_v not in self._fields['fields'][field]['values']:
+                        self._fields['fields'][field]['values'].append(h_v)
+        # 多值属性不为空时，将多值属性解析成一一对应
         if self.multi_values_field is not None:
             fields_values = {k: v for k, v in self._fields['fields'].items() if
                              v['values'] and all([k not in kk[1] if len(kk) > 1 else k not in kk[0] for kk in
@@ -249,50 +275,46 @@ class TemplateBase:
             for k, v in self._fields['fields'].items():
                 if v['values']:
                     for i_k, i_v in self.multi_values_field.items():
-                        if len(i_v) > 1:
-                            i_f = i_v[1]
-                        else:
-                            i_f = i_v[0]
+                        assert isinstance(i_v[-1], list), f'多值字段应为list类型，目前类型为{type(i_v[-1])}'
+                        i_f = i_v[-1]
                         if k in i_f:
                             for iii, jjj in enumerate(v['values']):
                                 if not isinstance(jjj, dict):
                                     v['values'][iii] = {str(0) + str(iii): v['values'][iii]}
-                                    # v['values'][iii] = {0: v['values'][iii]}
-                                    # break
                             multi_values_field[i_k]['values'].append({k: v['values']})
             for v in multi_values_field.values():
                 if v['values']:
                     v['values'] = _get_multi_values(v['values'])
             multi_values_field = {k: v for k, v in multi_values_field.items() if v['values']}
             fields_values.update(multi_values_field)
+
+            # 检查不在多值属性要求的字段是否包含多值数据，如果包含，抛出异常
+            _values = set([j for i in self.multi_values_field.values() for j in i[-1]])
+            for k, v in fields_values.items():
+                if k not in _values:
+                    if _is_include_dict(v['values']):
+                        raise ValueError(f'field({k})包含字典即多值数据{v["values"]}，不能当成单独字段解析，请将该字段放入multi_values_field中进行解析')
+        # 多值属性为空时，自动将多值属性解析为一个other info字段
         else:
             fields_values = {}
             multi_values_field = []
-            name = []
             for k, v in self._fields['fields'].items():
                 if v['values']:
                     if _is_include_dict(v['values']):
                         for iii, jjj in enumerate(v['values']):
                             if not isinstance(jjj, dict):
                                 v['values'][iii] = {str(0) + str(iii): v['values'][iii]}
-                                # v['values'][iii] = {0: v['values'][iii]}
-                                # break
-                        name.append(k)
                         multi_values_field.append({k: v['values']})
                     else:
                         fields_values[k] = v
             if multi_values_field:
-                _console_log.logger.info(name)
-                if multi_dict is not None:
-                    for jj in name:
-                        if jj not in multi_dict[self.template_name]:
-                            multi_dict[self.template_name].append(jj)
                 fields_values.update({'Other Info': {'props': {'zh': '其他信息'},
                                                      'values': _get_multi_values(multi_values_field)}})
         self._fields['fields'] = fields_values
 
     @classmethod
     def parse(cls, p_t):
+        # 递归解析wiki对象
         p_t = mwp.parse(p_t)
         p_t = p_t.filter(recursive=False)
         for i, j in enumerate(p_t):
@@ -300,8 +322,9 @@ class TemplateBase:
                 values = []
                 for k in j.params:
                     tag, res = _matches(k.name.strip_code().strip(' ').lower(), cls.retain_template_param)
+                    res = res.group() if res else ''
                     if tag and not _matches(k.value.strip_code().strip(' ').lower(), cls.discard_template_value)[0]:
-                        if res:
+                        if _is_int(res):
                             values.append(k.value.strip_code().strip(' '))
                         else:
                             values.append(f"({k.name.strip_code().strip(' ')}: {k.value.strip_code().strip(' ')})")
@@ -320,7 +343,7 @@ class TemplateBase:
                 p_t[i] = mwp.parse(j.title.strip_code().strip(' '))
             elif isinstance(j, mwp.wikicode.HTMLEntity):
                 p_t[i] = mwp.parse(j.normalize())
-            elif any([isinstance(j, k) for k in cls.dont_parse]):
+            elif any([isinstance(j, k) for k in cls.dont_parse_type]):
                 p_t[i] = mwp.parse(None)
         if all([isinstance(ii, mwp.wikicode.Text) for ii in p_t]):
             return p_t
@@ -328,10 +351,12 @@ class TemplateBase:
 
     @property
     def fields(self):
+        # 获取字典类型的数据
         return self._fields
 
     @property
     def graph_entities(self):
+        # 获取构建图谱时需要的类三元组数据
         result = []
         fields = self.fields
         t_n = fields['template_name']
@@ -1055,27 +1080,60 @@ MULTI_DICT = {i.template_name: [] for i in _TEMPLATE_MAP.keys()}
 
 if __name__ == '__main__':
     value = {
-        "honorific-prefix": "{{small|[[Gelaran|Yang Berhormat]]}} {{br}} {{small|[[Gelaran|Tan Sri]] [[Datuk]]}}",
-        "name": "Murphy Pakiam",
-        "honorific-suffix": "[[Darjah kebesaran Melayu|PSM]] [[Panglima Jasa Negara|PJN]]",
-        "archbishop_of": "[[Keuskupan Agung Kuala Lumpur|Emeritus Uskup Agung Kuala Lumpur]]",
-        "image": "Archbishop Murphy Pakiam.jpg",
-        "caption": "Moto: Belas Kasihan dan Keamanan<ref name=GCath>[http://www.gcatholic.org/dioceses/diocese/kual0.htm#2965 GCatholic.org]. Retrieved 26 April 2010.</ref>",
-        "see": "[[Keuskupan Agung Kuala Lumpur]] <br>{{lang-la|Archidioecesis Kuala Lumpurensis}}",
-        "enthroned": "29 Mei 2003",
-        "ended": "13 Disember 2013",
-        "predecessor": "[[Anthony Soter Fernandez]]",
-        "successor": "[[Julian Leow Beng Kim]]",
-        "ordination": "10 Mei 1964",
-        "consecration": "4 Oktober 1995",
-        "birth_name": "Murphy Nicholas Xavier Pakiam",
-        "birth_date": "{{Birth date and age|df=yes|1938|12|06}}",
-        "birth_place": "[[Tapah]], [[Perak]], [[Negeri-negeri Melayu Bersekutu]] (kini [[Malaysia]])",
-        "religion": "[[Roman Katolik]]",
-        "residence": "Rumah Uskup Agung, Bukit Nanas, Kuala Lumpur",
-        "alma_mater": "Universiti Lateran"
+        "name": "Marcos Antônio",
+        "fullname": "Marcos Antônio Elias Santos",
+        "birth_date": "{{Birth date and age|1983|5|25|df=y}}",
+        "birth_place": "[[Alagoinhas|Alagoinhas, Brazil]]",
+        "height": "{{Height|m=1.87|precision=0}}",
+        "position": "[[Pertahanan (bola sepak)|Pertahanan]]",
+        "currentclub": "[[Johor Darul Takzim F.C.]]",
+        "clubnumber": "6",
+        "youthyears1": "2001",
+        "youthclubs1": "[[Sport Club Corinthians Alagoano|Corinthians Alagoano]]",
+        "years1": "2002–2003",
+        "clubs1": "[[F.C. Porto|Porto B]]",
+        "caps1": "16",
+        "goals1": "1",
+        "years2": "2003",
+        "clubs2": "→ [[Associação Académica de Coimbra – O.A.F.|Académica]] (pinjam)",
+        "caps2": "12",
+        "goals2": "0",
+        "years3": "2003–2006",
+        "clubs3": "[[Gil Vicente F.C.|Gil Vicente]]",
+        "caps3": "62",
+        "goals3": "4",
+        "years4": "2006–2007",
+        "clubs4": "→ [[U.D. Leiria|União Leiria]] (pinjam)",
+        "caps4": "29",
+        "goals4": "1",
+        "years5": "2007–2009",
+        "clubs5": "[[AJ Auxerre|Auxerre]]",
+        "caps5": "10",
+        "goals5": "0",
+        "years6": "2008–2009",
+        "clubs6": "→ [[PAOK F.C.|PAOK]] (pinjam)",
+        "caps6": "12",
+        "goals6": "1",
+        "years7": "2010",
+        "clubs7": "[[C.F. Os Belenenses|Belenenses]]",
+        "caps7": "14",
+        "goals7": "0",
+        "years8": "2010–2012",
+        "clubs8": "[[FC Rapid Bucureşti|Rapid Bucureşti]]",
+        "caps8": "62",
+        "goals8": "3",
+        "years9": "2012–2014",
+        "clubs9": "[[1. FC Nuremberg]]",
+        "caps9": "1",
+        "goals9": "0",
+        "years10": "2014–2018",
+        "clubs10": "[[Johor Darul Takzim F.C.]]",
+        "caps10": "8",
+        "goals10": "0",
+        "club-update": "Oktober 14, 2014",
+        "nationalteam-update": "Oktober 14, 2014"
     }
-    tem = TemplateArchbishop(value, 'Test')
+    tem = TemplateFootballPlayer(value, 'Test')
     print(tem.fields)
     # for i in tem.fields['fields']['Office']['values']:
     #     print(i, '\n')
