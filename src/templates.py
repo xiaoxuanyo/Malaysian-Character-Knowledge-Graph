@@ -80,8 +80,7 @@ def _re_compile(s, mode='se', split='.*?'):
             index.append(str(j + k))
         ss.append(r'\s*?(?P<s_index{}>\d*)\s*?'.format(j) + r'\D*?(?P<{}_index{}>\d*)\D*?'.join(i_split).format(
             *index) + r'\s*?(?P<e_index{}>\d*)\s*?'.format(j))
-    s = ss
-    s = '|'.join([_p.format(i, j) for j, i in enumerate(s)])
+    s = '|'.join([_p.format(i, j) for j, i in enumerate(ss)])
     return re.compile(r'%s' % s)
 
 
