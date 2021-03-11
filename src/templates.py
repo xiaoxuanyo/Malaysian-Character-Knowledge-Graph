@@ -531,6 +531,7 @@ if __name__ == '__main__':
     }
     tem = TemplatePolitician(value, 'Test')
     print(tem.fields)
+    # print(tem.graph_entities)
     # for i in tem.fields['fields']['Office']['values']:
     #     print(i, '\n')
     # print(tem.graph_entities)

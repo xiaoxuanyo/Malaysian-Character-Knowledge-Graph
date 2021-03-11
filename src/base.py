@@ -16,10 +16,10 @@ __all__ = ['re_compile', 'LoggerUtil', 'mwp', 'QueryEngine', 'TemplateBase',
            'TemplateResearchers']
 
 _FILE_LOG_LEVEL = logging.WARNING
-_CONSOLE_LOG_LEVEL = logging.ERROR
+_CONSOLE_LOG_LEVEL = logging.WARNING
 
 _file_log = LoggerUtil('src.templates.file', file_path='../log/templates.log',
-                       level=_FILE_LOG_LEVEL, mode='w+')
+                       level=_FILE_LOG_LEVEL, mode='a+')
 _console_log = LoggerUtil('src.templates.console', level=_CONSOLE_LOG_LEVEL)
 
 
@@ -232,6 +232,7 @@ class TemplateBase:
     retain_template_name = (re.compile(r'medal'),)
     # 解析wiki对象template时需要剔除的特殊值，这些值往往无意义
     discard_template_value = (['zh-hans'],)
+    # 解析wiki对象WikiLink时需要剔除的值，这些值往往无意义
     discard_wikilink_value = (re.compile(r'\.svg$'),)
     # 解析wiki对象template时需要保存的参数名，通常情况下是因为身高体重等字段的参数名中含有度量单位，例如m: 1.76，这些参数名需要保存，确保信息准确
     retain_template_param = (['m', 'end', 'reason', 'award', 'ft', 'in', 'meter', 'meters',
@@ -290,23 +291,30 @@ class TemplateBase:
                                 if not isinstance(jjj, dict):
                                     v['values'][iii] = {str(0) + str(iii): v['values'][iii]}
                             multi_values_field[i_k]['values'].append({k: v['values']})
+            multi_values_field = {k: v for k, v in multi_values_field.items() if v['values']}
+            # 为主实体entry增加props, 构建知识图谱时有用
             name = []
             for k, v in multi_values_field.items():
-                if v['values']:
-                    name.append(
-                        f"{k}: ({', '.join([list(i.keys())[0] for i in v['values']])})"
-                    )
-                    v['values'] = _get_multi_values(v['values'])
-            multi_values_field = {k: v for k, v in multi_values_field.items() if v['values']}
+                name.append(
+                    f"{k}: ({', '.join([list(i.keys())[0] for i in v['values']])})"
+                )
+                v['values'] = _get_multi_values(v['values'])
             fields_values.update(multi_values_field)
-            self._fields['primary_entity_props'] = {'multi_values_field': '\n'.join(name)}
+            if name:
+                self._fields['primary_entity_props'] = {'multi_values_field': '\n'.join(name)}
 
-            # 检查不在多值属性要求的字段是否包含多值数据，如果包含，抛出异常
+            # 检查不在多值属性要求的字段是否包含多值数据，如果包含超过2个，抛出异常，有1个时会给出警告
             _values = set([j for i in self.multi_values_field.values() for j in i[-1]])
+            _multi = []
             for k, v in fields_values.items():
                 if k not in _values:
                     if _is_include_dict(v['values']):
-                        raise ValueError(f'field({k})包含字典即多值数据{v["values"]}，不能当成单独字段解析，请将该字段放入multi_values_field中进行解析')
+                        _multi.append(k)
+            if len(_multi) >= 2:
+                raise ValueError(f"field({', '.join(_multi)})包含字典即多值数据，不能当成单独字段解析，请将该字段放入multi_values_field中进行解析")
+            elif _multi:
+                _file_log.logger.warning(f"未指定在multi_values_field中多值字段({_multi[0]})")
+                fields_values[_multi[0]]['values'] = [list(i.values())[0] for i in fields_values[_multi[0]]['values']]
         # 多值属性为空时，自动将多值属性解析为一个other info字段
         else:
             fields_values = {}
@@ -380,10 +388,11 @@ class TemplateBase:
         fields = self.fields
         t_n = fields['template_name']
         s_e = fields['entry']
+        entry_props = fields.get('primary_entity_props', {})
         for k, v in fields['fields'].items():
-            attr = v.get('relation_props', {})
+            relation_attr = v.get('relation_props', {})
             for vl in v['values']:
-                result.append((k, vl, attr))
+                result.append((k, vl, relation_attr, entry_props))
         return {'node_label': t_n, 'node_name': s_e, 'node_relation': result}
 
 
@@ -426,7 +435,6 @@ class TemplateOfficer(TemplateBase):
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
-        'Native Name': ({'zh': '本地名字'}, ['Native Name']),
         'Office': ({'zh': '重要职务'},
                    ['_Reign', '_Successor', '_Predecessor', '_Coronation', '_Succession', '_Regent', '_Office',
                     '_Prime Minister', '_Minister', '_Term Start', '_Term End', '_Term', '_Monarch', '_Majority',
