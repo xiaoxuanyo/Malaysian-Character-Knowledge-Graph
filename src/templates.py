@@ -108,7 +108,7 @@ class TemplateArchbishop(TemplateBase):
         '_Consecrated By': ({'zh': '被祝胜/被授职'}, re_compile(r'consecrated', mode='s')),
         '_Ordained By': ({'zh': '被派立/被授神职'}, re_compile(r'ordained', mode='s')),
         '_Successor': ({'zh': '（政党、政府的）接替者/继任者'}, ['heir'], re_compile(r'successor|succeeded|succeeding')),
-        '_Predecessor': ({'zh': '（政党、政府的）前任'}, re_compile(r'predecessor|preceded|preceding'),),
+        '_Predecessor': ({'zh': '（政党、政府的）前任'}, ['pendahulu'], re_compile(r'predecessor|preceded|preceding'),),
         '_Ended': ({'zh': '结束时间'}, ['ended'])
     }
     fields_map.update(TemplateBase.fields_map)
