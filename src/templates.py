@@ -185,7 +185,7 @@ class TemplateF1Driver(TemplateBase):
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
-        'Teams': ({'zh': '团队'}, ['_Teams', '_Car Number', '_Years'])
+        'Teams': ({'zh': '团队/队伍'}, ['_Teams', '_Car Number', '_Years'])
     }
 
 
@@ -202,7 +202,7 @@ class TemplateVideoGamePlayer(TemplateBase):
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
-        'Teams': ({'zh': '团队'}, ['_Teams', '_Years']),
+        'Teams': ({'zh': '团队/队伍'}, ['_Teams', '_Years']),
         'Coach Teams': ({'zh': '教练团队'}, ['_Coach Teams', '_Coach Years'])
     }
 
@@ -297,6 +297,27 @@ class TemplateCyclist(TemplateBase):
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
         'Pro Team': ({'专业团队'}, ['_Pro Team', '_Pro Years'])
+    }
+
+
+class TemplateIceHockeyPlayer(TemplateBase):
+    template_name = 'Ice Hockey Player'
+    fields_map = {
+        'League': ({'zh': '联盟'}, re_compile(r'league'),),
+        '_Height(in)': ({'zh': '身高(英寸)'}, re_compile(r'height.*?in')),
+        '_Height(ft)': ({'zh': '身高(英尺)'}, re_compile(r'height.*?ft')),
+        'Draft Team': ({'zh': '选秀队'}, re_compile(r'draft.*?team')),
+        'Teams': ({'zh': '团队/队伍'}, re_compile(r'teams?')),
+        'Position': ({'zh': '运动员定位'}, ['position'],),
+        'Draft Year': ({'zh': '选秀年份'}, re_compile(r'draft.*?year')),
+        'Turned Pro': ({'zh': '成为职业选手'}, re_compile(r'career.*?start')),
+        'Draft': ({'zh': '选秀'}, ['draft']),
+        '_Weight(lb)': ({'zh': '体重(磅)'}, re_compile(r'weight.*?lb'))
+    }
+    fields_map.update(TemplateBase.fields_map)
+    multi_values_field = {
+        'Height': ({'zh': '身高'}, ['_Height(in)', '_Height(ft)']),
+        'Weight': ({'zh': '体重'}, ['_Weight(lb)'])
     }
 
 
@@ -464,7 +485,7 @@ class TemplateSquashPlayer(TemplateSportsPlayer):
 class TemplateSportPerson(TemplateSportsPlayer):
     template_name = 'Sport Person'
     fields_map = {
-        'Teams': ({'zh': '团队'}, re_compile(r'teams?')),
+        'Teams': ({'zh': '团队/队伍'}, re_compile(r'teams?')),
         'College Team': ({'zh': '大学团队'}, re_compile(r'college.*?teams?')),
         'Training': ({'zh': '训练/培训'}, ['training']),
     }
@@ -503,7 +524,7 @@ _TEMPLATE_MAP = {
     TemplateEconomist: ['infobox economist'],
     TemplateGovernor: ['infobox governor general', 'infobox governor'],
     TemplateSenator: ['infobox senator'],
-    TemplateGolfer: ['infobox golfer'],
+    TemplateGolfer: ['infobox golfer', 'infobox pemain golf'],
     TemplateFieldHockeyPlayer: ['infobox field hockey player'],
     TemplateTennisPlayer: ['infobox tennis biography', 'infobox tennis player'],
     TemplateBoxer: ['infobox peninju', 'infobox boxer'],
@@ -536,9 +557,11 @@ _TEMPLATE_MAP = {
     TemplateGymnast: ['infobox gymnast'],
     TemplateFirstLady: ['infobox first lady'],
     TemplateChristianLeader: ['infobox christian leader'],
-    TemplateMusicalArtist: ['infobox musical artist', 'infobox musical artist 2', 'infobox musical_artist'],
+    TemplateMusicalArtist: ['infobox musical artist', 'infobox musical artist 2', 'infobox musical_artist',
+                            'infobox ahli muzik'],
     TemplateCriminal: ['infobox criminal'],
-    TemplateCyclist: ['infobox cyclist']
+    TemplateCyclist: ['infobox cyclist'],
+    TemplateIceHockeyPlayer: ['infobox ice hockey player']
 }
 
 TEMPLATE_MAP = {i: k for k, v in _TEMPLATE_MAP.items() for i in v}
@@ -547,22 +570,22 @@ MULTI_DICT = {i.template_name: [] for i in _TEMPLATE_MAP.keys()}
 
 if __name__ == '__main__':
     value = {
-        "name": "Adam Derek Scott",
-        "image": "[[Imej:Adam_scott.jpg|thumb|right|Adam Scott.]]",
-        "date": "July 16",
-        "height": "6 [[Feet (unit of length)|ft]] 1 [[inch|in]] (1.85 [[metre|m]])",
-        "year": "1980",
-        "birth place": "Adelaide, Australia",
-        "nationality": "{{AUS}}",
-        "residence": "[[Crans sur Sierre]], [[Switzerland]]",
-        "college": "University of Nevada, Las Vegas",
-        "year professional": "June 2000",
-        "current tour": "[[PGA Tour]] (joined 2003),",
-        "professional wins": "12 (PGA Tour 5; European Tour 5; other 2)",
-        "majorsandyearswon": "None",
-        "awardnameandyear": "None"
+        "team": "[[Columbus Blue Jackets]]",
+        "league": "[[NHL]]",
+        "position": "[[Defenceman (ice hockey)|Defenceman]]",
+        "shoots": "Left",
+        "height_ft": "6",
+        "height_in": "2",
+        "weight_lb": "211",
+        "nationality": "CAN",
+        "birth_date": "[[April 30]], [[1983]]",
+        "birth_place": "[[Port Hawkesbury]], [[Nova Scotia|NS]], [[Canada|CAN]]",
+        "draft": "85th overall",
+        "draft_year": "2001",
+        "draft_team": "[[Columbus Blue Jackets]]",
+        "career_start": "2003"
     }
-    tem = TemplateGolfer(value, 'Test')
+    tem = TemplateIceHockeyPlayer(value, 'Test')
     print(tem.fields)
     # print(tem.graph_entities)
     # for i in tem.fields['fields']['Office']['values']:

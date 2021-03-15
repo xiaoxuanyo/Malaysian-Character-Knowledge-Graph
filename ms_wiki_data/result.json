@@ -4019,14 +4019,6 @@
       "birth_name",
       "label"
    ],
-   "infobox animanga/manga": [
-      "num_volumes",
-      "serialized",
-      "publisher",
-      "first_run",
-      "last_run",
-      "author"
-   ],
    "infobox us cabinet official": [
       "profession",
       "title",
@@ -4041,19 +4033,6 @@
       "birth_place",
       "president",
       "term_start"
-   ],
-   "infobox album": [
-      "background",
-      "name",
-      "italic title",
-      "artist",
-      "genre",
-      "type",
-      "length",
-      "language",
-      "producer",
-      "released",
-      "label"
    ],
    "infobox ice hockey player": [
       "league",
@@ -4803,12 +4782,6 @@
       "pseudonym",
       "children",
       "alma_mater"
-   ],
-   "infobox medal templates": [
-      "titlestyle",
-      "expand",
-      "medals",
-      "title"
    ],
    "infobox musical artist 2": [
       "occupation",
