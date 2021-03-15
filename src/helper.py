@@ -45,6 +45,6 @@ def get_fields(all_template):
 
 
 if __name__ == '__main__':
-    template = ['infobox sultan']
-    key = 'keputeraan'
+    template = ['infobox criminal']
+    key = 'charge'
     print(get_keys(template, key))

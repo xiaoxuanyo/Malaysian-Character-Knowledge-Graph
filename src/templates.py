@@ -139,7 +139,10 @@ class TemplateFootballOfficial(TemplateBase):
 class TemplateGolfer(TemplateBase):
     template_name = 'Golfer'
     fields_map = {
-        '_Years': ({'zh': '获奖年份'}, re_compile(r'years?'))
+        '_Years': ({'zh': '获奖年份'}, re_compile(r'years?')),
+        'Tour': ({'zh': '巡回比赛'}, re_compile(r'tour', mode='e')),
+        'Turned Pro': ({'zh': '成为职业选手'}, re_compile(r'year.*?professional|professional.*?years?')),
+        'Wins': ({'zh': '获胜次数'}, re_compile(r'wins?', mode='e')),
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
@@ -244,6 +247,59 @@ class TemplateWrestler(TemplateBase):
     fields_map.update(TemplateBase.fields_map)
 
 
+class TemplateChristianLeader(TemplateBase):
+    template_name = 'Christian Leader'
+    fields_map = {
+        '_Enthroned': ({'zh': '即位时间'}, ['enthroned']),
+        '_Archbishop Of': ({'zh': '大主教'}, re_compile(r'archbishop', mode='s')),
+        '_Consecration': ({'zh': '祝胜礼/授职礼'}, ['consecration']),
+        'Motto': ({'zh': '座右铭'}, ['motto']),
+        '_Ordination': ({'zh': '派立礼/授神职礼'}, ['ordination']),
+        '_Consecrated By': ({'zh': '被祝胜/被授职'}, re_compile(r'consecrated', mode='s')),
+        '_Ordained By': ({'zh': '被派立/被授神职'}, re_compile(r'ordained', mode='s')),
+        '_Successor': ({'zh': '（政党、政府的）接替者/继任者'}, ['heir'], re_compile(r'successor|succeeded|succeeding')),
+        '_Predecessor': ({'zh': '（政党、政府的）前任'}, ['pendahulu'], re_compile(r'predecessor|preceded|preceding'),),
+        '_Ended': ({'zh': '结束时间'}, ['ended'], re_compile(r'term.*?end')),
+        '_Appointed': ({'zh': '任职日期'}, re_compile(r'appointed'),),
+        '_Cardinal': ({'zh': '红衣主教/枢机主教'}, ['cardinal']),
+        '_Created Cardinal By': ({'zh': '被创建基数'}, re_compile(r'created.*?cardinal', mode='s'))
+    }
+    fields_map.update(TemplateBase.fields_map)
+    multi_values_field = {'Office': ({'zh': '重要职务'},
+                                     ['_Enthroned', '_Ended', '_Successor', '_Predecessor',
+                                      '_Consecration', '_Consecrated By', '_Ordination', '_Ordained By',
+                                      '_Archbishop Of', '_Cardinal', '_Created Cardinal By', '_Appointed'])}
+
+
+class TemplateCriminal(TemplateBase):
+    template_name = 'Criminal'
+    fields_map = {
+        'Penalty': ({'zh': '刑罚/处罚'}, ['penalty'], re_compile(r'conviction.*?penalty')),
+        'Victims': ({'zh': '受害人'}, re_compile(r'victims?')),
+        'Conviction': ({'zh': '定罪'}, ['conviction']),
+        'Allegiance': ({'zh': '(对政党、宗教、统治者的)忠诚/效忠'}, re_compile(r'allegiance')),
+        'Motive': ({'zh': '动机'}, ['motive']),
+        'Charge': ({'zh': '指控'}, ['charge'],),
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateCyclist(TemplateBase):
+    template_name = 'Cyclist'
+    fields_map = {
+        'Role': ({'zh': '角色/职能/作用'}, re_compile(r'roles?'),),
+        '_Pro Team': ({'zh': '专业团队'}, re_compile(r'pro.*?teams?')),
+        'Medal': ({'zh': '奖牌'}, re_compile(r'medal.*?templates?'),),
+        '_Pro Years': ({'zh': '专业团队年份'}, re_compile(r'pro.*?years?')),
+        'Current Team': ({'zh': '目前团队'}, re_compile(r'current.*?team'),),
+        'Major Wins': ({'zh': '重大胜利'}, re_compile(r'major.*?wins?'))
+    }
+    fields_map.update(TemplateBase.fields_map)
+    multi_values_field = {
+        'Pro Team': ({'专业团队'}, ['_Pro Team', '_Pro Years'])
+    }
+
+
 class TemplateRoyalty(TemplateOfficer):
     template_name = 'Royalty'
 
@@ -310,6 +366,10 @@ class TemplatePolitician(TemplateOfficer):
     fields_map.update(TemplateOfficer.fields_map)
 
 
+class TemplateFirstLady(TemplateOfficer):
+    template_name = 'First Lady'
+
+
 class TemplateChineseActorSinger(TemplatePerformanceWorker):
     template_name = 'Chinese Actor And Singer'
 
@@ -332,6 +392,10 @@ class TemplateIndonesiaArtist(TemplatePerformanceWorker):
 
 class TemplateComedian(TemplatePerformanceWorker):
     template_name = 'Comedian'
+
+
+class TemplateMusicalArtist(TemplatePerformanceWorker):
+    template_name = 'Musical Artist'
 
 
 class TemplateScientist(TemplateResearchers):
@@ -411,6 +475,10 @@ class TemplateHandballPlayer(TemplateSportsPlayer):
     template_name = 'Handball Player'
 
 
+class TemplateGymnast(TemplateSportsPlayer):
+    template_name = 'Gymnast'
+
+
 _TEMPLATE_MAP = {
     TemplateMotorcycleRider: ['infobox motorcycle rider'],
     TemplateEngineer: ['infobox engineer'],
@@ -440,7 +508,7 @@ _TEMPLATE_MAP = {
     TemplateTennisPlayer: ['infobox tennis biography', 'infobox tennis player'],
     TemplateBoxer: ['infobox peninju', 'infobox boxer'],
     TemplateTwitchStreamer: ['infobox twitch streamer'],
-    TemplatePhilosopher: ['infobox philosopher', 'infobox philosopher'],
+    TemplatePhilosopher: ['infobox philosopher', 'infobox_philosopher'],
     TemplateAstronaut: ['infobox angkasawan', 'infobox astronaut'],
     TemplateJudge: ['infobox judge'],
     TemplatePresident: ['infobox president', 'infobox_president'],
@@ -464,7 +532,13 @@ _TEMPLATE_MAP = {
     TemplatePageantTitleholder: ['infobox pageant titleholder'],
     TemplateWrestler: ['infobox wrestler', 'infobox professional wrestler'],
     TemplateIndianPolitician: ['infobox indian politician'],
-    TemplatePolitician: ['infobox_politician', 'infobox politician']
+    TemplatePolitician: ['infobox_politician', 'infobox politician'],
+    TemplateGymnast: ['infobox gymnast'],
+    TemplateFirstLady: ['infobox first lady'],
+    TemplateChristianLeader: ['infobox christian leader'],
+    TemplateMusicalArtist: ['infobox musical artist', 'infobox musical artist 2', 'infobox musical_artist'],
+    TemplateCriminal: ['infobox criminal'],
+    TemplateCyclist: ['infobox cyclist']
 }
 
 TEMPLATE_MAP = {i: k for k, v in _TEMPLATE_MAP.items() for i in v}
@@ -473,63 +547,22 @@ MULTI_DICT = {i.template_name: [] for i in _TEMPLATE_MAP.keys()}
 
 if __name__ == '__main__':
     value = {
-        "honorific-prefix": "[[Yang Berhormat]] [[Haji|Haji]]",
-        "name": "Khairy Jamaluddin",
-        "native_name": "خيري بن جمال الدين",
-        "image": "Menteri Sains, Teknologi dan Inovasi - Khairy Jamaluddin.png",
-        "office": "[[Menteri Tenaga, Teknologi, Sains, Perubahan Iklim dan Alam Sekitar Malaysia|Menteri Sains, Teknologi dan Inovasi]]",
-        "monarch": "[[Al-Sultan Abdullah Ri’ayatuddin Al-Mustafa Billah Shah ibni Almarhum Sultan Haji Ahmad Shah Al-Musta’in Billah|Al-Sultan Abdullah]]",
-        "primeminister": "{{PN PPBM}} [[Muhyiddin Yassin|Yang Amat Berhormat Tan Sri Dato' (Dr) Haji Muhyiddin bin Haji Muhammad Yassin]]",
-        "predecessor": "[[Yeo Bee Yin|Yang Berhormat Puan Yeo Bee Yin]] <br/> {{small|(Sains & Teknologi)}} <br/> {{small|(Nota: Inovasi dahulunya [[Wilfred Madius Tangau]])}}",
-        "deputy": "[[Ahmad Amzad Hashim|Yang Berhormat Tuan Haji Ahmad Amzad Hashim]]",
-        "term_start": "10 Mac 2020",
-        "constituency": "[[Rembau]]",
-        "office2": "[[Kementerian Belia dan Sukan Malaysia|Menteri Belia dan Sukan]]",
-        "monarch2": "KDYMM Seri Paduka Baginda [[Sultan Abdul Halim Mu’adzam Shah|Sultan Abdul Halim]] <br /> [[Sultan Muhammad V, Kelantan|Sultan Muhammad V]]",
-        "term_start2": "16 Mei 2013",
-        "term_end2": "10 Mei 2018",
-        "primeminister2": "{{BN UMNO}} [[Najib Razak | Yang Amat Berhormat Dato' Seri Mohd Najib bin Tun Abdul Razak]]",
-        "predecessor2": "YBhg Dato' Seri [[Ahmad Shabery Cheek]]",
-        "successor2": "YB Encik [[Syed Saddiq Syed Abdul Rahman]]",
-        "office3": "Ketua Pemuda Barisan Nasional",
-        "term_start3": "[[2008]]",
-        "term_end3": "[[2018]]",
-        "predecessor3": "YB Dato' Seri [[Hishammuddin Hussein]]",
-        "successor3": "[[Asyraf Wajdi Dusuki]]",
-        "office4": "[[Pergerakan Pemuda UMNO|Ketua Pemuda UMNO]]",
-        "term_start4": "[[2008]]",
-        "term_end4": "[[2018]]",
-        "predecessor4": "YB Dato' Seri [[Hishamuddin Hussein]]",
-        "successor4": "[[Asyraf Wajdi Dusuki]]",
-        "constituency_MP1": "[[Rembau]]",
-        "parliament1": "Malaysia",
-        "term_start1": "9 Mac 2008",
-        "predecessor1": "YBhg Tan Sri Dato' [[Firdaus Muhammad Rom bin Harun]]",
-        "majority1": "18,357 (PRU-13)",
-        "birth_date": "{{Birth date and age|1976|1|10|df=y}}",
-        "birth_place": "[[Bandar Kuwait]], [[Kuwait]]",
-        "residence": "[[Kuala Lumpur]], [[Malaysia]]",
-        "party": "{{BN dan UMNO}}",
-        "otherparty": "[[Fail:Logo Perikatan Nasional.svg|30px]] [[Perikatan Nasional|PN]] (2020-Kini)",
-        "nationality": "[[Malaysia]]",
-        "occupation": "[[Ahli politik]], [[Wartawan]]",
-        "alma_mater": "Universiti Oxford <br/>University College London",
-        "relations": "Menantu [[Abdullah Ahmad Badawi|Tun Hj. Abdullah bin Hj. Ahmad Badawi]]",
-        "spouse": "[[Nori Abdullah|Nori Tun Haji Abdullah]]",
-        "children": "1. Jibriel Ali <br/>2. Timor Abdullah <br/>3. Raif Averroes",
-        "salary": "RM61,188.22 sebulan<ref name=\"SPRM\">{{cite web|url=https://mydeclaration.sprm.gov.my/|title=Portal Pengisytiharan Harta|website=[[Suruhanjaya Pencegahan Rasuah Malaysia]]|access-date=15 Oktober 2020|archive-url=https://web.archive.org/web/20200817042419/https://mydeclaration.sprm.gov.my/|archive-date=24 Ogos 2020}}</ref>",
-        "net_worth": "RM8.5 ke 10 juta<ref name=\"SPRM />",
-        "signature": "Khairy Jamaluddin signature.svg",
-        "website": "[http://www.rembau.net/ YB Khairy Jamaluddin]",
-        "allegiance": "{{Flagu|Malaysia}}",
-        "branch": "{{flagicon image|Flag of the Malaysian Army.svg}} [[Tentera Darat Malaysia]]<br /> {{flagicon image|Flag of the Territorial Army Regiment.gif}} [[Rejimen Askar Wataniah]]",
-        "rank": "[[Fail:Malaysia-army-OF-6.svg|30px]] [[Brigedier Jeneral]]",
-        "serviceyears": "2010–2018",
-        "unit": "Rejimen AW 508",
-        "module": "{{Infobox sportsperson\n| child            = Yes\n| headercolor      = \n| textcolor        = \n| country          = [[Malaysia]]\n| sport            = [[Polo]]\n| event            = \n| paralympics      = \n| medaltemplates   = \n{{MedalSport | [[Polo]] }}\n{{MedalCountry | {{MAS}} }}\n{{MedalCompetition | [[Sukan Asia Tenggara]] }}\n{{MedalGold| [[Polo di Sukan Asia Tenggara 2017|Kuala Lumpur 2017]]|Pasukan}}\n}}",
-        "honorific suffix": "[[Ahli Parlimen|AP]]"
+        "name": "Adam Derek Scott",
+        "image": "[[Imej:Adam_scott.jpg|thumb|right|Adam Scott.]]",
+        "date": "July 16",
+        "height": "6 [[Feet (unit of length)|ft]] 1 [[inch|in]] (1.85 [[metre|m]])",
+        "year": "1980",
+        "birth place": "Adelaide, Australia",
+        "nationality": "{{AUS}}",
+        "residence": "[[Crans sur Sierre]], [[Switzerland]]",
+        "college": "University of Nevada, Las Vegas",
+        "year professional": "June 2000",
+        "current tour": "[[PGA Tour]] (joined 2003),",
+        "professional wins": "12 (PGA Tour 5; European Tour 5; other 2)",
+        "majorsandyearswon": "None",
+        "awardnameandyear": "None"
     }
-    tem = TemplatePolitician(value, 'Test')
+    tem = TemplateGolfer(value, 'Test')
     print(tem.fields)
     # print(tem.graph_entities)
     # for i in tem.fields['fields']['Office']['values']:

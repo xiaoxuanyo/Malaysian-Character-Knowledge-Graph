@@ -173,14 +173,14 @@ class TemplateBase:
         'Religion': ({'zh': '宗教'}, ['religion', 'agama'],),
         'Education': ({'zh': '教育'}, ['education', 'pendidikan'],),
         'Occupation': ({'zh': '职业/工作'}, ['occupation', 'occupation(s)', 'pekerjaan', 'ocupation', 'occuption',
-                                         'occuoation', 'profession'], re_compile(r'current.*?occupation')),
+                                         'occuoation', 'profession'], re_compile(r'current.*?occupation|other.*?post')),
         'Years Active': ({'zh': '活跃年份'}, ['active', 'yeaesactive', 'era'], re_compile(r'year.*?active')),
         'Death Date': ({'zh': '死亡日期'}, re_compile(r'death.*?date|date.*?death'),),
         'Death Place': ({'zh': '死亡时间'}, re_compile(r'death.*?place|place.*?death'),),
         'Burial Place': ({'zh': '埋葬地点'}, re_compile(r'resting.*?place|burial.*?place'),),
         'Spouse': ({'zh': '配偶'}, ['spouse', 'pasangan', 'spouses', 'consort'],),
         'Parents': ({'zh': '父母'}, ['parents'],),
-        'Sibling': ({'zh': '兄弟姐妹'}, ['sibling']),
+        'Sibling': ({'zh': '兄弟姐妹'}, ['sibling', 'saudara']),
         'Children': ({'zh': '孩子'}, ['children', 'issue', 'anak'],),
         'Gender': ({'zh': '性别'}, ['gender'],),
         'Alma Mater': ({'zh': '母校'}, re_compile(r'alma.*?mater'),),
@@ -190,7 +190,7 @@ class TemplateBase:
         'Mother': ({'zh': '目前'}, ['mother', 'ibunda'],),
         'Residence': ({'zh': '住宅/(尤指)豪宅'}, ['residence', 'residential'],),
         'Known For': ({'zh': '著名'}, ['known'], re_compile(r'known.*?for'),),
-        'Partner': ({'zh': '伙伴/搭档/合伙人'}, ['partner'], re_compile(r'former.*?partner|domestic.*?partner')),
+        'Partner': ({'zh': '伙伴/搭档/合伙人'}, ['partner', 'partners'], re_compile(r'former.*?partner|domestic.*?partner')),
         'Citizenship': ({'zh': '公民/公民身份'}, ['citizenship'],),
         'Honorific Prefix': ({'zh': '尊称前缀'}, re_compile(r'honorific.*?prefix'),),
         'Honorific Suffix': ({'zh': '尊称后缀'}, re_compile(r'honorific.*?suffix'),),
@@ -205,7 +205,8 @@ class TemplateBase:
         'Awards': ({'zh': '奖项'}, ['prizes'], re_compile(r'wards?', mode='e'),),
         'Projects': ({'zh': '项目'}, re_compile(r'projects?', mode='e'),),
         'Institutions': (
-            {'zh': '机构（包括大学、银行等规模大的机构以及代理机构和工作机构）'}, ['agency'], re_compile(r'institutions?|work.*?institutions?')),
+            {'zh': '机构（包括大学、银行等规模大的机构以及代理机构和工作机构）'}, ['agency', 'organization'],
+            re_compile(r'institutions?|work.*?institutions?')),
         'School': ({'zh': '学校'}, ['school', 'college'], re_compile(r'high.*?school')),
         'Hair Color': ({'zh': '发色'}, ['haircolour'], re_compile(r'hair.*?color')),
         'Eye Color': ({'zh': '眼睛颜色'}, ['eyecolour'], re_compile(r'eye.*?color')),
@@ -221,9 +222,8 @@ class TemplateBase:
         'Interests': ({'zh': '兴趣'}, re_compile(r'main.*?interests?')),
         'Previous Occupation': ({'zh': '以前的职业'}, re_compile(r'previous.*?occupation|previous.*?post')),
         'Title': ({'zh': '头衔/职称'}, ['title']),
-        'Status': ({'zh': '状态'}, ['status', 'dead'],),
-        'Company': ({'zh': '公司'}, ['company']),
-        'Type': ({'zh': '种类/类型'}, ['type']),
+        'Status': ({'zh': '状态'}, ['dead'], re_compile(r'status', mode='e')),
+        'Type': ({'zh': '种类/类型'}, re_compile(r'type', mode='e')),
     }
     # 多值属性字段
     multi_values_field = None
@@ -382,20 +382,6 @@ class TemplateBase:
         # 获取字典类型的数据
         return self._fields
 
-    @property
-    def graph_entities(self):
-        # 获取构建图谱时需要的类三元组数据
-        result = []
-        fields = self.fields
-        t_n = fields['template_name']
-        s_e = fields['entry']
-        entry_props = fields.get('primary_entity_props', {})
-        for k, v in fields['fields'].items():
-            relation_attr = v.get('relation_props', {})
-            for vl in v['values']:
-                result.append((k, vl, relation_attr, entry_props))
-        return {'node_label': t_n, 'node_name': s_e, 'node_relation': result}
-
 
 class TemplateOfficer(TemplateBase):
     template_name = 'Officer'
@@ -498,8 +484,8 @@ class TemplatePerformanceWorker(TemplateBase):
         'Pinyin Chines Name': ({'zh': '名字拼音'}, ['pinyinchinesename'],),
         'Simplified Chinese Name': ({'zh': '简体名字'}, ['simpchinesename'],),
         'Genre': ({'zh': '体裁/类型（文学、艺术、电影或音乐的）'}, ['genre'],),
-        'Label': ({'zh': '唱片公司'}, ['label'],),
-        'Instrument': ({'zh': '乐器'}, ['instrument', 'instruments'],),
+        'Label': ({'zh': '唱片公司'}, ['label', 'company', 'syarikat pengurusan'], re_compile(r'record.*?label')),
+        'Instrument': ({'zh': '乐器'}, ['instrument', 'instruments', 'instrumen'], re_compile(r'notable.*?instruments?')),
         'Voice Type': ({'zh': '声音类型'}, re_compile(r'voice.*?type'),),
         'Chinese Name': ({'zh': '中文名'}, re_compile(r'chinese.*?name'),),
         'Notable Role': ({'zh': '著名角色'}, re_compile(r'notable.*?roles?'),),
@@ -516,7 +502,8 @@ class TemplatePerformanceWorker(TemplateBase):
         'Films': ({'zh': '电影'}, ['films', 'film'],),
         'Agent': ({'zh': '经纪人'}, ['agent'],),
         'Television': ({'zh': '电视节目'}, ['television'],),
-        'Medium': ({'zh': '(传播信息的)媒介'}, ['medium'])
+        'Medium': ({'zh': '(传播信息的)媒介'}, ['medium']),
+        'Fan Club': ({'zh': '粉丝俱乐部'}, ['kelab peminat'])
     }
     fields_map.update(TemplateBase.fields_map)
 
