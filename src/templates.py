@@ -122,7 +122,6 @@ class TemplateFootballOfficial(TemplateBase):
     template_name = 'Football Official'
     fields_map = {
         '_League': ({'zh': '联盟'}, re_compile(r'league'),),
-        '_Role': ({'zh': '角色'}, re_compile(r'roles?'),),
         '_Years': ({'zh': '年份'}, re_compile(r'years?'),),
         '_International Years': ({'zh': '国际年份'}, re_compile(r'international.*?years'),),
         '_International League': ({'zh': '国际联盟'}, re_compile(r'confederation'),),
@@ -130,7 +129,7 @@ class TemplateFootballOfficial(TemplateBase):
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
-        'League': ({'zh': '联盟'}, ['_League', '_Role', '_Years']),
+        'League': ({'zh': '联盟'}, ['_League', 'Roles', '_Years']),
         'International League': (
             {'zh': '国际联盟'}, ['_International League', '_International Role', '_International Years'])
     }
@@ -192,7 +191,6 @@ class TemplateF1Driver(TemplateBase):
 class TemplateVideoGamePlayer(TemplateBase):
     template_name = 'Video Game Player'
     fields_map = {
-        'Role': ({'zh': '角色/职能/作用'}, re_compile(r'roles?'),),
         '_Years': ({'zh': '年份'}, re_compile(r'years?')),
         '_Teams': ({'zh': '团队'}, re_compile(r'teams?')),
         '_Coach Years': ({'zh': '教练年份'}, re_compile(r'cyears?')),
@@ -287,7 +285,6 @@ class TemplateCriminal(TemplateBase):
 class TemplateCyclist(TemplateBase):
     template_name = 'Cyclist'
     fields_map = {
-        'Role': ({'zh': '角色/职能/作用'}, re_compile(r'roles?'),),
         '_Pro Team': ({'zh': '专业团队'}, re_compile(r'pro.*?teams?')),
         'Medal': ({'zh': '奖牌'}, re_compile(r'medal.*?templates?'),),
         '_Pro Years': ({'zh': '专业团队年份'}, re_compile(r'pro.*?years?')),
@@ -319,6 +316,30 @@ class TemplateIceHockeyPlayer(TemplateBase):
         'Height': ({'zh': '身高'}, ['_Height(in)', '_Height(ft)']),
         'Weight': ({'zh': '体重'}, ['_Weight(lb)'])
     }
+
+
+class TemplateWriter(TemplateBase):
+    template_name = 'Writer'
+    fields_map = {
+        'Language': ({'zh': '语言'}, ['language']),
+        'Genre': ({'zh': '体裁/类型（文学、艺术、电影或音乐的）'}, ['genre', 'genres'],),
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateMuslimScholar(TemplateBase):
+    template_name = 'Muslim Scholar'
+
+
+class TemplateSpy(TemplateBase):
+    template_name = 'Spy'
+    fields_map = {
+        'Allegiance': ({'zh': '(对政党、宗教、统治者的)忠诚/效忠'}, re_compile(r'allegiance')),
+        'Service Years': ({'zh': '服务年限'}, re_compile(r'service.*?years?')),
+        'Service': ({'zh': '服务'}, ['service']),
+        'Rank': ({'zh': '等级/军衔'}, ['rank']),
+    }
+    fields_map.update(TemplateBase.fields_map)
 
 
 class TemplateRoyalty(TemplateOfficer):
@@ -513,7 +534,7 @@ _TEMPLATE_MAP = {
                              'infobox football biography 2', 'infobox biografi bolasepak'],
     TemplateFootballOfficial: ['infobox football official'],
     TemplateAdultBiography: ['infobox adult male', 'infobox adult biography'],
-    TemplateActor: ['infobox actor', 'infobox actor voice'],
+    TemplateActor: ['infobox actor', 'infobox actor voice', 'infobox_actor', 'infobox actress'],
     TemplateWarDetainee: ['infobox war on terror detainee', 'infobox wot detainees'],
     TemplateVicePresident: ['infobox vice president'],
     TemplateSwimmer: ['infobox swimmer'],
@@ -538,7 +559,7 @@ _TEMPLATE_MAP = {
     TemplateF1Driver: ['infobox f1 driver'],
     TemplateJournalist: ['infobox journalist'],
     TemplateFashionDesigner: ['infobox fashion designer'],
-    TemplateMilitaryPerson: ['infobox military person'],
+    TemplateMilitaryPerson: ['infobox military person', 'infobox anggota tentera'],
     TemplateVideoGamePlayer: ['infobox video game player'],
     TemplateSportPerson: ['infobox sportsperson'],
     TemplateArchitect: ['infobox arkitek', 'infobox architect'],
@@ -561,7 +582,10 @@ _TEMPLATE_MAP = {
                             'infobox ahli muzik'],
     TemplateCriminal: ['infobox criminal'],
     TemplateCyclist: ['infobox cyclist'],
-    TemplateIceHockeyPlayer: ['infobox ice hockey player']
+    TemplateIceHockeyPlayer: ['infobox ice hockey player'],
+    TemplateWriter: ['infobox pengarang', 'infobox writer'],
+    TemplateMuslimScholar: ['infobox muslim scholar'],
+    TemplateSpy: ['infobox spy']
 }
 
 TEMPLATE_MAP = {i: k for k, v in _TEMPLATE_MAP.items() for i in v}
@@ -570,22 +594,19 @@ MULTI_DICT = {i.template_name: [] for i in _TEMPLATE_MAP.keys()}
 
 if __name__ == '__main__':
     value = {
-        "team": "[[Columbus Blue Jackets]]",
-        "league": "[[NHL]]",
-        "position": "[[Defenceman (ice hockey)|Defenceman]]",
-        "shoots": "Left",
-        "height_ft": "6",
-        "height_in": "2",
-        "weight_lb": "211",
-        "nationality": "CAN",
-        "birth_date": "[[April 30]], [[1983]]",
-        "birth_place": "[[Port Hawkesbury]], [[Nova Scotia|NS]], [[Canada|CAN]]",
-        "draft": "85th overall",
-        "draft_year": "2001",
-        "draft_team": "[[Columbus Blue Jackets]]",
-        "career_start": "2003"
+        "name": "Zvi Zamir",
+        "image": "PikiWiki Israel 28632 Art of Israel.jpg",
+        "allegiance": "{{flag|Israel}}",
+        "service": "* [[Palmach]]\n* [[Pasukan Pertahanan Israel]]\n* [[Mossad]]",
+        "birth_date": "{{Birth date and age|1925|03|03|df=y}}",
+        "birth_place": "[[Łódź]], [[Republik Poland Kedua|Poland]]",
+        "nationality": "[[Israel]]",
+        "religion": "[[Yahudi]]",
+        "rank": "[[Mejar Jeneral]]",
+        "serviceyears": "* Palmach: 1942-1948\n* IDF: 1948-1968\n* Mossad: 1968-1974",
+        "occupation": "Pengarah [[Mossad]]"
     }
-    tem = TemplateIceHockeyPlayer(value, 'Test')
+    tem = TemplateSpy(value, 'Test')
     print(tem.fields)
     # print(tem.graph_entities)
     # for i in tem.fields['fields']['Office']['values']:

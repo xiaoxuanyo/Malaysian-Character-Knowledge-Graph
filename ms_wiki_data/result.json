@@ -4396,13 +4396,6 @@
       "prev series",
       "imagesize"
    ],
-   "infobox monarch styles": [
-      "offstyle",
-      "image",
-      "royal name",
-      "dipstyle",
-      "altstyle"
-   ],
    "infobox muslim scholar": [
       "ethnicity",
       "era",
@@ -4416,18 +4409,6 @@
       "death_date",
       "place_born",
       "title"
-   ],
-   "infobox discography": [
-      "name",
-      "tracks",
-      "format",
-      "type",
-      "singles",
-      "writer",
-      "producer",
-      "released",
-      "from album",
-      "label"
    ],
    "infobox spy": [
       "occupation",
@@ -4567,13 +4548,6 @@
       "homepage",
       "alma_mater"
    ],
-   "infobox hrhstyles": [
-      "offstyle",
-      "image",
-      "royal name",
-      "dipstyle",
-      "altstyle"
-   ],
    "infobox le mans driver": [
       "best finish",
       "years",
@@ -4695,14 +4669,6 @@
       "bbr",
       "draft_pick",
       "career_position"
-   ],
-   "infobox cardinal styles": [
-      "offstyle",
-      "name",
-      "image_size",
-      "relstyle",
-      "image",
-      "dipstyle"
    ],
    "infobox religious biography": [
       "profession",
@@ -4842,14 +4808,6 @@
       "image",
       "nickname",
       "updated"
-   ],
-   "infobox animanga/header": [
-      "ja_name_trans",
-      "ja_name",
-      "title_name",
-      "image",
-      "genre",
-      "size"
    ],
    "infobox_actor": [
       "1",
