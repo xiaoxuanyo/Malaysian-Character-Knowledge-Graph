@@ -190,7 +190,7 @@ class TemplateBase:
         'Relatives': ({'zh': '关系'}, ['relatives,husband'], re_compile(r'relatives?|relations?|related.*?to'),),
         'Full Name': ({'zh': '全名'}, ['nama penuh'], re_compile(r'full.*?name'),),
         'Father': ({'zh': '父亲'}, ['father', 'bapa'],),
-        'Mother': ({'zh': '目前'}, ['mother', 'ibunda'],),
+        'Mother': ({'zh': '母亲'}, ['mother', 'ibunda'],),
         'Residence': ({'zh': '住宅/(尤指)豪宅'}, ['residence', 'residential'],),
         'Known For': ({'zh': '著名'}, ['known'], re_compile(r'known.*?for'),),
         'Partner': ({'zh': '伙伴/搭档/合伙人'}, ['partner', 'partners'], re_compile(r'former.*?partner|domestic.*?partner')),

@@ -1,8 +1,104 @@
 {
    "relations": [
       [
-         "Motto",
-         "座右铭"
+         "Singles Record",
+         "单打纪录"
+      ],
+      [
+         "Singles Titles",
+         "单打冠军"
+      ],
+      [
+         "Highest Singles Ranking",
+         "最高单打排名"
+      ],
+      [
+         "Current Singles Ranking",
+         "目前单打排名"
+      ],
+      [
+         "Doubles Record",
+         "双打记录"
+      ],
+      [
+         "Doubles Titles",
+         "双打冠军"
+      ],
+      [
+         "Highest Doubles Ranking",
+         "最高双打排名"
+      ],
+      [
+         "Current Doubles Ranking",
+         "目前双打排名"
+      ],
+      [
+         "Mixed Titles",
+         "混打冠军"
+      ],
+      [
+         "Mixed Record",
+         "混打记录"
+      ],
+      [
+         "Turned Pro",
+         "成为职业选手/专业选手"
+      ],
+      [
+         "Career Prize Money",
+         "职业奖金"
+      ],
+      [
+         "Player Name",
+         "运动员名称"
+      ],
+      [
+         "Current Club",
+         "目前俱乐部"
+      ],
+      [
+         "Club Number",
+         "运动员编号"
+      ],
+      [
+         "Position",
+         "运动员定位"
+      ],
+      [
+         "Total Caps",
+         "总出场数"
+      ],
+      [
+         "Total Goals",
+         "总进球数"
+      ],
+      [
+         "Coach",
+         "教练"
+      ],
+      [
+         "Medal",
+         "奖牌"
+      ],
+      [
+         "Competition",
+         "比赛信息"
+      ],
+      [
+         "Style",
+         "风格"
+      ],
+      [
+         "Event",
+         "比赛项目"
+      ],
+      [
+         "Head Coach",
+         "总教练"
+      ],
+      [
+         "Sports",
+         "运动项目"
       ],
       [
          "Name",
@@ -134,7 +230,7 @@
       ],
       [
          "Mother",
-         "目前"
+         "母亲"
       ],
       [
          "Residence",
@@ -293,178 +389,6 @@
          "(人生或国家历史的)时期"
       ],
       [
-         "Cabinet",
-         "内阁"
-      ],
-      [
-         "Department",
-         "部门"
-      ],
-      [
-         "Allegiance",
-         "(对政党、宗教、统治者的)忠诚/效忠"
-      ],
-      [
-         "Service Years",
-         "服务年限"
-      ],
-      [
-         "Rank",
-         "等级/军衔"
-      ],
-      [
-         "Training",
-         "训练/培训"
-      ],
-      [
-         "Fields",
-         "领域"
-      ],
-      [
-         "Office",
-         "重要职务"
-      ],
-      [
-         "Branch",
-         "分支部门"
-      ],
-      [
-         "Unit",
-         "部队"
-      ],
-      [
-         "Battles",
-         "战争"
-      ],
-      [
-         "Workplace",
-         "工作地"
-      ],
-      [
-         "Academic Advisors",
-         "学术顾问"
-      ],
-      [
-         "Doctoral Advisors",
-         "博士生导师"
-      ],
-      [
-         "Boards",
-         "董事会"
-      ],
-      [
-         "Doctoral Students",
-         "博士生"
-      ],
-      [
-         "Notable Students",
-         "著名学生"
-      ],
-      [
-         "Contributions",
-         "贡献"
-      ],
-      [
-         "Notable Ideas",
-         "著名想法"
-      ],
-      [
-         "Player Name",
-         "运动员名称"
-      ],
-      [
-         "Current Club",
-         "目前俱乐部"
-      ],
-      [
-         "Club Number",
-         "运动员编号"
-      ],
-      [
-         "Position",
-         "运动员定位"
-      ],
-      [
-         "Total Caps",
-         "总出场数"
-      ],
-      [
-         "Total Goals",
-         "总进球数"
-      ],
-      [
-         "Coach",
-         "教练"
-      ],
-      [
-         "Medal",
-         "奖牌"
-      ],
-      [
-         "Competition",
-         "比赛信息"
-      ],
-      [
-         "Style",
-         "风格"
-      ],
-      [
-         "Event",
-         "比赛项目"
-      ],
-      [
-         "Head Coach",
-         "总教练"
-      ],
-      [
-         "Sports",
-         "运动项目"
-      ],
-      [
-         "Poles",
-         "极点"
-      ],
-      [
-         "Wins",
-         "获胜次数"
-      ],
-      [
-         "Starts",
-         "第一次数"
-      ],
-      [
-         "Last Series",
-         "最后一个系列"
-      ],
-      [
-         "First Year",
-         "第一个系列"
-      ],
-      [
-         "Fastest Laps",
-         "最快圈速"
-      ],
-      [
-         "Car Number",
-         "车号"
-      ],
-      [
-         "Current Team",
-         "目前团队"
-      ],
-      [
-         "Current Series",
-         "目前系列"
-      ],
-      [
-         "Teams",
-         "团队/队伍"
-      ],
-      [
-         "Former Teams",
-         "著名团队/队伍"
-      ],
-      [
          "Traditional Chinese Name",
          "繁体名字"
       ],
@@ -557,38 +481,6 @@
          "粉丝俱乐部"
       ],
       [
-         "Network",
-         "网络"
-      ],
-      [
-         "Catchphrase",
-         "口号"
-      ],
-      [
-         "Views",
-         "观看数"
-      ],
-      [
-         "Channel Name",
-         "频道名"
-      ],
-      [
-         "Channel Url",
-         "频道链接"
-      ],
-      [
-         "Subscribers",
-         "订阅者"
-      ],
-      [
-         "League",
-         "联盟"
-      ],
-      [
-         "Games",
-         "游戏"
-      ],
-      [
          "Highlights",
          "高光时刻"
       ],
@@ -633,20 +525,152 @@
          "教练生涯结束"
       ],
       [
-         "Language",
-         "语言"
+         "Tag",
+         "标签"
       ],
       [
-         "Draft",
-         "选秀"
+         "Channel Name",
+         "频道名"
+      ],
+      [
+         "Followers",
+         "关注者"
+      ],
+      [
+         "Views",
+         "观看数"
+      ],
+      [
+         "Cabinet",
+         "内阁"
+      ],
+      [
+         "Department",
+         "部门"
+      ],
+      [
+         "Allegiance",
+         "(对政党、宗教、统治者的)忠诚/效忠"
+      ],
+      [
+         "Service Years",
+         "服务年限"
+      ],
+      [
+         "Rank",
+         "等级/军衔"
+      ],
+      [
+         "Training",
+         "训练/培训"
+      ],
+      [
+         "Fields",
+         "领域"
+      ],
+      [
+         "Ko",
+         "ko胜利次数"
+      ],
+      [
+         "Total",
+         "总次数"
+      ],
+      [
+         "Wins",
+         "获胜次数"
+      ],
+      [
+         "Draws",
+         "平局次数"
+      ],
+      [
+         "Losses",
+         "失败次数"
+      ],
+      [
+         "Penalty",
+         "刑罚/处罚"
+      ],
+      [
+         "Victims",
+         "受害人"
+      ],
+      [
+         "Conviction",
+         "定罪"
+      ],
+      [
+         "Motive",
+         "动机"
+      ],
+      [
+         "Charge",
+         "指控"
+      ],
+      [
+         "Weight Class",
+         "重量级"
+      ],
+      [
+         "Denomination",
+         "教派/宗派"
+      ],
+      [
+         "Tour",
+         "巡回比赛"
+      ],
+      [
+         "Current Team",
+         "目前团队"
+      ],
+      [
+         "Major Wins",
+         "重大胜利"
+      ],
+      [
+         "Buildings",
+         "建筑物"
+      ],
+      [
+         "Philosophy",
+         "哲学"
+      ],
+      [
+         "Workplace",
+         "工作地"
+      ],
+      [
+         "Academic Advisors",
+         "学术顾问"
+      ],
+      [
+         "Doctoral Advisors",
+         "博士生导师"
+      ],
+      [
+         "Boards",
+         "董事会"
+      ],
+      [
+         "Doctoral Students",
+         "博士生"
+      ],
+      [
+         "Notable Students",
+         "著名学生"
+      ],
+      [
+         "Contributions",
+         "贡献"
+      ],
+      [
+         "Notable Ideas",
+         "著名想法"
       ],
       [
          "Bike Number",
          "自行车号码"
-      ],
-      [
-         "Service",
-         "服务"
       ],
       [
          "Mission",
@@ -659,30 +683,6 @@
       [
          "Selection",
          "选拔"
-      ],
-      [
-         "Denomination",
-         "教派/宗派"
-      ],
-      [
-         "Ko",
-         "ko胜利次数"
-      ],
-      [
-         "Draws",
-         "平局次数"
-      ],
-      [
-         "Losses",
-         "失败次数"
-      ],
-      [
-         "Weight Class",
-         "重量级"
-      ],
-      [
-         "College Team",
-         "大学团队"
       ],
       [
          "Date Of Current Ranking",
@@ -713,12 +713,48 @@
          "目前排名"
       ],
       [
+         "Motto",
+         "座右铭"
+      ],
+      [
+         "Network",
+         "网络"
+      ],
+      [
+         "Catchphrase",
+         "口号"
+      ],
+      [
+         "Channel Url",
+         "频道链接"
+      ],
+      [
+         "Subscribers",
+         "订阅者"
+      ],
+      [
+         "League",
+         "联盟"
+      ],
+      [
+         "Teams",
+         "团队/队伍"
+      ],
+      [
+         "Draft",
+         "选秀"
+      ],
+      [
          "Last Win",
          "最后一次胜利"
       ],
       [
          "Championships",
          "锦标赛"
+      ],
+      [
+         "Poles",
+         "极点"
       ],
       [
          "First Win",
@@ -731,6 +767,10 @@
       [
          "Races",
          "竞赛信息"
+      ],
+      [
+         "Fastest Laps",
+         "最快圈速"
       ],
       [
          "Last Race",
@@ -757,24 +797,68 @@
          "最好战绩"
       ],
       [
-         "Followers",
-         "关注者"
+         "Starts",
+         "第一次数"
       ],
       [
-         "Total",
-         "总次数"
+         "Last Series",
+         "最后一个系列"
       ],
       [
-         "Tour",
-         "巡回比赛"
+         "First Year",
+         "第一个系列"
       ],
       [
-         "Turned Pro",
-         "成为职业选手/专业选手"
+         "Car Number",
+         "车号"
       ],
       [
-         "Tag",
-         "标签"
+         "Current Series",
+         "目前系列"
+      ],
+      [
+         "Former Teams",
+         "著名团队/队伍"
+      ],
+      [
+         "Service",
+         "服务"
+      ],
+      [
+         "Games",
+         "游戏"
+      ],
+      [
+         "Language",
+         "语言"
+      ],
+      [
+         "Unit",
+         "部队"
+      ],
+      [
+         "Branch",
+         "分支部门"
+      ],
+      [
+         "Battles",
+         "战争"
+      ],
+      [
+         "Office",
+         "重要职务"
+      ],
+      [
+         "College Team",
+         "大学团队"
+      ],
+      [
+         "Trainer",
+         "训练员/助理教练"
+      ],
+      [
+         "Debut",
+         "首次亮相"
       ],
       [
          "Arrest Place",
@@ -793,94 +877,6 @@
          "拘留处"
       ],
       [
-         "Charge",
-         "指控"
-      ],
-      [
-         "Philosophy",
-         "哲学"
-      ],
-      [
-         "Buildings",
-         "建筑物"
-      ],
-      [
-         "Penalty",
-         "刑罚/处罚"
-      ],
-      [
-         "Victims",
-         "受害人"
-      ],
-      [
-         "Conviction",
-         "定罪"
-      ],
-      [
-         "Motive",
-         "动机"
-      ],
-      [
-         "Major Wins",
-         "重大胜利"
-      ],
-      [
-         "Trainer",
-         "训练员/助理教练"
-      ],
-      [
-         "Debut",
-         "首次亮相"
-      ],
-      [
-         "Singles Record",
-         "单打纪录"
-      ],
-      [
-         "Singles Titles",
-         "单打冠军"
-      ],
-      [
-         "Highest Singles Ranking",
-         "最高单打排名"
-      ],
-      [
-         "Current Singles Ranking",
-         "目前单打排名"
-      ],
-      [
-         "Doubles Record",
-         "双打记录"
-      ],
-      [
-         "Doubles Titles",
-         "双打冠军"
-      ],
-      [
-         "Highest Doubles Ranking",
-         "最高双打排名"
-      ],
-      [
-         "Current Doubles Ranking",
-         "目前双打排名"
-      ],
-      [
-         "Mixed Titles",
-         "混打冠军"
-      ],
-      [
-         "Mixed Record",
-         "混打记录"
-      ],
-      [
-         "Career Prize Money",
-         "职业奖金"
-      ],
-      [
-         "Thesis",
-         "论文"
-      ],
-      [
          "Clubs",
          "服役俱乐部"
       ],
@@ -897,24 +893,28 @@
          "管理俱乐部"
       ],
       [
-         "Prev Series",
-         "以前系列"
+         "Statistics",
+         "统计信息"
       ],
       [
          "Coach Teams",
          "教练团队/队伍"
       ],
       [
-         "Statistics",
-         "统计信息"
+         "Pro Team",
+         "专业团队"
+      ],
+      [
+         "Thesis",
+         "论文"
       ],
       [
          "Eva",
          "舱外活动"
       ],
       [
-         "Pro Team",
-         "专业团队"
+         "Prev Series",
+         "以前系列"
       ],
       [
          "International League",
