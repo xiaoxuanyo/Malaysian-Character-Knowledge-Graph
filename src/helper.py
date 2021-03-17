@@ -46,5 +46,5 @@ def get_fields(all_template):
 
 if __name__ == '__main__':
     template = ['infobox racing driver']
-    key = 'year'
+    key = 'teams'
     print(get_keys(template, key))

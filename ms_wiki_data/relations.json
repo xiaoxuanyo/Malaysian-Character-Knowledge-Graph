@@ -1,0 +1,924 @@
+{
+   "relations": [
+      [
+         "Motto",
+         "座右铭"
+      ],
+      [
+         "Name",
+         "名字"
+      ],
+      [
+         "Alias",
+         "别名"
+      ],
+      [
+         "Native Name",
+         "本地名字"
+      ],
+      [
+         "Birth",
+         "出生信息"
+      ],
+      [
+         "Death",
+         "死亡信息"
+      ],
+      [
+         "Birth Name",
+         "出生名"
+      ],
+      [
+         "Birth Date",
+         "出生日期"
+      ],
+      [
+         "Birth Place",
+         "出生地点"
+      ],
+      [
+         "Retirement Date",
+         "退休时间"
+      ],
+      [
+         "Birth City",
+         "出生城市"
+      ],
+      [
+         "Birth Country",
+         "出生国家"
+      ],
+      [
+         "Height",
+         "身高"
+      ],
+      [
+         "Weight",
+         "体重"
+      ],
+      [
+         "Nationality",
+         "国籍/民族"
+      ],
+      [
+         "Website",
+         "网站"
+      ],
+      [
+         "Origin",
+         "出身/身世/血统"
+      ],
+      [
+         "Religion",
+         "宗教"
+      ],
+      [
+         "Education",
+         "教育"
+      ],
+      [
+         "Occupation",
+         "职业/工作"
+      ],
+      [
+         "Years Active",
+         "活跃年份"
+      ],
+      [
+         "Death Date",
+         "死亡日期"
+      ],
+      [
+         "Death Place",
+         "死亡时间"
+      ],
+      [
+         "Burial Place",
+         "埋葬地点"
+      ],
+      [
+         "Spouse",
+         "配偶"
+      ],
+      [
+         "Parents",
+         "父母"
+      ],
+      [
+         "Sibling",
+         "兄弟姐妹"
+      ],
+      [
+         "Children",
+         "孩子"
+      ],
+      [
+         "Gender",
+         "性别"
+      ],
+      [
+         "Alma Mater",
+         "母校"
+      ],
+      [
+         "Relatives",
+         "关系"
+      ],
+      [
+         "Full Name",
+         "全名"
+      ],
+      [
+         "Father",
+         "父亲"
+      ],
+      [
+         "Mother",
+         "目前"
+      ],
+      [
+         "Residence",
+         "住宅/(尤指)豪宅"
+      ],
+      [
+         "Known For",
+         "著名"
+      ],
+      [
+         "Partner",
+         "伙伴/搭档/合伙人"
+      ],
+      [
+         "Citizenship",
+         "公民/公民身份"
+      ],
+      [
+         "Honorific Prefix",
+         "尊称前缀"
+      ],
+      [
+         "Honorific Suffix",
+         "尊称后缀"
+      ],
+      [
+         "Home Town",
+         "家乡"
+      ],
+      [
+         "Employer",
+         "雇主"
+      ],
+      [
+         "Family",
+         "家庭/亲属"
+      ],
+      [
+         "Ethnicity",
+         "种族"
+      ],
+      [
+         "Subject",
+         "学科"
+      ],
+      [
+         "Works",
+         "作品"
+      ],
+      [
+         "Notable Works",
+         "著名作品"
+      ],
+      [
+         "Debut Works",
+         "处女作"
+      ],
+      [
+         "Roles",
+         "角色"
+      ],
+      [
+         "Notable Roles",
+         "著名角色"
+      ],
+      [
+         "Net Worth",
+         "净值"
+      ],
+      [
+         "Awards",
+         "奖项"
+      ],
+      [
+         "Projects",
+         "项目"
+      ],
+      [
+         "Institutions",
+         "机构（包括大学、银行等规模大的机构以及代理机构和工作机构）"
+      ],
+      [
+         "School",
+         "学校"
+      ],
+      [
+         "Hair Color",
+         "发色"
+      ],
+      [
+         "Eye Color",
+         "眼睛颜色"
+      ],
+      [
+         "Measurements",
+         "三围"
+      ],
+      [
+         "Salary",
+         "薪资"
+      ],
+      [
+         "Party",
+         "政党"
+      ],
+      [
+         "Car",
+         "汽车"
+      ],
+      [
+         "Ancestry",
+         "祖籍"
+      ],
+      [
+         "Blood Type",
+         "血型"
+      ],
+      [
+         "Country",
+         "国家"
+      ],
+      [
+         "Influenced",
+         "受影响"
+      ],
+      [
+         "Influences",
+         "影响"
+      ],
+      [
+         "Interests",
+         "兴趣"
+      ],
+      [
+         "Previous Occupation",
+         "以前的职业"
+      ],
+      [
+         "Title",
+         "头衔/职称"
+      ],
+      [
+         "Status",
+         "状态"
+      ],
+      [
+         "Type",
+         "种类/类型"
+      ],
+      [
+         "Movement",
+         "(具有共同思想或目标的)运动"
+      ],
+      [
+         "Period",
+         "(人生或国家历史的)时期"
+      ],
+      [
+         "Cabinet",
+         "内阁"
+      ],
+      [
+         "Department",
+         "部门"
+      ],
+      [
+         "Allegiance",
+         "(对政党、宗教、统治者的)忠诚/效忠"
+      ],
+      [
+         "Service Years",
+         "服务年限"
+      ],
+      [
+         "Rank",
+         "等级/军衔"
+      ],
+      [
+         "Training",
+         "训练/培训"
+      ],
+      [
+         "Fields",
+         "领域"
+      ],
+      [
+         "Office",
+         "重要职务"
+      ],
+      [
+         "Branch",
+         "分支部门"
+      ],
+      [
+         "Unit",
+         "部队"
+      ],
+      [
+         "Battles",
+         "战争"
+      ],
+      [
+         "Workplace",
+         "工作地"
+      ],
+      [
+         "Academic Advisors",
+         "学术顾问"
+      ],
+      [
+         "Doctoral Advisors",
+         "博士生导师"
+      ],
+      [
+         "Boards",
+         "董事会"
+      ],
+      [
+         "Doctoral Students",
+         "博士生"
+      ],
+      [
+         "Notable Students",
+         "著名学生"
+      ],
+      [
+         "Contributions",
+         "贡献"
+      ],
+      [
+         "Notable Ideas",
+         "著名想法"
+      ],
+      [
+         "Player Name",
+         "运动员名称"
+      ],
+      [
+         "Current Club",
+         "目前俱乐部"
+      ],
+      [
+         "Club Number",
+         "运动员编号"
+      ],
+      [
+         "Position",
+         "运动员定位"
+      ],
+      [
+         "Total Caps",
+         "总出场数"
+      ],
+      [
+         "Total Goals",
+         "总进球数"
+      ],
+      [
+         "Coach",
+         "教练"
+      ],
+      [
+         "Medal",
+         "奖牌"
+      ],
+      [
+         "Competition",
+         "比赛信息"
+      ],
+      [
+         "Style",
+         "风格"
+      ],
+      [
+         "Event",
+         "比赛项目"
+      ],
+      [
+         "Head Coach",
+         "总教练"
+      ],
+      [
+         "Sports",
+         "运动项目"
+      ],
+      [
+         "Poles",
+         "极点"
+      ],
+      [
+         "Wins",
+         "获胜次数"
+      ],
+      [
+         "Starts",
+         "第一次数"
+      ],
+      [
+         "Last Series",
+         "最后一个系列"
+      ],
+      [
+         "First Year",
+         "第一个系列"
+      ],
+      [
+         "Fastest Laps",
+         "最快圈速"
+      ],
+      [
+         "Car Number",
+         "车号"
+      ],
+      [
+         "Current Team",
+         "目前团队"
+      ],
+      [
+         "Current Series",
+         "目前系列"
+      ],
+      [
+         "Teams",
+         "团队/队伍"
+      ],
+      [
+         "Former Teams",
+         "著名团队/队伍"
+      ],
+      [
+         "Traditional Chinese Name",
+         "繁体名字"
+      ],
+      [
+         "Pinyin Chines Name",
+         "名字拼音"
+      ],
+      [
+         "Simplified Chinese Name",
+         "简体名字"
+      ],
+      [
+         "Genre",
+         "体裁/类型（文学、艺术、电影或音乐的）"
+      ],
+      [
+         "Label",
+         "唱片公司"
+      ],
+      [
+         "Instruments",
+         "乐器"
+      ],
+      [
+         "Notable Instruments",
+         "著名乐器"
+      ],
+      [
+         "Voice Type",
+         "声音类型"
+      ],
+      [
+         "Chinese Name",
+         "中文名"
+      ],
+      [
+         "Associated Acts",
+         "相关艺术家/相关表演者"
+      ],
+      [
+         "Current Members",
+         "现有成员"
+      ],
+      [
+         "Past Members",
+         "过去成员"
+      ],
+      [
+         "English Name",
+         "英文名"
+      ],
+      [
+         "Location",
+         "表演场地/外景拍摄地"
+      ],
+      [
+         "Dress Size",
+         "服装尺码"
+      ],
+      [
+         "Shoe Size",
+         "鞋子尺码"
+      ],
+      [
+         "Number Films",
+         "电影数目"
+      ],
+      [
+         "Orientation",
+         "性取向"
+      ],
+      [
+         "Films",
+         "电影"
+      ],
+      [
+         "Agent",
+         "经纪人"
+      ],
+      [
+         "Television",
+         "电视节目"
+      ],
+      [
+         "Medium",
+         "(传播信息的)媒介"
+      ],
+      [
+         "Fan Club",
+         "粉丝俱乐部"
+      ],
+      [
+         "Network",
+         "网络"
+      ],
+      [
+         "Catchphrase",
+         "口号"
+      ],
+      [
+         "Views",
+         "观看数"
+      ],
+      [
+         "Channel Name",
+         "频道名"
+      ],
+      [
+         "Channel Url",
+         "频道链接"
+      ],
+      [
+         "Subscribers",
+         "订阅者"
+      ],
+      [
+         "League",
+         "联盟"
+      ],
+      [
+         "Games",
+         "游戏"
+      ],
+      [
+         "Highlights",
+         "高光时刻"
+      ],
+      [
+         "Career Start",
+         "职业生涯开始"
+      ],
+      [
+         "Career End",
+         "职业生涯结束"
+      ],
+      [
+         "Career Number",
+         "职业生涯号码"
+      ],
+      [
+         "Career Position",
+         "职业生涯位置"
+      ],
+      [
+         "Draft Team",
+         "选秀队"
+      ],
+      [
+         "Draft Round",
+         "选秀回合"
+      ],
+      [
+         "Draft Year",
+         "选秀年份"
+      ],
+      [
+         "Draft Pick",
+         "选秀选择"
+      ],
+      [
+         "Coach Start",
+         "教练生涯开始"
+      ],
+      [
+         "Coach End",
+         "教练生涯结束"
+      ],
+      [
+         "Language",
+         "语言"
+      ],
+      [
+         "Draft",
+         "选秀"
+      ],
+      [
+         "Bike Number",
+         "自行车号码"
+      ],
+      [
+         "Service",
+         "服务"
+      ],
+      [
+         "Mission",
+         "使命"
+      ],
+      [
+         "Space Time",
+         "时间"
+      ],
+      [
+         "Selection",
+         "选拔"
+      ],
+      [
+         "Denomination",
+         "教派/宗派"
+      ],
+      [
+         "Ko",
+         "ko胜利次数"
+      ],
+      [
+         "Draws",
+         "平局次数"
+      ],
+      [
+         "Losses",
+         "失败次数"
+      ],
+      [
+         "Weight Class",
+         "重量级"
+      ],
+      [
+         "College Team",
+         "大学团队"
+      ],
+      [
+         "Date Of Current Ranking",
+         "目前排名日期"
+      ],
+      [
+         "Date Of Highest Ranking",
+         "最高排名日期"
+      ],
+      [
+         "Racquet",
+         "球拍"
+      ],
+      [
+         "Finals",
+         "决赛"
+      ],
+      [
+         "Titles",
+         "冠军"
+      ],
+      [
+         "Highest Ranking",
+         "最高排名"
+      ],
+      [
+         "Current Ranking",
+         "目前排名"
+      ],
+      [
+         "Last Win",
+         "最后一次胜利"
+      ],
+      [
+         "Championships",
+         "锦标赛"
+      ],
+      [
+         "First Win",
+         "第一次胜利"
+      ],
+      [
+         "Last Season",
+         "最后一个赛季"
+      ],
+      [
+         "Races",
+         "竞赛信息"
+      ],
+      [
+         "Last Race",
+         "最后一场竞赛"
+      ],
+      [
+         "First Race",
+         "第一场竞赛"
+      ],
+      [
+         "Podiums",
+         "领奖台次数"
+      ],
+      [
+         "Points",
+         "点/分"
+      ],
+      [
+         "Last Position",
+         "最后位置"
+      ],
+      [
+         "Best Finish",
+         "最好战绩"
+      ],
+      [
+         "Followers",
+         "关注者"
+      ],
+      [
+         "Total",
+         "总次数"
+      ],
+      [
+         "Tour",
+         "巡回比赛"
+      ],
+      [
+         "Turned Pro",
+         "成为职业选手/专业选手"
+      ],
+      [
+         "Tag",
+         "标签"
+      ],
+      [
+         "Arrest Place",
+         "逮捕地点"
+      ],
+      [
+         "Arrest Date",
+         "逮捕日期"
+      ],
+      [
+         "Arresting Authority",
+         "逮捕机关"
+      ],
+      [
+         "Detained At",
+         "拘留处"
+      ],
+      [
+         "Charge",
+         "指控"
+      ],
+      [
+         "Philosophy",
+         "哲学"
+      ],
+      [
+         "Buildings",
+         "建筑物"
+      ],
+      [
+         "Penalty",
+         "刑罚/处罚"
+      ],
+      [
+         "Victims",
+         "受害人"
+      ],
+      [
+         "Conviction",
+         "定罪"
+      ],
+      [
+         "Motive",
+         "动机"
+      ],
+      [
+         "Major Wins",
+         "重大胜利"
+      ],
+      [
+         "Trainer",
+         "训练员/助理教练"
+      ],
+      [
+         "Debut",
+         "首次亮相"
+      ],
+      [
+         "Singles Record",
+         "单打纪录"
+      ],
+      [
+         "Singles Titles",
+         "单打冠军"
+      ],
+      [
+         "Highest Singles Ranking",
+         "最高单打排名"
+      ],
+      [
+         "Current Singles Ranking",
+         "目前单打排名"
+      ],
+      [
+         "Doubles Record",
+         "双打记录"
+      ],
+      [
+         "Doubles Titles",
+         "双打冠军"
+      ],
+      [
+         "Highest Doubles Ranking",
+         "最高双打排名"
+      ],
+      [
+         "Current Doubles Ranking",
+         "目前双打排名"
+      ],
+      [
+         "Mixed Titles",
+         "混打冠军"
+      ],
+      [
+         "Mixed Record",
+         "混打记录"
+      ],
+      [
+         "Career Prize Money",
+         "职业奖金"
+      ],
+      [
+         "Thesis",
+         "论文"
+      ],
+      [
+         "Clubs",
+         "服役俱乐部"
+      ],
+      [
+         "National Team",
+         "服役国家队"
+      ],
+      [
+         "Youth Clubs",
+         "服役青年俱乐部"
+      ],
+      [
+         "Manager Clubs",
+         "管理俱乐部"
+      ],
+      [
+         "Prev Series",
+         "以前系列"
+      ],
+      [
+         "Coach Teams",
+         "教练团队/队伍"
+      ],
+      [
+         "Statistics",
+         "统计信息"
+      ],
+      [
+         "Eva",
+         "舱外活动"
+      ],
+      [
+         "Pro Team",
+         "专业团队"
+      ],
+      [
+         "International League",
+         "国际联盟"
+      ]
+   ]
+}

@@ -8,6 +8,8 @@
 from src.base import (re_compile, TemplateBase, TemplateOfficer, TemplateResearchers,
                       TemplatePerformanceWorker, TemplateSportsPlayer)
 
+__all__ = ['TEMPLATE_MAP']
+
 
 class TemplateMotorcycleRider(TemplateBase):
     template_name = 'Motorcycle Rider'
@@ -38,8 +40,22 @@ class TemplateTwitchStreamer(TemplateBase):
     template_name = 'Twitch Streamer'
     fields_map = {
         'Channel Name': ({'zh': '频道名'}, re_compile(r'channel.*?name')),
-        'Followers': ({'zh': '订阅者'}, re_compile(r'followers?')),
+        'Followers': ({'zh': '关注者'}, re_compile(r'followers?')),
         'Views': ({'zh': '观看数'}, re_compile(r'views?'))
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateYouTubePersonality(TemplateBase):
+    template_name = 'YouTube Personality'
+    fields_map = {
+        'Network': ({'zh': '网络'}, ['network']),
+        'Catchphrase': ({'zh': '口号'}, ['catchphrase', 'catchphrases', 'catchphrase(s)']),
+        'Views': ({'zh': '观看数'}, re_compile(r'views?')),
+        'Channel Name': ({'zh': '频道名'}, re_compile(r'channel.*?name')),
+        'Channel Url': ({'zh': '频道链接'}, ['channel', 'channels'], re_compile(r'channel.*?url')),
+        'Subscribers': ({'zh': '订阅者'}, re_compile(r'subscribers?')),
+        'Genre': ({'zh': '体裁/类型（文学、艺术、电影或音乐的）'}, ['genre', 'genres'],),
     }
     fields_map.update(TemplateBase.fields_map)
 
@@ -140,7 +156,7 @@ class TemplateGolfer(TemplateBase):
     fields_map = {
         '_Years': ({'zh': '获奖年份'}, re_compile(r'years?')),
         'Tour': ({'zh': '巡回比赛'}, re_compile(r'tour', mode='e')),
-        'Turned Pro': ({'zh': '成为职业选手'}, re_compile(r'year.*?professional|professional.*?years?')),
+        'Turned Pro': ({'zh': '成为职业选手/专业选手'}, re_compile(r'year.*?professional|professional.*?years?')),
         'Wins': ({'zh': '获胜次数'}, re_compile(r'wins?', mode='e')),
     }
     fields_map.update(TemplateBase.fields_map)
@@ -180,7 +196,8 @@ class TemplateF1Driver(TemplateBase):
         'Wins': ({'zh': '获胜次数'}, re_compile(r'wins?')),
         'Podiums': ({'zh': '领奖台次数'}, re_compile(r'podiums?')),
         'Points': ({'zh': '点/分'}, re_compile(r'points?')),
-        'Last Position': ({'zh': '最后位置'}, re_compile(r'last.*?position'))
+        'Last Position': ({'zh': '最后位置'}, re_compile(r'last.*?position')),
+        'Best Finish': ({'zh': '最好战绩'}, re_compile('best.*?finish')),
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
@@ -201,7 +218,7 @@ class TemplateVideoGamePlayer(TemplateBase):
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
         'Teams': ({'zh': '团队/队伍'}, ['_Teams', '_Years']),
-        'Coach Teams': ({'zh': '教练团队'}, ['_Coach Teams', '_Coach Years'])
+        'Coach Teams': ({'zh': '教练团队/队伍'}, ['_Coach Teams', '_Coach Years'])
     }
 
 
@@ -293,7 +310,7 @@ class TemplateCyclist(TemplateBase):
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
-        'Pro Team': ({'专业团队'}, ['_Pro Team', '_Pro Years'])
+        'Pro Team': ({'zh': '专业团队'}, ['_Pro Team', '_Pro Years'])
     }
 
 
@@ -307,9 +324,9 @@ class TemplateIceHockeyPlayer(TemplateBase):
         'Teams': ({'zh': '团队/队伍'}, re_compile(r'teams?')),
         'Position': ({'zh': '运动员定位'}, ['position'],),
         'Draft Year': ({'zh': '选秀年份'}, re_compile(r'draft.*?year')),
-        'Turned Pro': ({'zh': '成为职业选手'}, re_compile(r'career.*?start')),
+        'Career Start': ({'zh': '职业生涯开始'}, re_compile(r'career.*?start')),
         'Draft': ({'zh': '选秀'}, ['draft']),
-        '_Weight(lb)': ({'zh': '体重(磅)'}, re_compile(r'weight.*?lb'))
+        '_Weight(lb)': ({'zh': '体重(磅)'}, re_compile(r'weight.*?lbs?'))
     }
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
@@ -340,6 +357,85 @@ class TemplateSpy(TemplateBase):
         'Rank': ({'zh': '等级/军衔'}, ['rank']),
     }
     fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateBasketballBiography(TemplateBase):
+    template_name = 'Basketball Biography'
+    fields_map = {
+        '_Height(in)': ({'zh': '身高(英寸)'}, re_compile(r'height.*?in')),
+        '_Height(ft)': ({'zh': '身高(英尺)'}, re_compile(r'height.*?ft')),
+        'Highlights': ({'zh': '高光时刻'}, re_compile(r'highlights?')),
+        '_Years': ({'zh': '年份'}, re_compile(r'years?')),
+        '_Teams': ({'zh': '团队'}, re_compile(r'teams?')),
+        '_Coach Years': ({'zh': '教练年份'}, re_compile(r'cyears?')),
+        '_Coach Teams': ({'zh': '教练团队'}, re_compile(r'cteams?')),
+        'Career Start': ({'zh': '职业生涯开始'}, re_compile(r'career.*?start')),
+        'Career End': ({'zh': '职业生涯结束'}, re_compile(r'career.*?end')),
+        'Career Number': ({'zh': '职业生涯号码'}, re_compile(r'career.*?number')),
+        'Career Position': ({'zh': '职业生涯位置'}, re_compile(r'career.*?position')),
+        '_Weight(lb)': ({'zh': '体重(磅)'}, re_compile(r'weight.*?lbs?')),
+        'Draft Team': ({'zh': '选秀队'}, re_compile(r'draft.*?team')),
+        'Draft Round': ({'zh': '选秀回合'}, re_compile(r'draft.*?round')),
+        'Draft Year': ({'zh': '选秀年份'}, re_compile(r'draft.*?year')),
+        'Draft Pick': ({'zh': '选秀选择'}, re_compile(r'draft.*?pick')),
+        'Medal': ({'zh': '奖牌'}, re_compile(r'medal.*?templates?'),),
+        'Coach Start': ({'zh': '教练生涯开始'}, re_compile(r'coach.*?start')),
+        'Coach End': ({'zh': '教练生涯结束'}, re_compile(r'coach.*?end')),
+        '_Stat Label': ({'zh': '统计信息(标题)'}, re_compile(r'stat.*?label')),
+        '_Stat Value': ({'zh': '统计信息(值)'}, re_compile(r'stat.*?value')),
+        '_Stat League': ({'zh': '统计信息(联盟)'}, re_compile(r'stat.*?league'))
+    }
+    fields_map.update(TemplateBase.fields_map)
+    multi_values_field = {
+        'Height': ({'zh': '身高'}, ['_Height(in)', '_Height(ft)']),
+        'Weight': ({'zh': '体重'}, ['_Weight(lb)']),
+        'Teams': ({'zh': '团队/队伍'}, ['_Teams', '_Years']),
+        'Statistics': ({'zh': '统计信息'}, ['_Stat League', '_Stat Label', '_Stat Value']),
+        'Coach Teams': ({'zh': '教练团队/队伍'}, ['_Coach Teams', '_Coach Years'])
+    }
+
+
+class TemplateReligiousBiography(TemplateBase):
+    template_name = 'Religious Biography'
+    fields_map = {
+        'Denomination': ({'zh': '教派/宗派'}, ['denomination'])
+    }
+    fields_map.update(TemplateBase.fields_map)
+
+
+class TemplateComicsCreator(TemplateBase):
+    template_name = 'Comics Creator'
+
+
+class TemplateRacingDriver(TemplateBase):
+    template_name = 'Racing Driver'
+    fields_map = {
+        '_Year': ({'zh': '最好战绩年份'}, ['year']),
+        '_Best Finish': ({'zh': '最好战绩'}, re_compile('best.*?finish')),
+        'Poles': ({'zh': '极点'}, re_compile(r'poles?')),
+        'Wins': ({'zh': '获胜次数'}, re_compile(r'wins?')),
+        'Starts': ({'zh': '第一次数'}, re_compile(r'starts?')),
+        '_Titles': ({'zh': '冠军'}, ['titles']),
+        '_Title Years': ({'zh': '冠军年份'}, re_compile(r'title.*?years?')),
+        '_Award Years': ({'zh': '获奖年份'}, re_compile(r'award.*?years?')),
+        'Last Series': ({'zh': '最后一个系列'}, re_compile(r'last.*?series?')),
+        'First Year': ({'zh': '第一个系列'}, re_compile(r'first.*?year')),
+        'Fastest Laps': ({'zh': '最快圈速'}, re_compile(r'fastest.*?laps?')),
+        '_Prev Series Years': ({'zh': '以前的系列年份'}, re_compile(r'prev.*?series?.*?years?')),
+        '_Prev Series': ({'zh': '以前的系列'}, re_compile(r'prev.*?series?')),
+        'Car Number': ({'zh': '车号'}, re_compile(r'car.*?number')),
+        'Current Team': ({'zh': '目前团队'}, re_compile(r'current.*?team'),),
+        'Current Series': ({'zh': '目前系列'}, re_compile(r'current.*?series?')),
+        'Teams': ({'zh': '团队/队伍'}, re_compile(r'teams?')),
+        'Former Teams': ({'zh': '著名团队/队伍'}, re_compile(r'former.*?teams?'))
+    }
+    fields_map.update(TemplateBase.fields_map)
+    multi_values_field = {
+        'Best Finish': ({'zh': '最好战绩'}, ['_Year', '_Best Finish']),
+        'Awards': ({'zh': '奖项'}, ['Awards', '_Award Years']),
+        'Titles': ({'zh': '冠军'}, ['_Titles', '_Title Years']),
+        'Prev Series': ({'zh': '以前系列'}, ['_Prev Series Years', '_Prev Series'])
+    }
 
 
 class TemplateRoyalty(TemplateOfficer):
@@ -481,8 +577,23 @@ class TemplateTennisPlayer(TemplateSportsPlayer):
         'Current Doubles Ranking': ({'zh': '目前双打排名'}, re_compile(r'current.*?double.*?ranking')),
         'Mixed Titles': ({'zh': '混打冠军'}, re_compile(r'mixed.*?titles?')),
         'Mixed Record': ({'zh': '混打记录'}, re_compile(r'mixed.*?record')),
-        'Turned Pro': ({'zh': '成为职业选手'}, re_compile(r'turned.*?pro')),
+        'Turned Pro': ({'zh': '成为职业选手/专业选手'}, re_compile(r'turned.*?pro')),
         'Career Prize Money': ({'zh': '职业奖金'}, re_compile(r'career.*?prize.*?money')),
+    }
+    fields_map.update(TemplateSportsPlayer.fields_map)
+
+
+class TemplateBadmintonPlayer(TemplateSportsPlayer):
+    template_name = 'Badminton Player'
+    fields_map = {
+        'Highest Ranking': ({'zh': '最高排名'}, re_compile(r'highest.*?ranking')),
+        'Current Ranking': ({'zh': '目前排名'}, re_compile(r'current.*?ranking')),
+        'Career Record': ({'zh': '生涯记录'}, re_compile(r'career.*?record')),
+        'Date Of Current Ranking': (
+            {'zh': '目前排名日期'}, re_compile(r'date.*?current.*?ranking|current.*?ranking.*?date')),
+        'Date Of Highest Ranking': (
+            {'zh': '最高排名日期'}, re_compile(r'highest.*?ranking.*?date|date.*?highest.*?ranking')),
+        'Titles': ({'zh': '冠军'}, ['titles']),
     }
     fields_map.update(TemplateSportsPlayer.fields_map)
 
@@ -556,7 +667,7 @@ _TEMPLATE_MAP = {
     TemplatePresident: ['infobox president', 'infobox_president'],
     TemplateCelebrity: ['infobox celebrity', 'infobox_celebrity'],
     TemplateSquashPlayer: ['infobox squash player'],
-    TemplateF1Driver: ['infobox f1 driver'],
+    TemplateF1Driver: ['infobox f1 driver', 'infobox le mans driver'],
     TemplateJournalist: ['infobox journalist'],
     TemplateFashionDesigner: ['infobox fashion designer'],
     TemplateMilitaryPerson: ['infobox military person', 'infobox anggota tentera'],
@@ -585,30 +696,45 @@ _TEMPLATE_MAP = {
     TemplateIceHockeyPlayer: ['infobox ice hockey player'],
     TemplateWriter: ['infobox pengarang', 'infobox writer'],
     TemplateMuslimScholar: ['infobox muslim scholar'],
-    TemplateSpy: ['infobox spy']
+    TemplateSpy: ['infobox spy'],
+    TemplateYouTubePersonality: ['infobox youtube personality'],
+    TemplateBasketballBiography: ['infobox basketball biography'],
+    TemplateReligiousBiography: ['infobox religious biography'],
+    TemplateSportsPlayer: ['infobox badminton player'],
+    TemplateComicsCreator: ['infobox comics creator'],
+    TemplateRacingDriver: ['infobox racing driver']
 }
 
 TEMPLATE_MAP = {i: k for k, v in _TEMPLATE_MAP.items() for i in v}
 
-MULTI_DICT = {i.template_name: [] for i in _TEMPLATE_MAP.keys()}
-
 if __name__ == '__main__':
     value = {
-        "name": "Zvi Zamir",
-        "image": "PikiWiki Israel 28632 Art of Israel.jpg",
-        "allegiance": "{{flag|Israel}}",
-        "service": "* [[Palmach]]\n* [[Pasukan Pertahanan Israel]]\n* [[Mossad]]",
-        "birth_date": "{{Birth date and age|1925|03|03|df=y}}",
-        "birth_place": "[[Łódź]], [[Republik Poland Kedua|Poland]]",
-        "nationality": "[[Israel]]",
-        "religion": "[[Yahudi]]",
-        "rank": "[[Mejar Jeneral]]",
-        "serviceyears": "* Palmach: 1942-1948\n* IDF: 1948-1968\n* Mossad: 1968-1974",
-        "occupation": "Pengarah [[Mossad]]"
+        "name": "Gary Paffett",
+        "image": "Garypaffett.jpg",
+        "imagesize": "180px",
+        "caption": "Paffett sebagai pemandu ujian [[McLaren]] pada tahun {{f1|2006}}.",
+        "nationality": "{{flagicon|UK}} [[United Kingdom|British]]",
+        "birth_date": "{{Birth date and age|1981|03|24|df=y}}",
+        "birth_place": "[[Bromley]] ([[England]])",
+        "current series": "[[Deutsche Tourenwagen Masters|DTM]]",
+        "first year": "2003",
+        "current team": "[[Mercedes-AMG|AMG Mercedes]]",
+        "car number": "2",
+        "former teams": "Team Rosberg, Persson Motorsport",
+        "starts": "93",
+        "wins": "19",
+        "poles": "10",
+        "fastest laps": "8",
+        "best finish": "Pertama",
+        "year": "2005",
+        "prev series": "Ujian [[Formula Satu]]<br>[[International Formula 3000]]<br>[[German Formula Three Championship|German F3]]<br>[[British Formula Three Championship|British F3]]<br>[[Formula Palmer Audi|FPA]] Winter Series<br>Formula Vauxhall Junior<br>FVauxhall Junior W. Series",
+        "prev series years": "{{f1|2005}}–[[Formula Satu musim 2012|12]]<br>2003<br>2001–02<br>2000<br>1998<br>1998–99<br>1997",
+        "titles": "[[Deutsche Tourenwagen Masters|DTM]]<br>[[German Formula Three Championship|German F3]]<br>[[British Formula Three Championship|British F3 National Class]]<br>Formula Vauxhall Junior<br>FVauxhall Junior Class B<br>FVauxhall Junior W. Series",
+        "title years": "2005<br>2002<br>2000<br>1999<br>1998<br>1997",
+        "awards": "[[McLaren Autosport BRDC Award|McLaren Autosport Award]]",
+        "award years": "1999"
     }
-    tem = TemplateSpy(value, 'Test')
+    tem = TemplateRacingDriver(value, 'Test')
     print(tem.fields)
-    # print(tem.graph_entities)
-    # for i in tem.fields['fields']['Office']['values']:
+    # for i in tem.fields['fields']['Statistics']['values']:
     #     print(i, '\n')
-    # print(tem.graph_entities)

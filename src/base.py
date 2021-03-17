@@ -469,7 +469,7 @@ class TemplateSportsPlayer(TemplateBase):
         'Coach': ({'zh': '教练'}, ['coach'],),
         'Medal': ({'zh': '奖牌'}, re_compile(r'medal.*?templates?'),),
         'Competition': ({'zh': '比赛信息'}, re_compile(r'results?', mode='e')),
-        'Style': ({'zh': '风格'}, re_compile(r'plays?')),
+        'Style': ({'zh': '风格'}, ['handedness'], re_compile(r'plays?')),
         'Event': ({'zh': '比赛项目'}, ['event']),
         'Head Coach': ({'zh': '总教练'}, re_compile(r'head.*?coach')),
         'Sports': ({'zh': '运动项目'}, re_compile(r'sports?')),
