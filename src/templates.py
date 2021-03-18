@@ -8,8 +8,6 @@
 from src.base import (re_compile, TemplateBase, TemplateOfficer, TemplateResearchers,
                       TemplatePerformanceWorker, TemplateSportsPlayer)
 
-__all__ = ['TEMPLATE_MAP']
-
 
 class TemplateMotorcycleRider(TemplateBase):
     template_name = 'Motorcycle Rider'
@@ -149,12 +147,16 @@ class TemplateFootballOfficial(TemplateBase):
         'International League': (
             {'zh': '国际联盟'}, ['_International League', '_International Role', '_International Years'])
     }
+    multi_field_cond = {
+        'League': ['_League'],
+        'International League': ['_International League']
+    }
 
 
 class TemplateGolfer(TemplateBase):
     template_name = 'Golfer'
     fields_map = {
-        '_Years': ({'zh': '获奖年份'}, re_compile(r'years?')),
+        '_Years': ({'zh': '年份'}, re_compile(r'years?')),
         'Tour': ({'zh': '巡回比赛'}, re_compile(r'tour', mode='e')),
         'Turned Pro': ({'zh': '成为职业选手/专业选手'}, re_compile(r'year.*?professional|professional.*?years?')),
         'Wins': ({'zh': '获胜次数'}, re_compile(r'wins?', mode='e')),
@@ -162,6 +164,9 @@ class TemplateGolfer(TemplateBase):
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
         'Awards': ({'zh': '奖项'}, ['Awards', '_Years'])
+    }
+    multi_field_cond = {
+        'Awards': ['Awards']
     }
 
 
@@ -203,6 +208,9 @@ class TemplateF1Driver(TemplateBase):
     multi_values_field = {
         'Teams': ({'zh': '团队/队伍'}, ['_Teams', '_Car Number', '_Years'])
     }
+    multi_field_cond = {
+        'Teams': ['_Teams']
+    }
 
 
 class TemplateVideoGamePlayer(TemplateBase):
@@ -219,6 +227,10 @@ class TemplateVideoGamePlayer(TemplateBase):
     multi_values_field = {
         'Teams': ({'zh': '团队/队伍'}, ['_Teams', '_Years']),
         'Coach Teams': ({'zh': '教练团队/队伍'}, ['_Coach Teams', '_Coach Years'])
+    }
+    multi_field_cond = {
+        'Teams': ['_Teams'],
+        'Coach Teams': ['_Coach Teams']
     }
 
 
@@ -312,12 +324,15 @@ class TemplateCyclist(TemplateBase):
     multi_values_field = {
         'Pro Team': ({'zh': '专业团队'}, ['_Pro Team', '_Pro Years'])
     }
+    multi_field_cond = {
+        'Pro Team': ['_Pro Team']
+    }
 
 
 class TemplateIceHockeyPlayer(TemplateBase):
     template_name = 'Ice Hockey Player'
     fields_map = {
-        'League': ({'zh': '联盟'}, re_compile(r'league'),),
+        'League': ({'zh': '联盟'}, re_compile(r'leagues?'),),
         '_Height(in)': ({'zh': '身高(英寸)'}, re_compile(r'height.*?in')),
         '_Height(ft)': ({'zh': '身高(英尺)'}, re_compile(r'height.*?ft')),
         'Draft Team': ({'zh': '选秀队'}, re_compile(r'draft.*?team')),
@@ -393,6 +408,10 @@ class TemplateBasketballBiography(TemplateBase):
         'Statistics': ({'zh': '统计信息'}, ['_Stat League', '_Stat Label', '_Stat Value']),
         'Coach Teams': ({'zh': '教练团队/队伍'}, ['_Coach Teams', '_Coach Years'])
     }
+    multi_field_cond = {
+        'Teams': ['_Teams'],
+        'Coach Teams': ['_Coach Teams']
+    }
 
 
 class TemplateReligiousBiography(TemplateBase):
@@ -417,7 +436,7 @@ class TemplateRacingDriver(TemplateBase):
         'Starts': ({'zh': '第一次数'}, re_compile(r'starts?')),
         '_Titles': ({'zh': '冠军'}, ['titles']),
         '_Title Years': ({'zh': '冠军年份'}, re_compile(r'title.*?years?')),
-        '_Award Years': ({'zh': '获奖年份'}, re_compile(r'award.*?years?')),
+        '_Years': ({'zh': '年份'}, re_compile(r'award.*?years?')),
         'Last Series': ({'zh': '最后一个系列'}, re_compile(r'last.*?series?')),
         'First Year': ({'zh': '第一个系列'}, re_compile(r'first.*?year')),
         'Fastest Laps': ({'zh': '最快圈速'}, re_compile(r'fastest.*?laps?')),
@@ -432,9 +451,13 @@ class TemplateRacingDriver(TemplateBase):
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
         'Best Finish': ({'zh': '最好战绩'}, ['_Year', '_Best Finish']),
-        'Awards': ({'zh': '奖项'}, ['Awards', '_Award Years']),
+        'Awards': ({'zh': '奖项'}, ['Awards', '_Years']),
         'Titles': ({'zh': '冠军'}, ['_Titles', '_Title Years']),
         'Prev Series': ({'zh': '以前系列'}, ['_Prev Series Years', '_Prev Series'])
+    }
+    multi_field_cond = {
+        'Awards': ['Awards'],
+        'Best Finish': ['_Best Finish']
     }
 
 
@@ -705,36 +728,41 @@ _TEMPLATE_MAP = {
     TemplateRacingDriver: ['infobox racing driver']
 }
 
-TEMPLATE_MAP = {i: k for k, v in _TEMPLATE_MAP.items() for i in v}
 
-if __name__ == '__main__':
-    value = {
-        "name": "Gary Paffett",
-        "image": "Garypaffett.jpg",
-        "imagesize": "180px",
-        "caption": "Paffett sebagai pemandu ujian [[McLaren]] pada tahun {{f1|2006}}.",
-        "nationality": "{{flagicon|UK}} [[United Kingdom|British]]",
-        "birth_date": "{{Birth date and age|1981|03|24|df=y}}",
-        "birth_place": "[[Bromley]] ([[England]])",
-        "current series": "[[Deutsche Tourenwagen Masters|DTM]]",
-        "first year": "2003",
-        "current team": "[[Mercedes-AMG|AMG Mercedes]]",
-        "car number": "2",
-        "former teams": "Team Rosberg, Persson Motorsport",
-        "starts": "93",
-        "wins": "19",
-        "poles": "10",
-        "fastest laps": "8",
-        "best finish": "Pertama",
-        "year": "2005",
-        "prev series": "Ujian [[Formula Satu]]<br>[[International Formula 3000]]<br>[[German Formula Three Championship|German F3]]<br>[[British Formula Three Championship|British F3]]<br>[[Formula Palmer Audi|FPA]] Winter Series<br>Formula Vauxhall Junior<br>FVauxhall Junior W. Series",
-        "prev series years": "{{f1|2005}}–[[Formula Satu musim 2012|12]]<br>2003<br>2001–02<br>2000<br>1998<br>1998–99<br>1997",
-        "titles": "[[Deutsche Tourenwagen Masters|DTM]]<br>[[German Formula Three Championship|German F3]]<br>[[British Formula Three Championship|British F3 National Class]]<br>Formula Vauxhall Junior<br>FVauxhall Junior Class B<br>FVauxhall Junior W. Series",
-        "title years": "2005<br>2002<br>2000<br>1999<br>1998<br>1997",
-        "awards": "[[McLaren Autosport BRDC Award|McLaren Autosport Award]]",
-        "award years": "1999"
-    }
-    tem = TemplateRacingDriver(value, 'Test')
-    print(tem.fields)
-    # for i in tem.fields['fields']['Statistics']['values']:
-    #     print(i, '\n')
+class TemplateDefine:
+    template_name = 'Define'
+
+    define_template = [TemplateBase]
+
+    def __init__(self, values, entry):
+        _props = []
+        self._fields = {'template_name': self.template_name,
+                        'entry': entry}
+        fields = self.define_template.pop(0)
+        self._fields['fields'] = fields(values, entry).fields['fields']
+        for temp in self.define_template:
+            res = temp(values, entry)
+            for k, v in res.fields['fields'].items():
+                if self._fields['fields'].get(k):
+                    for li in v:
+                        if li not in self._fields['fields'][k]:
+                            self._fields['fields'][k].append(li)
+                else:
+                    self._fields['fields'][k] = v
+            if res.fields.get('primary_entity_props'):
+                if res.fields['primary_entity_props']['multi_values_field'] not in _props:
+                    _props.append(res.fields['primary_entity_props']['multi_values_field'])
+        if _props:
+            self._fields['primary_entity_props'] = '\n'.join(_props)
+
+    @property
+    def fields(self):
+        return self._fields
+
+
+class TemplatePerson(TemplateDefine):
+    template_name = 'Person'
+    define_template = list(_TEMPLATE_MAP.keys())
+
+
+TEMPLATE_MAP = {i: k for k, v in _TEMPLATE_MAP.items() for i in v}

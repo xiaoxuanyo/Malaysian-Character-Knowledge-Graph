@@ -4,115 +4,72 @@
 @author : xiexx
 @email  : xiexx@xiaopeng.com
 """
-import re
 
+from src.base import QueryEngine, TemplateBase
+from src.templates import TemplatePerson, TEMPLATE_MAP
 import mwparserfromhell as mwp
 
-dont_parse = [mwp.wikicode.Argument, mwp.wikicode.Comment, mwp.wikicode.Heading]
-retain_template_name = (re.compile(r'medal'),)
-discard_template_value = (['zh-hans'],)
-retain_template_param = (['m', 'end', 'reason', 'award', 'ft', 'in', 'meter', 'meters',
-                          'cm'], re.compile(r'\d+'))
 
+class Parse:
+    InfoField = 'Infobox'
 
-def _matches(string, match):
-    def match1(i_s, i_m):
-        assert isinstance(i_m, list) or isinstance(i_m, re.Pattern), f'类型不符，match类型{type(i_m)}'
-        if isinstance(i_m, list):
-            if i_s in i_m:
-                return True, None
-            else:
-                return False, None
-        else:
-            res = re.search(i_m, i_s)
-            if res:
-                return True, res
-            else:
-                return False, None
+    @staticmethod
+    def _init(code, https_proxy=None):
+        return QueryEngine(code, https_proxy)
 
-    def match2(i_s, m_l, m_r):
-        assert isinstance(m_l, list) and isinstance(m_r,
-                                                    re.Pattern), f'类型不符，match[0]类型{type(m_l)}，match[1]类型{type(m_r)}'
-        if i_s in m_l:
-            return True, None
-        elif re.search(m_r, i_s):
-            return True, re.search(m_r, i_s)
-        else:
-            return False, None
+    @classmethod
+    def parse_wiki_data(cls, data, force=True, entry=None):
+        """
 
-    assert isinstance(match, tuple), f'不支持的match类型{type(match)}'
-    if len(match) == 1:
-        return match1(string, match[0])
-    elif len(match) == 2:
-        if isinstance(match[0], dict):
-            return match1(string, match[1])
-        else:
-            return match2(string, match[0], match[1])
-    elif len(match) == 3:
-        return match2(string, match[1], match[2])
-    else:
-        raise ValueError(f'不支持的match参数, {match}')
+        :param data: pywikibot.Page().get()对象
+        :param force:
+        :param entry:
+        :return:
+        """
+        fields = {'template_name': [],
+                  'fields': {},
+                  'entry': entry}
+        default_temp = TemplatePerson if force else TemplateBase
+        data = mwp.parse(data)
+        temp = data.filter_templates(matches=cls.InfoField)
+        for t in temp:
+            template = TEMPLATE_MAP.get(str(t.name).strip(' ').lower(), default_temp)
+            values = {str(p.name).strip(' '): str(p.value).strip(' ') for p in t.params if
+                      str(p.value).strip(' ')}
+            res = template(values, entry)
+            if res.template_name not in fields['template_name']:
+                fields['template_name'].append(res.template_name)
+            fields['fields'].update(res.fields['fields'])
+        return fields
 
+    @classmethod
+    def parse_wiki_title(cls, title, code, http_proxy=None, force=True, get_redirect=True):
+        """
+        :param title: 条目
+        :param code:
+        :param http_proxy:
+        :param force:
+        :param get_redirect:
+        :return:
+        """
+        query = cls._init(code, http_proxy)
+        data = query.get_wiki_page(title, get_redirect, force=False)
+        return cls.parse_wiki_data(data, force, title)
 
-def parse(p_t):
-    p_t = mwp.parse(p_t)
-    p_t = p_t.filter(recursive=False)
-    for i, j in enumerate(p_t):
-        if isinstance(j, mwp.wikicode.Template):
-            values = []
-            for k in j.params:
-                tag, res = _matches(k.name.strip_code().strip(' ').lower(), retain_template_param)
-                if tag and not _matches(k.value.strip_code().strip(' ').lower(), discard_template_value)[0]:
-                    if res:
-                        values.append(k.value.strip_code().strip(' '))
-                    else:
-                        values.append(f"({k.name.strip_code().strip(' ')}: {k.value.strip_code().strip(' ')})")
-            if _matches(j.name.strip_code().strip(' ').lower(), retain_template_name)[0]:
-                res = f"({j.name.strip_code().strip(' ')}: {', '.join(values)})"
-            else:
-                res = ', '.join(values)
-            p_t[i] = mwp.parse(res)
-        elif isinstance(j, mwp.wikicode.ExternalLink):
-            p_t[i] = j.url
-        elif isinstance(j, mwp.wikicode.Tag):
-            rs = mwp.parse('\n') if j.tag.strip_code().strip(' ') == 'br' else mwp.parse(
-                j.contents.strip_code().strip(' '))
-            p_t[i] = rs
-        elif isinstance(j, mwp.wikicode.Wikilink):
-            p_t[i] = mwp.parse(j.title.strip_code().strip(' '))
-        elif isinstance(j, mwp.wikicode.HTMLEntity):
-            p_t[i] = mwp.parse(j.normalize())
-        elif any([isinstance(j, k) for k in dont_parse]):
-            p_t[i] = mwp.parse(None)
-    if all([isinstance(ii, mwp.wikicode.Text) for ii in p_t]):
-        return p_t
-    return parse(p_t)
+    @classmethod
+    def parse_template(cls, values, template_name=None, entry=None, force=True):
+        """
 
+        :param values: 键值对待解析的值
+        :param template_name: 用什么模板解析
+        :param entry:
+        :param force:
+        :return:
+        """
+        default_temp = TemplatePerson if force else TemplateBase
+        if template_name is not None:
+            template_name = template_name.strip(' ').lower()
+        temp = TEMPLATE_MAP.get(template_name, default_temp)
+        res = temp(values, entry)
+        return res.fields
 
-def _re_compile(s, mode='se', split='.*?'):
-    assert mode in ['s', 'e', 'se'], f'不支持{mode}'
-    _s = r'^'
-    _e = r'$'
-    if mode == 's':
-        _p = _s + '{}'
-    elif mode == 'e':
-        _p = '{}' + _e
-    else:
-        _p = _s + '{}' + _e
-    s = s.split('|')
-    ss = []
-    for j, i in enumerate(s):
-        i_split = i.split(split)
-        index = []
-        for k in range(len(i_split)):
-            index.append('i' + str(j))
-            index.append(str(j + k))
-        ss.append(r'\s*?(?P<s_index{}>\d*)\s*?'.format(j) + r'\D*?(?P<{}_index{}>\d*)\D*?'.join(i_split).format(
-            *index) + r'\s*?(?P<e_index{}>\d*)\s*?'.format(j))
-    s = ss
-    s = '|'.join([_p.format(i, j) for j, i in enumerate(s)])
-    print(s)
-    return re.compile(r'%s' % s)
-
-
-print(parse('https://ms.wikipedia.org/wiki/David_Boudia'))

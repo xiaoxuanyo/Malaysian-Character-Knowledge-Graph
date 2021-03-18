@@ -236,6 +236,8 @@ class TemplateBase:
     }
     # 多值属性字段
     multi_values_field = None
+    # 多值字段中必须出现的字段，若没有出现，则认为这个多值字段没有意义
+    multi_field_cond = None
     # 在解析时跳过的类型
     dont_parse_type = [mwp.wikicode.Argument, mwp.wikicode.Comment, mwp.wikicode.Heading]
     # 解析wiki对象template时需要保存的模板名，通常情况下是因为模板名保存了必要的信息，比如某次比赛中的名次（金牌、银牌等）保存在模板名中
@@ -301,7 +303,20 @@ class TemplateBase:
                                 if not isinstance(jjj, dict):
                                     v['values'][iii] = {str(0) + str(iii): v['values'][iii]}
                             multi_values_field[i_k]['values'].append({k: v['values']})
-            multi_values_field = {k: v for k, v in multi_values_field.items() if v['values']}
+
+            def _check1(kkk, vvv):
+                temp = set([list(i.keys())[0] for i in vvv])
+                if set(self.multi_field_cond[kkk]).issubset(temp):
+                    return True
+                return False
+
+            def _check2(*args):
+                return True
+
+            # 检查是否包含必须有的字段
+            check = _check1 if self.multi_field_cond is not None else _check2
+
+            multi_values_field = {k: v for k, v in multi_values_field.items() if v['values'] and check(k, v['values'])}
             # 为主实体entry增加props, 构建知识图谱时有用
             name = []
             for k, v in multi_values_field.items():
@@ -355,27 +370,27 @@ class TemplateBase:
             if isinstance(j, mwp.wikicode.Template):
                 values = []
                 for k in j.params:
-                    tag, res = _matches(k.name.strip_code().strip(' ').lower(), cls.retain_template_param)
+                    tag, res = _matches(str(k.name).strip(' ').lower(), cls.retain_template_param)
                     res = res.group() if res else ''
-                    if tag and not _matches(k.value.strip_code().strip(' ').lower(), cls.discard_template_value)[0]:
+                    if tag and not _matches(str(k.value).strip(' ').lower(), cls.discard_template_value)[0]:
                         if _is_int(res):
-                            values.append(k.value.strip_code().strip(' '))
+                            values.append(str(k.value).strip(' '))
                         else:
-                            values.append(f"({k.name.strip_code().strip(' ')}: {k.value.strip_code().strip(' ')})")
-                if _matches(j.name.strip_code().strip(' ').lower(), cls.retain_template_name)[0]:
-                    res = f"({j.name.strip_code().strip(' ')}: {', '.join(values)})"
+                            values.append(f"({str(k.name).strip(' ')}: {str(k.value).strip(' ')})")
+                if _matches(str(j.name).strip(' ').lower(), cls.retain_template_name)[0]:
+                    res = f"({str(j.name).strip(' ')}: {', '.join(values)})"
                 else:
                     res = ', '.join(values)
                 p_t[i] = mwp.parse(res)
             elif isinstance(j, mwp.wikicode.ExternalLink):
                 p_t[i] = j.url
             elif isinstance(j, mwp.wikicode.Tag):
-                rs = mwp.parse('\n') if j.tag.strip_code().strip(' ') == 'br' else mwp.parse(
-                    j.contents.strip_code().strip(' '))
+                rs = mwp.parse('\n') if str(j.tag).strip(' ') == 'br' else mwp.parse(
+                    str(j.contents).strip(' '))
                 p_t[i] = rs
             elif isinstance(j, mwp.wikicode.Wikilink):
-                if not _matches(j.title.strip_code().strip(' ').lower(), cls.discard_wikilink_value)[0]:
-                    p_t[i] = mwp.parse(j.title.strip_code().strip(' '))
+                if not _matches(str(j.title).strip(' ').lower(), cls.discard_wikilink_value)[0]:
+                    p_t[i] = mwp.parse(str(j.title).strip(' '))
                 else:
                     p_t[i] = mwp.parse(None)
             elif isinstance(j, mwp.wikicode.HTMLEntity):
@@ -447,7 +462,7 @@ class TemplateSportsPlayer(TemplateBase):
         'Current Club': ({'zh': '目前俱乐部'}, re_compile(r'current.*?club'),),
         'Club Number': ({'zh': '运动员编号'}, re_compile(r'club.*?number'),),
         'Position': ({'zh': '运动员定位'}, ['position'],),
-        '_Years': ({'zh': '服役年份'}, re_compile(r'years?|club.*?years?'),),
+        '_Years': ({'zh': '年份'}, re_compile(r'years?|club.*?years?'),),
         '_Clubs': ({'zh': '服役俱乐部'}, re_compile(r'clubs?'),),
         '_Caps(Goals)': ({'zh': '出场数(进球数)'}, re_compile(r'caps\(goals\)'),),
         '_Caps': ({'zh': '出场数'}, re_compile(r'caps?'),),
@@ -484,6 +499,10 @@ class TemplateSportsPlayer(TemplateBase):
                                           ['_Youth Clubs', '_Youth Years', '_Youth Caps(Goals)', '_Youth Caps',
                                            '_Youth Goals']),
                           'Manager Clubs': ({'zh': '管理俱乐部'}, ['_Manager Clubs', '_Manager Years'])}
+    multi_field_cond = {'Clubs': ['_Clubs'],
+                        'Nation Team': ['_National Team'],
+                        'Youth Clubs': ['_Youth Clubs'],
+                        'Manager Clubs': ['_Manager Clubs']}
 
 
 class TemplatePerformanceWorker(TemplateBase):
@@ -536,4 +555,7 @@ class TemplateResearchers(TemplateBase):
     fields_map.update(TemplateBase.fields_map)
     multi_values_field = {
         'Thesis': ({'zh': '论文'}, ['_Thesis Title', '_Thesis Year', '_Thesis Url'])
+    }
+    multi_field_cond = {
+        'Thesis': ['_Thesis Title']
     }
