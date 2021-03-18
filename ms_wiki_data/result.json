@@ -2492,13 +2492,6 @@
       "awards",
       "alma_mater"
    ],
-   "infobox royal styles": [
-      "offstyle",
-      "image",
-      "royal name",
-      "dipstyle",
-      "altstyle"
-   ],
    "infobox architect": [
       "name",
       "website",
@@ -2710,13 +2703,6 @@
       "birth_place",
       "clubs2",
       "youthclubs1"
-   ],
-   "infobox_hrhstyles": [
-      "offstyle",
-      "image",
-      "royal name",
-      "dipstyle",
-      "altstyle"
    ],
    "infobox artist": [
       "nationality",
@@ -3561,47 +3547,6 @@
       "nama penuh",
       "imej"
    ],
-   "infobox chinese": [
-      "hide",
-      "y",
-      "j2",
-      "tp",
-      "p2",
-      "headercolor",
-      "tl",
-      "h",
-      "hiragana",
-      "title",
-      "poj",
-      "altname",
-      "w",
-      "t2",
-      "showflag",
-      "hangul",
-      "c",
-      "s2",
-      "ci2",
-      "mr",
-      "hk2",
-      "t",
-      "w2",
-      "picupright",
-      "romaji",
-      "gd",
-      "kanji",
-      "katakna",
-      "hk",
-      "order",
-      "mi",
-      "rr",
-      "child",
-      "buc",
-      "ci",
-      "s",
-      "j",
-      "mi2",
-      "p"
-   ],
    "infobox gymnast": [
       "show-medals",
       "medaltemplates",
@@ -3787,10 +3732,6 @@
       "year_active",
       "birth name",
       "imagesize"
-   ],
-   "infobox person/internet info": [
-      "web host service",
-      "web alias"
    ],
    "infobox criminal": [
       "occupation",
@@ -4078,14 +4019,6 @@
       "birth_name",
       "label"
    ],
-   "infobox animanga/manga": [
-      "num_volumes",
-      "serialized",
-      "publisher",
-      "first_run",
-      "last_run",
-      "author"
-   ],
    "infobox us cabinet official": [
       "profession",
       "title",
@@ -4100,19 +4033,6 @@
       "birth_place",
       "president",
       "term_start"
-   ],
-   "infobox album": [
-      "background",
-      "name",
-      "italic title",
-      "artist",
-      "genre",
-      "type",
-      "length",
-      "language",
-      "producer",
-      "released",
-      "label"
    ],
    "infobox ice hockey player": [
       "league",
@@ -4476,13 +4396,6 @@
       "prev series",
       "imagesize"
    ],
-   "infobox monarch styles": [
-      "offstyle",
-      "image",
-      "royal name",
-      "dipstyle",
-      "altstyle"
-   ],
    "infobox muslim scholar": [
       "ethnicity",
       "era",
@@ -4496,18 +4409,6 @@
       "death_date",
       "place_born",
       "title"
-   ],
-   "infobox discography": [
-      "name",
-      "tracks",
-      "format",
-      "type",
-      "singles",
-      "writer",
-      "producer",
-      "released",
-      "from album",
-      "label"
    ],
    "infobox spy": [
       "occupation",
@@ -4647,13 +4548,6 @@
       "homepage",
       "alma_mater"
    ],
-   "infobox hrhstyles": [
-      "offstyle",
-      "image",
-      "royal name",
-      "dipstyle",
-      "altstyle"
-   ],
    "infobox le mans driver": [
       "best finish",
       "years",
@@ -4776,14 +4670,6 @@
       "draft_pick",
       "career_position"
    ],
-   "infobox cardinal styles": [
-      "offstyle",
-      "name",
-      "image_size",
-      "relstyle",
-      "image",
-      "dipstyle"
-   ],
    "infobox religious biography": [
       "profession",
       "name",
@@ -4863,12 +4749,6 @@
       "children",
       "alma_mater"
    ],
-   "infobox medal templates": [
-      "titlestyle",
-      "expand",
-      "medals",
-      "title"
-   ],
    "infobox musical artist 2": [
       "occupation",
       "url",
@@ -4928,14 +4808,6 @@
       "image",
       "nickname",
       "updated"
-   ],
-   "infobox animanga/header": [
-      "ja_name_trans",
-      "ja_name",
-      "title_name",
-      "image",
-      "genre",
-      "size"
    ],
    "infobox_actor": [
       "1",

@@ -4,84 +4,72 @@
 @author : xiexx
 @email  : xiexx@xiaopeng.com
 """
-import re
 
+from src.base import QueryEngine, TemplateBase
+from src.templates import TemplatePerson, TEMPLATE_MAP
 import mwparserfromhell as mwp
 
-_dont_parse = [mwp.wikicode.Argument, mwp.wikicode.Comment, mwp.wikicode.Heading]
 
+class Parse:
+    InfoField = 'Infobox'
 
-def _is_int(ind):
-    try:
-        int(ind)
-        return True
-    except ValueError:
-        return False
+    @staticmethod
+    def _init(code, https_proxy=None):
+        return QueryEngine(code, https_proxy)
 
+    @classmethod
+    def parse_wiki_data(cls, data, force=True, entry=None):
+        """
 
-def parse(p_t):
-    p_t = mwp.parse(p_t)
-    p_t = p_t.filter(recursive=False)
-    for i, j in enumerate(p_t):
-        if isinstance(j, mwp.wikicode.Template):
-            values = []
-            for k in j.params:
+        :param data: pywikibot.Page().get()对象
+        :param force:
+        :param entry:
+        :return:
+        """
+        fields = {'template_name': [],
+                  'fields': {},
+                  'entry': entry}
+        default_temp = TemplatePerson if force else TemplateBase
+        data = mwp.parse(data)
+        temp = data.filter_templates(matches=cls.InfoField)
+        for t in temp:
+            template = TEMPLATE_MAP.get(str(t.name).strip(' ').lower(), default_temp)
+            values = {str(p.name).strip(' '): str(p.value).strip(' ') for p in t.params if
+                      str(p.value).strip(' ')}
+            res = template(values, entry)
+            if res.template_name not in fields['template_name']:
+                fields['template_name'].append(res.template_name)
+            fields['fields'].update(res.fields['fields'])
+        return fields
 
-                # if not _is_int(str(k.name)):
-                #     if str(k.name).strip() not in TEST['test']:
-                #         TEST['test'].append(str(k.name).strip())
+    @classmethod
+    def parse_wiki_title(cls, title, code, http_proxy=None, force=True, get_redirect=True):
+        """
+        :param title: 条目
+        :param code:
+        :param http_proxy:
+        :param force:
+        :param get_redirect:
+        :return:
+        """
+        query = cls._init(code, http_proxy)
+        data = query.get_wiki_page(title, get_redirect, force=False)
+        return cls.parse_wiki_data(data, force, title)
 
-                if _is_int(str(k.name).strip(' ')) and str(k.value).strip(' ') not in ['zh-hans']:
-                    values.append(str(k.value).strip(' '))
-                elif str(k.name).strip(' ') in ['m', 'end', 'reason', 'award', 'ft', 'in', 'meter', 'meters', 'cm']:
-                    values.append(f"({str(k.name).strip(' ')}: {str(k.value).strip(' ')})")
-            if re.search(r'medal', str(j.name).strip().lower()):
-                res = f"({str(j.name).strip()}: {', '.join(values)})"
-            else:
-                res = ', '.join(values)
-            p_t[i] = mwp.parse(res)
-        elif isinstance(j, mwp.wikicode.ExternalLink):
-            p_t[i] = j.url
-        elif isinstance(j, mwp.wikicode.Tag):
-            rs = mwp.parse('\n') if str(j.tag) == 'br' else mwp.parse(str(j.contents).strip(' '))
-            p_t[i] = rs
-        elif isinstance(j, mwp.wikicode.Wikilink):
-            p_t[i] = mwp.parse(str(j.title).strip(' '))
-        elif isinstance(j, mwp.wikicode.HTMLEntity):
-            p_t[i] = mwp.parse(j.normalize())
-        elif any([isinstance(j, k) for k in _dont_parse]):
-            p_t[i] = mwp.parse(None)
-    if all([isinstance(ii, mwp.wikicode.Text) for ii in p_t]):
-        return p_t
-    return parse(p_t)
+    @classmethod
+    def parse_template(cls, values, template_name=None, entry=None, force=True):
+        """
 
+        :param values: 键值对待解析的值
+        :param template_name: 用什么模板解析
+        :param entry:
+        :param force:
+        :return:
+        """
+        default_temp = TemplatePerson if force else TemplateBase
+        if template_name is not None:
+            template_name = template_name.strip(' ').lower()
+        temp = TEMPLATE_MAP.get(template_name, default_temp)
+        res = temp(values, entry)
+        return res.fields
 
-def _re_compile(s, mode='se', split='.*?'):
-    assert mode in ['s', 'e', 'se'], f'不支持{mode}'
-    _s = r'^'
-    _e = r'$'
-    if mode == 's':
-        _p = _s + '{}'
-    elif mode == 'e':
-        _p = '{}' + _e
-    else:
-        _p = _s + '{}' + _e
-    s = s.split('|')
-    ss = []
-    for j, i in enumerate(s):
-        i_split = i.split(split)
-        index = []
-        for k in range(len(i_split)):
-            index.append('i' + str(j))
-            index.append(str(j + k))
-        ss.append(r'\s*?(?P<s_index{}>\d*)\s*?'.format(j) + r'\D*?(?P<{}_index{}>\d*)\D*?'.join(i_split).format(
-            *index) + r'\s*?(?P<e_index{}>\d*)\s*?'.format(j))
-    s = ss
-    s = '|'.join([_p.format(i, j) for j, i in enumerate(s)])
-    print(s)
-    return re.compile(r'%s' % s)
-
-
-r = '{{MedalCompetition|[[Sukan Olimpik]]}}'
-r = parse(r)
-print(''.join([str(i) for i in r]))

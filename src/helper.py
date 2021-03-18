@@ -25,7 +25,26 @@ def get_keys(templates, keys):
     return values
 
 
+def get_fields(all_template):
+    fields = set()
+    multi_fields = set()
+    gen_fields = set()
+    multi_fields2 = set()
+    for tem in all_template:
+        for i in tem.fields_map.keys():
+            if i.startswith('_'):
+                multi_fields.add(i)
+            else:
+                fields.add(i)
+        if tem.multi_values_field:
+            for k, v in tem.multi_values_field.items():
+                gen_fields.add(k)
+                for j in v[-1]:
+                    multi_fields2.add(j)
+    return fields, multi_fields, gen_fields, multi_fields2
+
+
 if __name__ == '__main__':
-    template = ['infobox sportsperson']
-    key = 'collegeteam'
+    template = ['infobox racing driver']
+    key = 'teams'
     print(get_keys(template, key))
