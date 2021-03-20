@@ -738,9 +738,10 @@ class TemplateDefine:
         _props = []
         self._fields = {'template_name': self.template_name,
                         'entry': entry}
-        fields = self.define_template.pop(0)
+        fields = self.define_template[0]
         self._fields['fields'] = fields(values, entry).fields['fields']
-        for temp in self.define_template:
+        for temp in range(1, len(self.define_template)):
+            temp = self.define_template[temp]
             res = temp(values, entry)
             for k, v in res.fields['fields'].items():
                 if self._fields['fields'].get(k):
@@ -753,7 +754,7 @@ class TemplateDefine:
                 if res.fields['primary_entity_props']['multi_values_field'] not in _props:
                     _props.append(res.fields['primary_entity_props']['multi_values_field'])
         if _props:
-            self._fields['primary_entity_props'] = '\n'.join(_props)
+            self._fields['primary_entity_props'] = {'multi_values_field': '\n'.join(_props)}
 
     @property
     def fields(self):
@@ -766,3 +767,16 @@ class TemplatePerson(TemplateDefine):
 
 
 TEMPLATE_MAP = {i: k for k, v in _TEMPLATE_MAP.items() for i in v}
+
+if __name__ == '__main__':
+    v = {
+        "playername": "{{PAGENAME}}",
+        "fullname": "{{PAGENAME}}",
+        "dateofbirth": "{{birth date and age|1974|4|15}}",
+        "cityofbirth": "[[Tokyo]]",
+        "countryofbirth": "[[Jepun]]",
+        "position": "[[Pemain pertahanan (bola sepak)|Pemain pertahanan]]",
+        "years1": "1997-1999",
+        "clubs1": "[[Urawa Reds]]"
+    }
+    print(TemplateFootballPlayer(v, 'test').fields)

@@ -8,10 +8,10 @@
 # @Desc     :
 
 
-from src.templates import TEMPLATE_MAP
 from py2neo import Graph, Node, Relationship
 from tqdm import tqdm
 import json
+from src.parse import Parse
 
 
 class KnowledgeGraph:
@@ -21,28 +21,25 @@ class KnowledgeGraph:
         if delete:
             self.graph.delete_all()
 
-    def insert(self, data):
-        if not self.graph.nodes.match(data['node_label'], name=data['node_name']).exists():
-            node = Node(data['node_label'], name=data['node_name'])
-            self.graph.create(node)
-        node1 = self.graph.nodes.match(data['node_label'], name=data['node_name']).first()
-        for i in data['node_relation']:
-            tag = False
-            if not self.graph.nodes.match(name=i[1]).exists():
-                tag = True
-                node = Node('others', name=i[1])
-                self.graph.create(node)
-            if not tag:
-                node2 = self.graph.nodes.match(name=i[1]).first()
-            else:
-                node2 = self.graph.nodes.match('others', name=i[1]).first()
-            try:
-                pr = i[2]
-            except IndexError:
-                pr = {}
-            if not self.graph.relationships.match((node1, node2), r_type=i[0], **pr).exists():
-                relation = Relationship(node1, i[0], node2, **pr)
-                self.graph.create(relation)
+    def insert(self, fields):
+        node1_label = '/'.join(fields['template_name'])
+        node1_name = fields['entry']
+        node1_props = fields.get('primary_entity_props', {})
+        if not self.graph.nodes.match(name=node1_name).exists():
+            node1 = Node(node1_label, name=node1_name, **node1_props)
+            self.graph.create(node1)
+        else:
+            node1 = self.graph.nodes.match(name=node1_name).first()
+        for k, v in fields['fields'].items():
+            for item in v['values']:
+                if not self.graph.nodes.match('Others', name=item).exists():
+                    node2 = Node('Others', name=item)
+                    self.graph.create(node2)
+                else:
+                    node2 = self.graph.nodes.match('Others', name=item).first()
+                if not self.graph.relationships.match((node1, node2), r_type=k, **v['relation_props']).exists():
+                    relation = Relationship(node1, k, node2, **v['relation_props'])
+                    self.graph.create(relation)
 
 
 if __name__ == '__main__':
@@ -52,9 +49,7 @@ if __name__ == '__main__':
 
     for i in tqdm(j_data.values(), '正在构建知识图谱...'):
         if i.get('info'):
-            for k, v in i['info'].items():
-                tem = TEMPLATE_MAP.get(k.lower().strip())
-                if tem:
-                    template = tem(v, i['title'])
-                    graph.insert(template.graph_entities)
+            fields_all = Parse.parse_wiki_data(data=i['info'], entry=i['title'])
+            print(fields_all, '\n')
+            graph.insert(fields_all)
 
