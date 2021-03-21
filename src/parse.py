@@ -13,6 +13,38 @@ import mwparserfromhell as mwp
 class Parse:
     InfoField = 'Infobox'
 
+    class DicTTemp:
+        class InnerTemp:
+            class InnerParams:
+                def __init__(self, name, value):
+                    self.name = name
+                    self.value = value
+
+            def __init__(self, name, value):
+                self.name = name
+                self.params = [self.InnerParams(ii, jj) for ii, jj in value.items()]
+
+        def __init__(self, d):
+            self.d = d
+            self.keys = list(d.keys())
+            self._pop = list(range(len(self.keys)))
+
+        def pop(self, index):
+            key = self.keys[index]
+            self._pop.pop(self._pop.index(index))
+            value = self.d[key]
+            return self.InnerTemp(key, value)
+
+        def __iter__(self):
+            return self
+
+        def __next__(self):
+            if self._pop:
+                index = self._pop[0]
+                return self.pop(index)
+            else:
+                raise StopIteration
+
     @staticmethod
     def _init(code, https_proxy=None):
         return QueryEngine(code, https_proxy)
@@ -31,45 +63,12 @@ class Parse:
                   'entry': entry}
         default_temp = TemplatePerson if force else TemplateBase
         if isinstance(data, dict):
-            class DicTTemp:
-                class InnerTemp:
-                    class InnerParams:
-                        def __init__(self, name, value):
-                            self.name = name
-                            self.value = value
-
-                    def __init__(self, name, value):
-                        self.name = name
-                        self.params = [self.InnerParams(ii, jj) for ii, jj in value.items()]
-
-                def __init__(self, d):
-                    self.d = d
-                    self.keys = list(d.keys())
-                    self._pop = list(range(len(self.keys)))
-
-                def pop(self, index):
-                    key = self.keys[index]
-                    self._pop.pop(self._pop.index(index))
-                    value = self.d[key]
-                    return self.InnerTemp(key, value)
-
-                def __iter__(self):
-                    return self
-
-                def __next__(self):
-                    if self._pop:
-                        index = self._pop[0]
-                        return self.pop(index)
-                    else:
-                        raise StopIteration
-
-            temp = DicTTemp(data)
+            temp = cls.DicTTemp(data)
         else:
             data = mwp.parse(data)
             temp = data.filter_templates(matches=cls.InfoField)
         if temp:
             tem = temp.pop(0)
-
             values = {str(p.name).strip(' '): str(p.value).strip(' ') for p in
                       tem.params if
                       str(p.value).strip(' ')}
