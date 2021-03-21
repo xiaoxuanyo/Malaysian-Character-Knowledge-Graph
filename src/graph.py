@@ -41,9 +41,21 @@ class KnowledgeGraph:
                     relation = Relationship(node1, k, node2, **v['relation_props'])
                     self.graph.create(relation)
 
+    @property
+    def all_nodes(self):
+        print('正在获取节点...')
+        nodes = self.graph.nodes.match().all()
+        return nodes
+
+    @property
+    def all_relations(self):
+        print('正在获取关系...')
+        relations = self.graph.relationships.match().all()
+        return relations
+
 
 if __name__ == '__main__':
-    # graph = KnowledgeGraph("http://localhost:7474", username="neo4j", password="XXX981110")
+    # graph = KnowledgeGraph("http://localhost:7474", username="neo4j", password="XXX981110", delete=False)
     with open('../ms_wiki_data/ps.json', 'r', encoding='utf-8') as f:
         j_data = json.load(f)
 
