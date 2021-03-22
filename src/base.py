@@ -19,7 +19,7 @@ _FILE_LOG_LEVEL = logging.WARNING
 _CONSOLE_LOG_LEVEL = logging.WARNING
 
 _file_log = LoggerUtil('src.templates.file', file_path='../log/templates.log',
-                       level=_FILE_LOG_LEVEL, mode='a+')
+                       level=_FILE_LOG_LEVEL, mode='w+')
 _console_log = LoggerUtil('src.templates.console', level=_CONSOLE_LOG_LEVEL)
 
 
@@ -230,7 +230,6 @@ class TemplateBase:
         'Previous Occupation': ({'zh': '以前的职业'}, re_compile(r'previous.*?occupation|previous.*?post')),
         'Title': ({'zh': '头衔/职称'}, ['title']),
         'Status': ({'zh': '状态'}, ['dead'], re_compile(r'status', mode='e')),
-        'Type': ({'zh': '种类/类型'}, re_compile(r'type', mode='e')),
         'Movement': ({'zh': '(具有共同思想或目标的)运动'}, ['movement', 'movements']),
         'Period': ({'zh': '(人生或国家历史的)时期'}, ['period'])
     }
@@ -306,7 +305,7 @@ class TemplateBase:
 
             def _check1(kkk, vvv):
                 temp = set([list(i.keys())[0] for i in vvv])
-                if set(self.multi_field_cond[kkk]).issubset(temp):
+                if set(self.multi_field_cond.get(kkk, [])).issubset(temp):
                     return True
                 return False
 
@@ -336,10 +335,12 @@ class TemplateBase:
                     if _is_include_dict(v['values']):
                         _multi.append(k)
             if len(_multi) >= 2:
-                raise ValueError(f"field({', '.join(_multi)})包含字典即多值数据，不能当成单独字段解析，请将该字段放入multi_values_field中进行解析")
+                raise ValueError(
+                    f"field({entry}, {', '.join(_multi)})包含字典即多值数据，不能当成单独字段解析，请将该字段放入multi_values_field中进行解析")
             elif _multi:
-                _file_log.logger.warning(f"未指定在multi_values_field中多值字段({_multi[0]})")
-                fields_values[_multi[0]]['values'] = [list(i.values())[0] for i in fields_values[_multi[0]]['values']]
+                _file_log.logger.warning(f"未指定在multi_values_field中多值字段({entry}, {_multi[0]})")
+                fields_values[_multi[0]]['values'] = [list(i.values())[0] if isinstance(i, dict) else i for i in
+                                                      fields_values[_multi[0]]['values']]
         # 多值属性为空时，自动将多值属性解析为一个other info字段
         else:
             fields_values = {}
@@ -500,7 +501,7 @@ class TemplateSportsPlayer(TemplateBase):
                                            '_Youth Goals']),
                           'Manager Clubs': ({'zh': '管理俱乐部'}, ['_Manager Clubs', '_Manager Years'])}
     multi_field_cond = {'Clubs': ['_Clubs'],
-                        'Nation Team': ['_National Team'],
+                        'National Team': ['_National Team'],
                         'Youth Clubs': ['_Youth Clubs'],
                         'Manager Clubs': ['_Manager Clubs']}
 
