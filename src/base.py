@@ -153,14 +153,14 @@ class TemplateBase:
     fields_map = {
         'Name': ({'zh': '名字'}, ['name', 'nama'],),
         'Alias': (
-            {'zh': '别名'}, ['alias', 'nickname', 'hangul', 'id', 'pseudonym'],
-            re_compile(r'other.*?names?|real.*?name')),
-        'Native Name': ({'zh': '本地名字'}, re_compile(r'native.*?names?'),),
+            {'zh': '别名'}, ['alias', 'nickname', 'hangul', 'id', 'pseudonym', 'tradchinesename',
+                           'pinyinchinesename', 'simpchinesename'],
+            re_compile(r'other.*?names?|real.*?name|native.*?names?|player.*?name|chinese.*?name|nama.*?inggeris')),
         'Birth': ({'zh': '出生信息'}, ['birth', 'born', 'keputeraan'],),
         'Death': ({'zh': '死亡信息'}, ['died']),
         'Birth Name': ({'zh': '出生名'}, re_compile(r'birth.*?names?'),),
         'Birth Date': (
-            {'zh': '出生日期'}, ['tarikh lahir'], re_compile(r'birth.*?date|date.*?birth|born.*?date|date.*?born'),),
+            {'zh': '出生时间'}, ['tarikh lahir'], re_compile(r'birth.*?date|date.*?birth|born.*?date|date.*?born'),),
         'Birth Place': (
             {'zh': '出生地点'}, ['tempat lahir', 'tempat keputeraan'],
             re_compile(r'birth.*?place|place.*?birth|born.*?place|place.*?born')),
@@ -178,8 +178,8 @@ class TemplateBase:
         'Occupation': ({'zh': '职业/工作'}, ['occupation', 'occupation(s)', 'pekerjaan', 'ocupation', 'occuption',
                                          'occuoation', 'profession'], re_compile(r'current.*?occupation|other.*?post')),
         'Years Active': ({'zh': '活跃年份'}, ['active', 'yeaesactive', 'era'], re_compile(r'year.*?active')),
-        'Death Date': ({'zh': '死亡日期'}, ['tarikh kematian'], re_compile(r'death.*?date|date.*?death'),),
-        'Death Place': ({'zh': '死亡时间'}, ['tempat kematian'], re_compile(r'death.*?place|place.*?death'),),
+        'Death Date': ({'zh': '死亡时间'}, ['tarikh kematian'], re_compile(r'death.*?date|date.*?death'),),
+        'Death Place': ({'zh': '死亡地点'}, ['tempat kematian'], re_compile(r'death.*?place|place.*?death'),),
         'Burial Place': ({'zh': '埋葬地点'}, re_compile(r'resting.*?place|burial.*?place'),),
         'Spouse': ({'zh': '配偶'}, ['spouse', 'pasangan', 'spouses', 'consort'],),
         'Parents': ({'zh': '父母'}, ['parents'],),
@@ -459,7 +459,6 @@ class TemplateOfficer(TemplateBase):
 class TemplateSportsPlayer(TemplateBase):
     template_name = 'Sports Player'
     fields_map = {
-        'Player Name': ({'zh': '运动员名称'}, re_compile(r'player.*?name'),),
         'Current Club': ({'zh': '目前俱乐部'}, re_compile(r'current.*?club'),),
         'Club Number': ({'zh': '运动员编号'}, re_compile(r'club.*?number'),),
         'Position': ({'zh': '运动员定位'}, ['position'],),
@@ -509,20 +508,15 @@ class TemplateSportsPlayer(TemplateBase):
 class TemplatePerformanceWorker(TemplateBase):
     template_name = 'Performance Worker'
     fields_map = {
-        'Traditional Chinese Name': ({'zh': '繁体名字'}, ['tradchinesename'],),
-        'Pinyin Chines Name': ({'zh': '名字拼音'}, ['pinyinchinesename'],),
-        'Simplified Chinese Name': ({'zh': '简体名字'}, ['simpchinesename'],),
         'Genre': ({'zh': '体裁/类型（文学、艺术、电影或音乐的）'}, ['genre', 'genres'],),
         'Label': ({'zh': '唱片公司'}, ['label', 'company', 'syarikat pengurusan'], re_compile(r'record.*?label')),
         'Instruments': ({'zh': '乐器'}, ['instrument', 'instruments', 'instrumen'],),
         'Notable Instruments': ({'zh': '著名乐器'}, re_compile(r'notable.*?instruments?')),
         'Voice Type': ({'zh': '声音类型'}, re_compile(r'voice.*?type'),),
-        'Chinese Name': ({'zh': '中文名'}, re_compile(r'chinese.*?name'),),
         'Associated Acts': (
             {'zh': '相关艺术家/相关表演者'}, re_compile(r'associated.*?acts?')),
         'Current Members': ({'zh': '现有成员'}, re_compile(r'current.*?members?'),),
         'Past Members': ({'zh': '过去成员'}, re_compile(r'past.*?members?'),),
-        'English Name': ({'zh': '英文名'}, re_compile(r'nama.*?inggeris'),),
         'Location': ({'zh': '表演场地/外景拍摄地'}, ['location']),
         'Dress Size': ({'zh': '服装尺码'}, re_compile(r'dress.*?size'),),
         'Shoe Size': ({'zh': '鞋子尺码'}, re_compile(r'shoe.*?size'),),

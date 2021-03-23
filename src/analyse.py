@@ -86,9 +86,3 @@ class Analyse:
 if __name__ == '__main__':
     g = KnowledgeGraph("http://localhost:7474", username="neo4j", password="XXX981110", delete=False)
     analyse = Analyse('../ms_wiki_data/ps.json', graph=g)
-    analyse.nums
-    analyse.info_nums
-    analyse.max_num
-    analyse.zero_title
-    analyse.all_nodes_num
-    analyse.all_relations_num
