@@ -139,4 +139,6 @@ class Parse:
 
 if __name__ == '__main__':
     http = '192.168.235.227:8888'
-    print(Parse.parse_wiki_title('Ryan Gosling', code='ms', http_proxy=http))
+    # Krystal Jung
+    print(Parse.parse_wiki_title('Norodom Marie', code='ms', http_proxy=None))
+

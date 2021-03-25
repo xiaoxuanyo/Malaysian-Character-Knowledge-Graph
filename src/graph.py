@@ -64,4 +64,3 @@ if __name__ == '__main__':
             fields_all = Parse.parse_wiki_data(data=i['info'], entry=i['title'])
             print(fields_all, '\n')
             # graph.insert(fields_all)
-

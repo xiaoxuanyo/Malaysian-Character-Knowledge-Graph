@@ -1,57 +1,18 @@
 {
-   "Genre": {
-      "zh": "体裁/类型（文学、艺术、电影或音乐的）"
+   "Cabinet": {
+      "zh": "内阁"
    },
-   "Label": {
-      "zh": "唱片公司"
+   "Department": {
+      "zh": "部门"
    },
-   "Instruments": {
-      "zh": "乐器"
+   "Allegiance": {
+      "zh": "(对政党、宗教、统治者的)忠诚/效忠"
    },
-   "Notable Instruments": {
-      "zh": "著名乐器"
+   "Service Years": {
+      "zh": "服务年限"
    },
-   "Voice Type": {
-      "zh": "声音类型"
-   },
-   "Associated Acts": {
-      "zh": "相关艺术家/相关表演者"
-   },
-   "Current Members": {
-      "zh": "现有成员"
-   },
-   "Past Members": {
-      "zh": "过去成员"
-   },
-   "Location": {
-      "zh": "表演场地/外景拍摄地"
-   },
-   "Dress Size": {
-      "zh": "服装尺码"
-   },
-   "Shoe Size": {
-      "zh": "鞋子尺码"
-   },
-   "Number Films": {
-      "zh": "电影数目"
-   },
-   "Orientation": {
-      "zh": "性取向"
-   },
-   "Films": {
-      "zh": "电影"
-   },
-   "Agent": {
-      "zh": "经纪人"
-   },
-   "Television": {
-      "zh": "电视节目"
-   },
-   "Medium": {
-      "zh": "(传播信息的)媒介"
-   },
-   "Fan Club": {
-      "zh": "粉丝俱乐部"
+   "Rank": {
+      "zh": "等级/军衔"
    },
    "Name": {
       "zh": "名字"
@@ -65,20 +26,8 @@
    "Death": {
       "zh": "死亡信息"
    },
-   "Birth Date": {
-      "zh": "出生时间"
-   },
-   "Birth Place": {
-      "zh": "出生地点"
-   },
    "Retirement Date": {
       "zh": "退休时间"
-   },
-   "Birth City": {
-      "zh": "出生城市"
-   },
-   "Birth Country": {
-      "zh": "出生国家"
    },
    "Height": {
       "zh": "身高"
@@ -106,15 +55,6 @@
    },
    "Years Active": {
       "zh": "活跃年份"
-   },
-   "Death Date": {
-      "zh": "死亡时间"
-   },
-   "Death Place": {
-      "zh": "死亡地点"
-   },
-   "Burial Place": {
-      "zh": "埋葬地点"
    },
    "Spouse": {
       "zh": "配偶"
@@ -257,75 +197,6 @@
    "Period": {
       "zh": "(人生或国家历史的)时期"
    },
-   "Cabinet": {
-      "zh": "内阁"
-   },
-   "Department": {
-      "zh": "部门"
-   },
-   "Allegiance": {
-      "zh": "(对政党、宗教、统治者的)忠诚/效忠"
-   },
-   "Service Years": {
-      "zh": "服务年限"
-   },
-   "Rank": {
-      "zh": "等级/军衔"
-   },
-   "League": {
-      "zh": "联盟"
-   },
-   "Games": {
-      "zh": "游戏"
-   },
-   "Workplace": {
-      "zh": "工作地"
-   },
-   "Fields": {
-      "zh": "领域"
-   },
-   "Academic Advisors": {
-      "zh": "学术顾问"
-   },
-   "Doctoral Advisors": {
-      "zh": "博士生导师"
-   },
-   "Boards": {
-      "zh": "董事会"
-   },
-   "Doctoral Students": {
-      "zh": "博士生"
-   },
-   "Notable Students": {
-      "zh": "著名学生"
-   },
-   "Contributions": {
-      "zh": "贡献"
-   },
-   "Notable Ideas": {
-      "zh": "著名想法"
-   },
-   "Unit": {
-      "zh": "部队"
-   },
-   "Branch": {
-      "zh": "分支部门"
-   },
-   "Battles": {
-      "zh": "战争"
-   },
-   "Denomination": {
-      "zh": "教派/宗派"
-   },
-   "Current Team": {
-      "zh": "目前团队"
-   },
-   "Bike Number": {
-      "zh": "自行车号码"
-   },
-   "Philosophy": {
-      "zh": "哲学"
-   },
    "Last Win": {
       "zh": "最后一次胜利"
    },
@@ -367,12 +238,6 @@
    },
    "Best Finish": {
       "zh": "最好战绩"
-   },
-   "Motto": {
-      "zh": "座右铭"
-   },
-   "Tag": {
-      "zh": "标签"
    },
    "Singles Record": {
       "zh": "单打纪录"
@@ -446,11 +311,185 @@
    "Sports": {
       "zh": "运动项目"
    },
-   "Highlights": {
-      "zh": "高光时刻"
+   "Philosophy": {
+      "zh": "哲学"
+   },
+   "Workplace": {
+      "zh": "工作地"
+   },
+   "Fields": {
+      "zh": "领域"
+   },
+   "Academic Advisors": {
+      "zh": "学术顾问"
+   },
+   "Doctoral Advisors": {
+      "zh": "博士生导师"
+   },
+   "Boards": {
+      "zh": "董事会"
+   },
+   "Doctoral Students": {
+      "zh": "博士生"
+   },
+   "Notable Students": {
+      "zh": "著名学生"
+   },
+   "Contributions": {
+      "zh": "贡献"
+   },
+   "Notable Ideas": {
+      "zh": "著名想法"
+   },
+   "Genre": {
+      "zh": "体裁/类型（文学、艺术、电影或音乐的）"
+   },
+   "Label": {
+      "zh": "唱片公司"
+   },
+   "Instruments": {
+      "zh": "乐器"
+   },
+   "Notable Instruments": {
+      "zh": "著名乐器"
+   },
+   "Voice Type": {
+      "zh": "声音类型"
+   },
+   "Associated Acts": {
+      "zh": "相关艺术家/相关表演者"
+   },
+   "Current Members": {
+      "zh": "现有成员"
+   },
+   "Past Members": {
+      "zh": "过去成员"
+   },
+   "Location": {
+      "zh": "表演场地/外景拍摄地"
+   },
+   "Dress Size": {
+      "zh": "服装尺码"
+   },
+   "Shoe Size": {
+      "zh": "鞋子尺码"
+   },
+   "Number Films": {
+      "zh": "电影数目"
+   },
+   "Orientation": {
+      "zh": "性取向"
+   },
+   "Films": {
+      "zh": "电影"
+   },
+   "Agent": {
+      "zh": "经纪人"
+   },
+   "Television": {
+      "zh": "电视节目"
+   },
+   "Medium": {
+      "zh": "(传播信息的)媒介"
+   },
+   "Fan Club": {
+      "zh": "粉丝俱乐部"
+   },
+   "Tour": {
+      "zh": "巡回比赛"
+   },
+   "Channel Name": {
+      "zh": "频道名"
+   },
+   "Followers": {
+      "zh": "关注者"
+   },
+   "Views": {
+      "zh": "观看数"
+   },
+   "Office": {
+      "zh": "重要职务"
+   },
+   "Branch": {
+      "zh": "分支部门"
+   },
+   "Unit": {
+      "zh": "部队"
+   },
+   "Battles": {
+      "zh": "战争"
+   },
+   "League": {
+      "zh": "联盟"
+   },
+   "Draft Team": {
+      "zh": "选秀队"
+   },
+   "Teams": {
+      "zh": "团队/队伍"
+   },
+   "Draft Year": {
+      "zh": "选秀年份"
    },
    "Career Start": {
       "zh": "职业生涯开始"
+   },
+   "Draft": {
+      "zh": "选秀"
+   },
+   "Trainer": {
+      "zh": "训练员/助理教练"
+   },
+   "Debut": {
+      "zh": "首次亮相"
+   },
+   "Service": {
+      "zh": "服务"
+   },
+   "College Team": {
+      "zh": "大学团队"
+   },
+   "Training": {
+      "zh": "训练/培训"
+   },
+   "Motto": {
+      "zh": "座右铭"
+   },
+   "Arrest Place": {
+      "zh": "逮捕地点"
+   },
+   "Arrest Date": {
+      "zh": "逮捕日期"
+   },
+   "Arresting Authority": {
+      "zh": "逮捕机关"
+   },
+   "Detained At": {
+      "zh": "拘留处"
+   },
+   "Charge": {
+      "zh": "指控"
+   },
+   "Ko": {
+      "zh": "ko胜利次数"
+   },
+   "Draws": {
+      "zh": "平局次数"
+   },
+   "Losses": {
+      "zh": "失败次数"
+   },
+   "Weight Class": {
+      "zh": "重量级"
+   },
+   "Current Team": {
+      "zh": "目前团队"
+   },
+   "Bike Number": {
+      "zh": "自行车号码"
+   },
+   "Highlights": {
+      "zh": "高光时刻"
    },
    "Career End": {
       "zh": "职业生涯结束"
@@ -461,14 +500,8 @@
    "Career Position": {
       "zh": "职业生涯位置"
    },
-   "Draft Team": {
-      "zh": "选秀队"
-   },
    "Draft Round": {
       "zh": "选秀回合"
-   },
-   "Draft Year": {
-      "zh": "选秀年份"
    },
    "Draft Pick": {
       "zh": "选秀选择"
@@ -479,8 +512,11 @@
    "Coach End": {
       "zh": "教练生涯结束"
    },
-   "Service": {
-      "zh": "服务"
+   "Games": {
+      "zh": "游戏"
+   },
+   "Tag": {
+      "zh": "标签"
    },
    "Date Of Current Ranking": {
       "zh": "目前排名日期"
@@ -503,87 +539,6 @@
    "Current Ranking": {
       "zh": "目前排名"
    },
-   "Tour": {
-      "zh": "巡回比赛"
-   },
-   "Penalty": {
-      "zh": "刑罚/处罚"
-   },
-   "Victims": {
-      "zh": "受害人"
-   },
-   "Conviction": {
-      "zh": "定罪"
-   },
-   "Motive": {
-      "zh": "动机"
-   },
-   "Charge": {
-      "zh": "指控"
-   },
-   "Trainer": {
-      "zh": "训练员/助理教练"
-   },
-   "Debut": {
-      "zh": "首次亮相"
-   },
-   "Network": {
-      "zh": "网络"
-   },
-   "Catchphrase": {
-      "zh": "口号"
-   },
-   "Views": {
-      "zh": "观看数"
-   },
-   "Channel Name": {
-      "zh": "频道名"
-   },
-   "Channel Url": {
-      "zh": "频道链接"
-   },
-   "Subscribers": {
-      "zh": "订阅者"
-   },
-   "Followers": {
-      "zh": "关注者"
-   },
-   "Ko": {
-      "zh": "ko胜利次数"
-   },
-   "Total": {
-      "zh": "总次数"
-   },
-   "Draws": {
-      "zh": "平局次数"
-   },
-   "Losses": {
-      "zh": "失败次数"
-   },
-   "Office": {
-      "zh": "重要职务"
-   },
-   "Major Wins": {
-      "zh": "重大胜利"
-   },
-   "Weight Class": {
-      "zh": "重量级"
-   },
-   "Teams": {
-      "zh": "团队/队伍"
-   },
-   "College Team": {
-      "zh": "大学团队"
-   },
-   "Training": {
-      "zh": "训练/培训"
-   },
-   "Buildings": {
-      "zh": "建筑物"
-   },
-   "Language": {
-      "zh": "语言"
-   },
    "Starts": {
       "zh": "第一次数"
    },
@@ -602,6 +557,9 @@
    "Former Teams": {
       "zh": "著名团队/队伍"
    },
+   "Total": {
+      "zh": "总次数"
+   },
    "Mission": {
       "zh": "使命"
    },
@@ -611,20 +569,41 @@
    "Selection": {
       "zh": "选拔"
    },
-   "Draft": {
-      "zh": "选秀"
+   "Language": {
+      "zh": "语言"
    },
-   "Arrest Place": {
-      "zh": "逮捕地点"
+   "Major Wins": {
+      "zh": "重大胜利"
    },
-   "Arrest Date": {
-      "zh": "逮捕日期"
+   "Denomination": {
+      "zh": "教派/宗派"
    },
-   "Arresting Authority": {
-      "zh": "逮捕机关"
+   "Penalty": {
+      "zh": "刑罚/处罚"
    },
-   "Detained At": {
-      "zh": "拘留处"
+   "Victims": {
+      "zh": "受害人"
+   },
+   "Conviction": {
+      "zh": "定罪"
+   },
+   "Motive": {
+      "zh": "动机"
+   },
+   "Network": {
+      "zh": "网络"
+   },
+   "Catchphrase": {
+      "zh": "口号"
+   },
+   "Channel Url": {
+      "zh": "频道链接"
+   },
+   "Subscribers": {
+      "zh": "订阅者"
+   },
+   "Buildings": {
+      "zh": "建筑物"
    },
    "(multi)Office": {
       "inner_relation": {
@@ -742,72 +721,50 @@
       },
       "zh": "重要职务"
    },
+   "(multi)Birth": {
+      "inner_relation": {
+         "_Birth Date": {
+            "zh": "出生时间"
+         },
+         "_Birth Place": {
+            "zh": "出生地点"
+         },
+         "_Birth City": {
+            "zh": "出生城市"
+         },
+         "_Birth Country": {
+            "zh": "出生国家"
+         }
+      },
+      "zh": "出生信息"
+   },
+   "(multi)Death": {
+      "inner_relation": {
+         "_Death Date": {
+            "zh": "死亡时间"
+         },
+         "_Death Place": {
+            "zh": "死亡地点"
+         },
+         "_Burial Place": {
+            "zh": "埋葬地点"
+         }
+      },
+      "zh": "死亡信息"
+   },
    "(multi)Teams": {
       "inner_relation": {
          "_Teams": {
             "zh": "团队"
          },
-         "_Years": {
-            "zh": "年份"
-         },
          "_Car Number": {
             "zh": "车号"
+         },
+         "_Years": {
+            "zh": "年份"
          }
       },
       "zh": "团队/队伍"
-   },
-   "(multi)Coach Teams": {
-      "inner_relation": {
-         "_Coach Teams": {
-            "zh": "教练团队"
-         },
-         "_Coach Years": {
-            "zh": "教练年份"
-         }
-      },
-      "zh": "教练团队/队伍"
-   },
-   "(multi)Thesis": {
-      "inner_relation": {
-         "_Thesis Title": {
-            "zh": "论文标题"
-         },
-         "_Thesis Year": {
-            "zh": "论文年份"
-         },
-         "_Thesis Url": {
-            "zh": "论文链接"
-         }
-      },
-      "zh": "论文"
-   },
-   "(multi)League": {
-      "inner_relation": {
-         "_League": {
-            "zh": "联盟"
-         },
-         "Roles": {
-            "zh": "角色"
-         },
-         "_Years": {
-            "zh": "年份"
-         }
-      },
-      "zh": "联盟"
-   },
-   "(multi)International League": {
-      "inner_relation": {
-         "_International League": {
-            "zh": "国际联盟"
-         },
-         "_International Role": {
-            "zh": "国际角色"
-         },
-         "_International Years": {
-            "zh": "国际年份"
-         }
-      },
-      "zh": "国际联盟"
    },
    "(multi)Clubs": {
       "inner_relation": {
@@ -880,6 +837,59 @@
       },
       "zh": "管理俱乐部"
    },
+   "(multi)Thesis": {
+      "inner_relation": {
+         "_Thesis Title": {
+            "zh": "论文标题"
+         },
+         "_Thesis Year": {
+            "zh": "论文年份"
+         },
+         "_Thesis Url": {
+            "zh": "论文链接"
+         }
+      },
+      "zh": "论文"
+   },
+   "(multi)Awards": {
+      "inner_relation": {
+         "Awards": {
+            "zh": "奖项"
+         },
+         "_Years": {
+            "zh": "年份"
+         }
+      },
+      "zh": "奖项"
+   },
+   "(multi)League": {
+      "inner_relation": {
+         "_League": {
+            "zh": "联盟"
+         },
+         "Roles": {
+            "zh": "角色"
+         },
+         "_Years": {
+            "zh": "年份"
+         }
+      },
+      "zh": "联盟"
+   },
+   "(multi)International League": {
+      "inner_relation": {
+         "_International League": {
+            "zh": "国际联盟"
+         },
+         "_International Role": {
+            "zh": "国际角色"
+         },
+         "_International Years": {
+            "zh": "国际年份"
+         }
+      },
+      "zh": "国际联盟"
+   },
    "(multi)Height": {
       "inner_relation": {
          "_Height(in)": {
@@ -913,27 +923,16 @@
       },
       "zh": "统计信息"
    },
-   "(multi)Awards": {
+   "(multi)Coach Teams": {
       "inner_relation": {
-         "Awards": {
-            "zh": "奖项"
+         "_Coach Teams": {
+            "zh": "教练团队"
          },
-         "_Years": {
-            "zh": "年份"
+         "_Coach Years": {
+            "zh": "教练年份"
          }
       },
-      "zh": "奖项"
-   },
-   "(multi)Pro Team": {
-      "inner_relation": {
-         "_Pro Team": {
-            "zh": "专业团队"
-         },
-         "_Pro Years": {
-            "zh": "专业团队年份"
-         }
-      },
-      "zh": "专业团队"
+      "zh": "教练团队/队伍"
    },
    "(multi)Best Finish": {
       "inner_relation": {
@@ -975,5 +974,16 @@
          }
       },
       "zh": "舱外活动"
+   },
+   "(multi)Pro Team": {
+      "inner_relation": {
+         "_Pro Team": {
+            "zh": "专业团队"
+         },
+         "_Pro Years": {
+            "zh": "专业团队年份"
+         }
+      },
+      "zh": "专业团队"
    }
 }

@@ -71,6 +71,7 @@ class TemplateAstronaut(TemplateBase):
     multi_values_field = {
         'Eva': ({'zh': '舱外活动'}, ['_Eva'])
     }
+    multi_values_field.update(TemplateBase.multi_values_field)
 
 
 class TemplateCelebrity(TemplateBase):
@@ -130,6 +131,7 @@ class TemplateArchbishop(TemplateBase):
                                      ['_Enthroned', '_Ended', '_Successor', '_Predecessor',
                                       '_Consecration', '_Consecrated By', '_Ordination', '_Ordained By',
                                       '_Archbishop Of'])}
+    multi_values_field.update(TemplateBase.multi_values_field)
 
 
 class TemplateFootballOfficial(TemplateBase):
@@ -147,6 +149,7 @@ class TemplateFootballOfficial(TemplateBase):
         'International League': (
             {'zh': '国际联盟'}, ['_International League', '_International Role', '_International Years'])
     }
+    multi_values_field.update(TemplateBase.multi_values_field)
     multi_field_cond = {
         'League': ['_League'],
         'International League': ['_International League']
@@ -165,6 +168,7 @@ class TemplateGolfer(TemplateBase):
     multi_values_field = {
         'Awards': ({'zh': '奖项'}, ['Awards', '_Years'])
     }
+    multi_values_field.update(TemplateBase.multi_values_field)
     multi_field_cond = {
         'Awards': ['Awards']
     }
@@ -208,6 +212,7 @@ class TemplateF1Driver(TemplateBase):
     multi_values_field = {
         'Teams': ({'zh': '团队/队伍'}, ['_Teams', '_Car Number', '_Years'])
     }
+    multi_values_field.update(TemplateBase.multi_values_field)
     multi_field_cond = {
         'Teams': ['_Teams']
     }
@@ -228,6 +233,7 @@ class TemplateVideoGamePlayer(TemplateBase):
         'Teams': ({'zh': '团队/队伍'}, ['_Teams', '_Years']),
         'Coach Teams': ({'zh': '教练团队/队伍'}, ['_Coach Teams', '_Coach Years'])
     }
+    multi_values_field.update(TemplateBase.multi_values_field)
     multi_field_cond = {
         'Teams': ['_Teams'],
         'Coach Teams': ['_Coach Teams']
@@ -296,6 +302,7 @@ class TemplateChristianLeader(TemplateBase):
                                      ['_Enthroned', '_Ended', '_Successor', '_Predecessor',
                                       '_Consecration', '_Consecrated By', '_Ordination', '_Ordained By',
                                       '_Archbishop Of', '_Cardinal', '_Created Cardinal By', '_Appointed'])}
+    multi_values_field.update(TemplateBase.multi_values_field)
 
 
 class TemplateCriminal(TemplateBase):
@@ -324,6 +331,7 @@ class TemplateCyclist(TemplateBase):
     multi_values_field = {
         'Pro Team': ({'zh': '专业团队'}, ['_Pro Team', '_Pro Years'])
     }
+    multi_values_field.update(TemplateBase.multi_values_field)
     multi_field_cond = {
         'Pro Team': ['_Pro Team']
     }
@@ -348,6 +356,7 @@ class TemplateIceHockeyPlayer(TemplateBase):
         'Height': ({'zh': '身高'}, ['_Height(in)', '_Height(ft)']),
         'Weight': ({'zh': '体重'}, ['_Weight(lb)'])
     }
+    multi_values_field.update(TemplateBase.multi_values_field)
 
 
 class TemplateWriter(TemplateBase):
@@ -408,6 +417,7 @@ class TemplateBasketballBiography(TemplateBase):
         'Statistics': ({'zh': '统计信息'}, ['_Stat League', '_Stat Label', '_Stat Value']),
         'Coach Teams': ({'zh': '教练团队/队伍'}, ['_Coach Teams', '_Coach Years'])
     }
+    multi_values_field.update(TemplateBase.multi_values_field)
     multi_field_cond = {
         'Teams': ['_Teams'],
         'Coach Teams': ['_Coach Teams']
@@ -455,6 +465,7 @@ class TemplateRacingDriver(TemplateBase):
         'Titles': ({'zh': '冠军'}, ['_Titles', '_Title Years']),
         'Prev Series': ({'zh': '以前系列'}, ['_Prev Series Years', '_Prev Series'])
     }
+    multi_values_field.update(TemplateBase.multi_values_field)
     multi_field_cond = {
         'Awards': ['Awards'],
         'Best Finish': ['_Best Finish']

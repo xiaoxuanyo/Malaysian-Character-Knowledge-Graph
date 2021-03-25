@@ -154,19 +154,19 @@ class TemplateBase:
         'Name': ({'zh': '名字'}, ['name', 'nama'],),
         'Alias': (
             {'zh': '别名'}, ['alias', 'nickname', 'hangul', 'id', 'pseudonym', 'tradchinesename',
-                           'pinyinchinesename', 'simpchinesename', 'nama penuh'],
+                           'pinyinchinesename', 'simpchinesename', 'nama penuh', 'hanja'],
             re_compile(r'other.*?names?|real.*?name|native.*?names?|player.*?name|chinese.*?name|nama.*?inggeris'
                        r'|birth.*?names?|full.*?name')),
         'Birth': ({'zh': '出生信息'}, ['birth', 'born', 'keputeraan'],),
         'Death': ({'zh': '死亡信息'}, ['died']),
-        'Birth Date': (
+        '_Birth Date': (
             {'zh': '出生时间'}, ['tarikh lahir'], re_compile(r'birth.*?date|date.*?birth|born.*?date|date.*?born'),),
-        'Birth Place': (
+        '_Birth Place': (
             {'zh': '出生地点'}, ['tempat lahir', 'tempat keputeraan'],
             re_compile(r'birth.*?place|place.*?birth|born.*?place|place.*?born')),
         'Retirement Date': ({'zh': '退休时间'}, ['retired'], re_compile(r'date.*?ret')),
-        'Birth City': ({'zh': '出生城市'}, re_compile(r'birth.*?city|city.*?birth|born.*?city|city.*?born'),),
-        'Birth Country': (
+        '_Birth City': ({'zh': '出生城市'}, re_compile(r'birth.*?city|city.*?birth|born.*?city|city.*?born'),),
+        '_Birth Country': (
             {'zh': '出生国家'}, re_compile(r'birth.*?country|country.*?birth|born.*?country|country.*?born'),),
         'Height': ({'zh': '身高'}, ['height'],),
         'Weight': ({'zh': '体重'}, ['weight'],),
@@ -178,9 +178,9 @@ class TemplateBase:
         'Occupation': ({'zh': '职业/工作'}, ['occupation', 'occupation(s)', 'pekerjaan', 'ocupation', 'occuption',
                                          'occuoation', 'profession'], re_compile(r'current.*?occupation|other.*?post')),
         'Years Active': ({'zh': '活跃年份'}, ['active', 'yeaesactive', 'era'], re_compile(r'year.*?active')),
-        'Death Date': ({'zh': '死亡时间'}, ['tarikh kematian'], re_compile(r'death.*?date|date.*?death'),),
-        'Death Place': ({'zh': '死亡地点'}, ['tempat kematian'], re_compile(r'death.*?place|place.*?death'),),
-        'Burial Place': ({'zh': '埋葬地点'}, re_compile(r'resting.*?place|burial.*?place'),),
+        '_Death Date': ({'zh': '死亡时间'}, ['tarikh kematian'], re_compile(r'death.*?date|date.*?death'),),
+        '_Death Place': ({'zh': '死亡地点'}, ['tempat kematian'], re_compile(r'death.*?place|place.*?death'),),
+        '_Burial Place': ({'zh': '埋葬地点'}, re_compile(r'resting.*?place|burial.*?place'),),
         'Spouse': ({'zh': '配偶'}, ['spouse', 'pasangan', 'spouses', 'consort'],),
         'Parents': ({'zh': '父母'}, ['parents'],),
         'Sibling': ({'zh': '兄弟姐妹'}, ['sibling', 'saudara']),
@@ -233,7 +233,10 @@ class TemplateBase:
         'Period': ({'zh': '(人生或国家历史的)时期'}, ['period'])
     }
     # 多值属性字段
-    multi_values_field = None
+    multi_values_field = {
+        'Birth': ({'zh': '出生信息'}, ['_Birth Date', '_Birth Place', '_Birth City', '_Birth Country']),
+        'Death': ({'zh': '死亡信息'}, ['_Death Date', '_Death Place', '_Burial Place']),
+    }
     # 多值字段中必须出现的字段，若没有出现，则认为这个多值字段没有意义
     multi_field_cond = None
     # 在解析时跳过的类型
@@ -247,6 +250,13 @@ class TemplateBase:
     # 解析wiki对象template时需要保存的参数名，通常情况下是因为身高体重等字段的参数名中含有度量单位，例如m: 1.76，这些参数名需要保存，确保信息准确
     retain_template_param = (['m', 'end', 'reason', 'award', 'ft', 'in', 'meter', 'meters',
                               'cm', 'kg'], re.compile(r'\d+'))
+    # 解析wiki对象tag时需要剔除的标签，这些值往往无意义
+    discard_tag_name = (['ref'],)
+    # 对于自定义的所有字段，需要剔除的值，这些值往往无意义
+    discard_fields_value = (re.compile(r'nama.*?amerika|nama.*?korea'),)
+    # 对于自定义的所有字段，需要替换为空字符串的无意义的值
+    replace_fields_value = re.compile(
+        r'<\s*small\s*/\s*>|<\s*big\s*/\s*>|<\s*span\s*/\s*>|<\s*nowiki\s*/\s*>|<\s*div\s*/\s*>')
 
     def __init__(self, values, entry):
         """
@@ -279,10 +289,12 @@ class TemplateBase:
                 p_v = self.parse(v.strip())
                 h_v = ''.join([str(i) for i in p_v]).strip()
                 if h_v:
+                    h_v = re.sub(self.replace_fields_value, '', h_v)
                     _console_log.logger.debug(f'\n{field}: {h_v}\n')
                     if index:
                         h_v = {index: h_v}
-                    if h_v not in self._fields['fields'][field]['values']:
+                    if h_v not in self._fields['fields'][field]['values'] and not \
+                            _matches(str(h_v).lower(), self.discard_fields_value)[0]:
                         self._fields['fields'][field]['values'].append(h_v)
         # 多值属性不为空时，将多值属性解析成一一对应
         if self.multi_values_field is not None:
@@ -356,8 +368,14 @@ class TemplateBase:
                     else:
                         fields_values[k] = v
             if multi_values_field:
-                fields_values.update({'Other Info': {'relation_props': {'zh': '其他信息'},
-                                                     'values': _get_multi_values(multi_values_field)}})
+                if len(name) == 1:
+                    fields_values.update({name[0]: {'relation_props': self.fields_map[name[0]][0],
+                                                    'values': [list(list(i.values())[0].values())[0] for i
+                                                               in
+                                                               multi_values_field]}})
+                else:
+                    fields_values.update({'Other Info': {'relation_props': {'zh': '其他信息'},
+                                                         'values': _get_multi_values(multi_values_field)}})
                 self._fields['primary_entity_props'] = {'multi_values_field': f"Other Info: ({', '.join(name)})"}
         self._fields['fields'] = fields_values
 
@@ -385,8 +403,11 @@ class TemplateBase:
             elif isinstance(j, mwp.wikicode.ExternalLink):
                 p_t[i] = j.url
             elif isinstance(j, mwp.wikicode.Tag):
-                rs = mwp.parse('\n') if str(j.tag).strip(' ') == 'br' else mwp.parse(
-                    str(j.contents).strip(' '))
+                if not _matches(str(j.tag).strip(' ').lower(), cls.discard_tag_name)[0]:
+                    rs = mwp.parse('\n') if str(j.tag).strip(' ').lower() == 'br' else mwp.parse(
+                        str(j.contents).strip(' '))
+                else:
+                    rs = mwp.parse(None)
                 p_t[i] = rs
             elif isinstance(j, mwp.wikicode.Wikilink):
                 if not _matches(str(j.title).strip(' ').lower(), cls.discard_wikilink_value)[0]:
@@ -453,6 +474,7 @@ class TemplateOfficer(TemplateBase):
                     '_Governor', '_Appointer', '_Nominator', '_Chancellor', '_Lieutenant', '_Appointed',
                     '_Vice Governor'])
     }
+    multi_values_field.update(TemplateBase.multi_values_field)
 
 
 class TemplateSportsPlayer(TemplateBase):
@@ -498,6 +520,7 @@ class TemplateSportsPlayer(TemplateBase):
                                           ['_Youth Clubs', '_Youth Years', '_Youth Caps(Goals)', '_Youth Caps',
                                            '_Youth Goals']),
                           'Manager Clubs': ({'zh': '管理俱乐部'}, ['_Manager Clubs', '_Manager Years'])}
+    multi_values_field.update(TemplateBase.multi_values_field)
     multi_field_cond = {'Clubs': ['_Clubs'],
                         'National Team': ['_National Team'],
                         'Youth Clubs': ['_Youth Clubs'],
@@ -550,6 +573,7 @@ class TemplateResearchers(TemplateBase):
     multi_values_field = {
         'Thesis': ({'zh': '论文'}, ['_Thesis Title', '_Thesis Year', '_Thesis Url'])
     }
+    multi_values_field.update(TemplateBase.multi_values_field)
     multi_field_cond = {
         'Thesis': ['_Thesis Title']
     }
