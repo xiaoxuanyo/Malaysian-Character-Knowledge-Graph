@@ -154,11 +154,11 @@ class TemplateBase:
         'Name': ({'zh': '名字'}, ['name', 'nama'],),
         'Alias': (
             {'zh': '别名'}, ['alias', 'nickname', 'hangul', 'id', 'pseudonym', 'tradchinesename',
-                           'pinyinchinesename', 'simpchinesename'],
-            re_compile(r'other.*?names?|real.*?name|native.*?names?|player.*?name|chinese.*?name|nama.*?inggeris')),
+                           'pinyinchinesename', 'simpchinesename', 'nama penuh'],
+            re_compile(r'other.*?names?|real.*?name|native.*?names?|player.*?name|chinese.*?name|nama.*?inggeris'
+                       r'|birth.*?names?|full.*?name')),
         'Birth': ({'zh': '出生信息'}, ['birth', 'born', 'keputeraan'],),
         'Death': ({'zh': '死亡信息'}, ['died']),
-        'Birth Name': ({'zh': '出生名'}, re_compile(r'birth.*?names?'),),
         'Birth Date': (
             {'zh': '出生时间'}, ['tarikh lahir'], re_compile(r'birth.*?date|date.*?birth|born.*?date|date.*?born'),),
         'Birth Place': (
@@ -188,7 +188,6 @@ class TemplateBase:
         'Gender': ({'zh': '性别'}, ['gender'],),
         'Alma Mater': ({'zh': '母校'}, re_compile(r'alma.*?mater'),),
         'Relatives': ({'zh': '关系'}, ['relatives,husband'], re_compile(r'relatives?|relations?|related.*?to'),),
-        'Full Name': ({'zh': '全名'}, ['nama penuh'], re_compile(r'full.*?name'),),
         'Father': ({'zh': '父亲'}, ['father', 'bapa'],),
         'Mother': ({'zh': '母亲'}, ['mother', 'ibunda'],),
         'Residence': ({'zh': '住宅/(尤指)豪宅'}, ['residence', 'residential'],),
@@ -242,12 +241,12 @@ class TemplateBase:
     # 解析wiki对象template时需要保存的模板名，通常情况下是因为模板名保存了必要的信息，比如某次比赛中的名次（金牌、银牌等）保存在模板名中
     retain_template_name = (re.compile(r'medal'),)
     # 解析wiki对象template时需要剔除的特殊值，这些值往往无意义
-    discard_template_value = (['zh-hans'],)
+    discard_template_value = (['zh-hans'], re.compile(r'\.svg$'))
     # 解析wiki对象WikiLink时需要剔除的值，这些值往往无意义
     discard_wikilink_value = (re.compile(r'\.svg$'),)
     # 解析wiki对象template时需要保存的参数名，通常情况下是因为身高体重等字段的参数名中含有度量单位，例如m: 1.76，这些参数名需要保存，确保信息准确
     retain_template_param = (['m', 'end', 'reason', 'award', 'ft', 'in', 'meter', 'meters',
-                              'cm'], re.compile(r'\d+'))
+                              'cm', 'kg'], re.compile(r'\d+'))
 
     def __init__(self, values, entry):
         """

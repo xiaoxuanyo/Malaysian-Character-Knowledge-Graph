@@ -1,24 +1,57 @@
 {
-   "Network": {
-      "zh": "网络"
-   },
-   "Catchphrase": {
-      "zh": "口号"
-   },
-   "Views": {
-      "zh": "观看数"
-   },
-   "Channel Name": {
-      "zh": "频道名"
-   },
-   "Channel Url": {
-      "zh": "频道链接"
-   },
-   "Subscribers": {
-      "zh": "订阅者"
-   },
    "Genre": {
       "zh": "体裁/类型（文学、艺术、电影或音乐的）"
+   },
+   "Label": {
+      "zh": "唱片公司"
+   },
+   "Instruments": {
+      "zh": "乐器"
+   },
+   "Notable Instruments": {
+      "zh": "著名乐器"
+   },
+   "Voice Type": {
+      "zh": "声音类型"
+   },
+   "Associated Acts": {
+      "zh": "相关艺术家/相关表演者"
+   },
+   "Current Members": {
+      "zh": "现有成员"
+   },
+   "Past Members": {
+      "zh": "过去成员"
+   },
+   "Location": {
+      "zh": "表演场地/外景拍摄地"
+   },
+   "Dress Size": {
+      "zh": "服装尺码"
+   },
+   "Shoe Size": {
+      "zh": "鞋子尺码"
+   },
+   "Number Films": {
+      "zh": "电影数目"
+   },
+   "Orientation": {
+      "zh": "性取向"
+   },
+   "Films": {
+      "zh": "电影"
+   },
+   "Agent": {
+      "zh": "经纪人"
+   },
+   "Television": {
+      "zh": "电视节目"
+   },
+   "Medium": {
+      "zh": "(传播信息的)媒介"
+   },
+   "Fan Club": {
+      "zh": "粉丝俱乐部"
    },
    "Name": {
       "zh": "名字"
@@ -31,9 +64,6 @@
    },
    "Death": {
       "zh": "死亡信息"
-   },
-   "Birth Name": {
-      "zh": "出生名"
    },
    "Birth Date": {
       "zh": "出生时间"
@@ -106,9 +136,6 @@
    },
    "Relatives": {
       "zh": "关系"
-   },
-   "Full Name": {
-      "zh": "全名"
    },
    "Father": {
       "zh": "父亲"
@@ -230,57 +257,6 @@
    "Period": {
       "zh": "(人生或国家历史的)时期"
    },
-   "Label": {
-      "zh": "唱片公司"
-   },
-   "Instruments": {
-      "zh": "乐器"
-   },
-   "Notable Instruments": {
-      "zh": "著名乐器"
-   },
-   "Voice Type": {
-      "zh": "声音类型"
-   },
-   "Associated Acts": {
-      "zh": "相关艺术家/相关表演者"
-   },
-   "Current Members": {
-      "zh": "现有成员"
-   },
-   "Past Members": {
-      "zh": "过去成员"
-   },
-   "Location": {
-      "zh": "表演场地/外景拍摄地"
-   },
-   "Dress Size": {
-      "zh": "服装尺码"
-   },
-   "Shoe Size": {
-      "zh": "鞋子尺码"
-   },
-   "Number Films": {
-      "zh": "电影数目"
-   },
-   "Orientation": {
-      "zh": "性取向"
-   },
-   "Films": {
-      "zh": "电影"
-   },
-   "Agent": {
-      "zh": "经纪人"
-   },
-   "Television": {
-      "zh": "电视节目"
-   },
-   "Medium": {
-      "zh": "(传播信息的)媒介"
-   },
-   "Fan Club": {
-      "zh": "粉丝俱乐部"
-   },
    "Cabinet": {
       "zh": "内阁"
    },
@@ -296,95 +272,107 @@
    "Rank": {
       "zh": "等级/军衔"
    },
-   "Medal": {
-      "zh": "奖牌"
+   "League": {
+      "zh": "联盟"
+   },
+   "Games": {
+      "zh": "游戏"
+   },
+   "Workplace": {
+      "zh": "工作地"
+   },
+   "Fields": {
+      "zh": "领域"
+   },
+   "Academic Advisors": {
+      "zh": "学术顾问"
+   },
+   "Doctoral Advisors": {
+      "zh": "博士生导师"
+   },
+   "Boards": {
+      "zh": "董事会"
+   },
+   "Doctoral Students": {
+      "zh": "博士生"
+   },
+   "Notable Students": {
+      "zh": "著名学生"
+   },
+   "Contributions": {
+      "zh": "贡献"
+   },
+   "Notable Ideas": {
+      "zh": "著名想法"
+   },
+   "Unit": {
+      "zh": "部队"
+   },
+   "Branch": {
+      "zh": "分支部门"
+   },
+   "Battles": {
+      "zh": "战争"
+   },
+   "Denomination": {
+      "zh": "教派/宗派"
    },
    "Current Team": {
       "zh": "目前团队"
    },
-   "Major Wins": {
-      "zh": "重大胜利"
+   "Bike Number": {
+      "zh": "自行车号码"
    },
-   "Current Club": {
-      "zh": "目前俱乐部"
+   "Philosophy": {
+      "zh": "哲学"
    },
-   "Club Number": {
-      "zh": "运动员编号"
+   "Last Win": {
+      "zh": "最后一次胜利"
    },
-   "Position": {
-      "zh": "运动员定位"
-   },
-   "Total Caps": {
-      "zh": "总出场数"
-   },
-   "Total Goals": {
-      "zh": "总进球数"
-   },
-   "Coach": {
-      "zh": "教练"
-   },
-   "Competition": {
-      "zh": "比赛信息"
-   },
-   "Style": {
-      "zh": "风格"
-   },
-   "Event": {
-      "zh": "比赛项目"
-   },
-   "Head Coach": {
-      "zh": "总教练"
-   },
-   "Sports": {
-      "zh": "运动项目"
-   },
-   "Ko": {
-      "zh": "ko胜利次数"
-   },
-   "Wins": {
-      "zh": "获胜次数"
-   },
-   "Draws": {
-      "zh": "平局次数"
-   },
-   "Losses": {
-      "zh": "失败次数"
-   },
-   "Weight Class": {
-      "zh": "重量级"
-   },
-   "Motto": {
-      "zh": "座右铭"
-   },
-   "Followers": {
-      "zh": "关注者"
+   "Championships": {
+      "zh": "锦标赛"
    },
    "Poles": {
       "zh": "极点"
    },
-   "Starts": {
-      "zh": "第一次数"
+   "First Win": {
+      "zh": "第一次胜利"
    },
-   "Last Series": {
-      "zh": "最后一个系列"
+   "Last Season": {
+      "zh": "最后一个赛季"
    },
-   "First Year": {
-      "zh": "第一个系列"
+   "Races": {
+      "zh": "竞赛信息"
    },
    "Fastest Laps": {
       "zh": "最快圈速"
    },
-   "Car Number": {
-      "zh": "车号"
+   "Last Race": {
+      "zh": "最后一场竞赛"
    },
-   "Current Series": {
-      "zh": "目前系列"
+   "First Race": {
+      "zh": "第一场竞赛"
    },
-   "Teams": {
-      "zh": "团队/队伍"
+   "Wins": {
+      "zh": "获胜次数"
    },
-   "Former Teams": {
-      "zh": "著名团队/队伍"
+   "Podiums": {
+      "zh": "领奖台次数"
+   },
+   "Points": {
+      "zh": "点/分"
+   },
+   "Last Position": {
+      "zh": "最后位置"
+   },
+   "Best Finish": {
+      "zh": "最好战绩"
+   },
+   "Motto": {
+      "zh": "座右铭"
+   },
+   "Tag": {
+      "zh": "标签"
    },
    "Singles Record": {
       "zh": "单打纪录"
@@ -422,11 +410,41 @@
    "Career Prize Money": {
       "zh": "职业奖金"
    },
-   "Training": {
-      "zh": "训练/培训"
+   "Current Club": {
+      "zh": "目前俱乐部"
    },
-   "Fields": {
-      "zh": "领域"
+   "Club Number": {
+      "zh": "运动员编号"
+   },
+   "Position": {
+      "zh": "运动员定位"
+   },
+   "Total Caps": {
+      "zh": "总出场数"
+   },
+   "Total Goals": {
+      "zh": "总进球数"
+   },
+   "Coach": {
+      "zh": "教练"
+   },
+   "Medal": {
+      "zh": "奖牌"
+   },
+   "Competition": {
+      "zh": "比赛信息"
+   },
+   "Style": {
+      "zh": "风格"
+   },
+   "Event": {
+      "zh": "比赛项目"
+   },
+   "Head Coach": {
+      "zh": "总教练"
+   },
+   "Sports": {
+      "zh": "运动项目"
    },
    "Highlights": {
       "zh": "高光时刻"
@@ -461,143 +479,8 @@
    "Coach End": {
       "zh": "教练生涯结束"
    },
-   "Total": {
-      "zh": "总次数"
-   },
-   "Philosophy": {
-      "zh": "哲学"
-   },
-   "Workplace": {
-      "zh": "工作地"
-   },
-   "Academic Advisors": {
-      "zh": "学术顾问"
-   },
-   "Doctoral Advisors": {
-      "zh": "博士生导师"
-   },
-   "Boards": {
-      "zh": "董事会"
-   },
-   "Doctoral Students": {
-      "zh": "博士生"
-   },
-   "Notable Students": {
-      "zh": "著名学生"
-   },
-   "Contributions": {
-      "zh": "贡献"
-   },
-   "Notable Ideas": {
-      "zh": "著名想法"
-   },
-   "Buildings": {
-      "zh": "建筑物"
-   },
-   "Penalty": {
-      "zh": "刑罚/处罚"
-   },
-   "Victims": {
-      "zh": "受害人"
-   },
-   "Conviction": {
-      "zh": "定罪"
-   },
-   "Motive": {
-      "zh": "动机"
-   },
-   "Charge": {
-      "zh": "指控"
-   },
-   "Tag": {
-      "zh": "标签"
-   },
-   "Denomination": {
-      "zh": "教派/宗派"
-   },
-   "Last Win": {
-      "zh": "最后一次胜利"
-   },
-   "Championships": {
-      "zh": "锦标赛"
-   },
-   "First Win": {
-      "zh": "第一次胜利"
-   },
-   "Last Season": {
-      "zh": "最后一个赛季"
-   },
-   "Races": {
-      "zh": "竞赛信息"
-   },
-   "Last Race": {
-      "zh": "最后一场竞赛"
-   },
-   "First Race": {
-      "zh": "第一场竞赛"
-   },
-   "Podiums": {
-      "zh": "领奖台次数"
-   },
-   "Points": {
-      "zh": "点/分"
-   },
-   "Last Position": {
-      "zh": "最后位置"
-   },
-   "Best Finish": {
-      "zh": "最好战绩"
-   },
-   "Mission": {
-      "zh": "使命"
-   },
-   "Space Time": {
-      "zh": "时间"
-   },
-   "Selection": {
-      "zh": "选拔"
-   },
-   "Bike Number": {
-      "zh": "自行车号码"
-   },
-   "League": {
-      "zh": "联盟"
-   },
-   "Draft": {
-      "zh": "选秀"
-   },
-   "Trainer": {
-      "zh": "训练员/助理教练"
-   },
-   "Debut": {
-      "zh": "首次亮相"
-   },
-   "Arrest Place": {
-      "zh": "逮捕地点"
-   },
-   "Arrest Date": {
-      "zh": "逮捕日期"
-   },
-   "Arresting Authority": {
-      "zh": "逮捕机关"
-   },
-   "Detained At": {
-      "zh": "拘留处"
-   },
-   "College Team": {
-      "zh": "大学团队"
-   },
    "Service": {
       "zh": "服务"
-   },
-   "Games": {
-      "zh": "游戏"
-   },
-   "Language": {
-      "zh": "语言"
-   },
-   "Tour": {
-      "zh": "巡回比赛"
    },
    "Date Of Current Ranking": {
       "zh": "目前排名日期"
@@ -620,195 +503,476 @@
    "Current Ranking": {
       "zh": "目前排名"
    },
-   "Unit": {
-      "zh": "部队"
+   "Tour": {
+      "zh": "巡回比赛"
    },
-   "Branch": {
-      "zh": "分支部门"
+   "Penalty": {
+      "zh": "刑罚/处罚"
    },
-   "Battles": {
-      "zh": "战争"
+   "Victims": {
+      "zh": "受害人"
+   },
+   "Conviction": {
+      "zh": "定罪"
+   },
+   "Motive": {
+      "zh": "动机"
+   },
+   "Charge": {
+      "zh": "指控"
+   },
+   "Trainer": {
+      "zh": "训练员/助理教练"
+   },
+   "Debut": {
+      "zh": "首次亮相"
+   },
+   "Network": {
+      "zh": "网络"
+   },
+   "Catchphrase": {
+      "zh": "口号"
+   },
+   "Views": {
+      "zh": "观看数"
+   },
+   "Channel Name": {
+      "zh": "频道名"
+   },
+   "Channel Url": {
+      "zh": "频道链接"
+   },
+   "Subscribers": {
+      "zh": "订阅者"
+   },
+   "Followers": {
+      "zh": "关注者"
+   },
+   "Ko": {
+      "zh": "ko胜利次数"
+   },
+   "Total": {
+      "zh": "总次数"
+   },
+   "Draws": {
+      "zh": "平局次数"
+   },
+   "Losses": {
+      "zh": "失败次数"
    },
    "Office": {
       "zh": "重要职务"
    },
+   "Major Wins": {
+      "zh": "重大胜利"
+   },
+   "Weight Class": {
+      "zh": "重量级"
+   },
+   "Teams": {
+      "zh": "团队/队伍"
+   },
+   "College Team": {
+      "zh": "大学团队"
+   },
+   "Training": {
+      "zh": "训练/培训"
+   },
+   "Buildings": {
+      "zh": "建筑物"
+   },
+   "Language": {
+      "zh": "语言"
+   },
+   "Starts": {
+      "zh": "第一次数"
+   },
+   "Last Series": {
+      "zh": "最后一个系列"
+   },
+   "First Year": {
+      "zh": "第一个系列"
+   },
+   "Car Number": {
+      "zh": "车号"
+   },
+   "Current Series": {
+      "zh": "目前系列"
+   },
+   "Former Teams": {
+      "zh": "著名团队/队伍"
+   },
+   "Mission": {
+      "zh": "使命"
+   },
+   "Space Time": {
+      "zh": "时间"
+   },
+   "Selection": {
+      "zh": "选拔"
+   },
+   "Draft": {
+      "zh": "选秀"
+   },
+   "Arrest Place": {
+      "zh": "逮捕地点"
+   },
+   "Arrest Date": {
+      "zh": "逮捕日期"
+   },
+   "Arresting Authority": {
+      "zh": "逮捕机关"
+   },
+   "Detained At": {
+      "zh": "拘留处"
+   },
    "(multi)Office": {
       "inner_relation": {
-         "_Reign": "君主统治时期/任期/当政期",
-         "_Successor": "（政党、政府的）接替者/继任者",
-         "_Predecessor": "（政党、政府的）前任",
-         "_Coronation": "加冕礼",
-         "_Succession": "继任/继承权（尤指王位的）",
-         "_Regent": "摄政者",
-         "_Office": "要职",
-         "_Prime Minister": "总理/首相",
-         "_Minister": "部长/大臣",
-         "_Term Start": "（政党、政府的）任期开始时间",
-         "_Term End": "（政党、政府的）任期结束时间",
-         "_Term": "（政党、政府的）任期",
-         "_Monarch": "君主/帝王",
-         "_Majority": "(获胜的)票数/多数票",
-         "_Assembly": "议会",
-         "_State": "州",
-         "_Deputy": "副职",
-         "_Leader": "领导",
-         "_Alongside": "合作/并肩工作",
-         "_President": "总统",
-         "_Vice President": "副总统",
-         "_Governor": "总督/州长",
-         "_Appointer": "任命者",
-         "_Nominator": "提名人",
-         "_Chancellor": "(德国或奥地利的)总理/(英国的)财政大臣/(英国大学的)名誉校长",
-         "_Lieutenant": "中尉",
-         "_Appointed": "任职日期",
-         "_Vice Governor": "副总督/副州长",
-         "_Enthroned": "即位时间",
-         "_Ended": "结束时间",
-         "_Consecration": "祝胜礼/授职礼",
-         "_Consecrated By": "被祝胜/被授职",
-         "_Ordination": "派立礼/授神职礼",
-         "_Ordained By": "被派立/被授神职",
-         "_Archbishop Of": "大主教",
-         "_Cardinal": "红衣主教/枢机主教",
-         "_Created Cardinal By": "被创建基数"
+         "_Reign": {
+            "zh": "君主统治时期/任期/当政期"
+         },
+         "_Successor": {
+            "zh": "（政党、政府的）接替者/继任者"
+         },
+         "_Predecessor": {
+            "zh": "（政党、政府的）前任"
+         },
+         "_Coronation": {
+            "zh": "加冕礼"
+         },
+         "_Succession": {
+            "zh": "继任/继承权（尤指王位的）"
+         },
+         "_Regent": {
+            "zh": "摄政者"
+         },
+         "_Office": {
+            "zh": "要职"
+         },
+         "_Prime Minister": {
+            "zh": "总理/首相"
+         },
+         "_Minister": {
+            "zh": "部长/大臣"
+         },
+         "_Term Start": {
+            "zh": "（政党、政府的）任期开始时间"
+         },
+         "_Term End": {
+            "zh": "（政党、政府的）任期结束时间"
+         },
+         "_Term": {
+            "zh": "（政党、政府的）任期"
+         },
+         "_Monarch": {
+            "zh": "君主/帝王"
+         },
+         "_Majority": {
+            "zh": "(获胜的)票数/多数票"
+         },
+         "_Assembly": {
+            "zh": "议会"
+         },
+         "_State": {
+            "zh": "州"
+         },
+         "_Deputy": {
+            "zh": "副职"
+         },
+         "_Leader": {
+            "zh": "领导"
+         },
+         "_Alongside": {
+            "zh": "合作/并肩工作"
+         },
+         "_President": {
+            "zh": "总统"
+         },
+         "_Vice President": {
+            "zh": "副总统"
+         },
+         "_Governor": {
+            "zh": "总督/州长"
+         },
+         "_Appointer": {
+            "zh": "任命者"
+         },
+         "_Nominator": {
+            "zh": "提名人"
+         },
+         "_Chancellor": {
+            "zh": "(德国或奥地利的)总理/(英国的)财政大臣/(英国大学的)名誉校长"
+         },
+         "_Lieutenant": {
+            "zh": "中尉"
+         },
+         "_Appointed": {
+            "zh": "任职日期"
+         },
+         "_Vice Governor": {
+            "zh": "副总督/副州长"
+         },
+         "_Enthroned": {
+            "zh": "即位时间"
+         },
+         "_Ended": {
+            "zh": "结束时间"
+         },
+         "_Consecration": {
+            "zh": "祝胜礼/授职礼"
+         },
+         "_Consecrated By": {
+            "zh": "被祝胜/被授职"
+         },
+         "_Ordination": {
+            "zh": "派立礼/授神职礼"
+         },
+         "_Ordained By": {
+            "zh": "被派立/被授神职"
+         },
+         "_Archbishop Of": {
+            "zh": "大主教"
+         },
+         "_Cardinal": {
+            "zh": "红衣主教/枢机主教"
+         },
+         "_Created Cardinal By": {
+            "zh": "被创建基数"
+         }
       },
       "zh": "重要职务"
    },
-   "(multi)Pro Team": {
-      "inner_relation": {
-         "_Pro Team": "专业团队",
-         "_Pro Years": "专业团队年份"
-      },
-      "zh": "专业团队"
-   },
-   "(multi)Clubs": {
-      "inner_relation": {
-         "_Years": "年份",
-         "_Clubs": "服役俱乐部",
-         "_Caps": "出场数",
-         "_Goals": "进球数",
-         "_Caps(Goals)": "出场数(进球数)"
-      },
-      "zh": "服役俱乐部"
-   },
-   "(multi)National Team": {
-      "inner_relation": {
-         "_National Years": "国家队服役年份",
-         "_National Team": "国家队",
-         "_National Caps": "在国家队出场数",
-         "_National Goals": "在国家队进球数",
-         "_National Caps(Goals)": "在国家队出场数(在国家队进球数)"
-      },
-      "zh": "服役国家队"
-   },
-   "(multi)Youth Clubs": {
-      "inner_relation": {
-         "_Youth Clubs": "青年俱乐部",
-         "_Youth Years": "青年俱乐部服役年份",
-         "_Youth Caps(Goals)": "在青年俱乐部出场数(在青年俱乐部进球数)",
-         "_Youth Caps": "在青年俱乐部出场数",
-         "_Youth Goals": "在青年俱乐部进球数"
-      },
-      "zh": "服役青年俱乐部"
-   },
-   "(multi)Manager Clubs": {
-      "inner_relation": {
-         "_Manager Clubs": "管理俱乐部",
-         "_Manager Years": "管理俱乐部年份"
-      },
-      "zh": "管理俱乐部"
-   },
-   "(multi)Best Finish": {
-      "inner_relation": {
-         "_Year": "最好战绩年份",
-         "_Best Finish": "最好战绩"
-      },
-      "zh": "最好战绩"
-   },
-   "(multi)Awards": {
-      "inner_relation": {
-         "Awards": "奖项",
-         "_Years": "年份"
-      },
-      "zh": "奖项"
-   },
-   "(multi)Titles": {
-      "inner_relation": {
-         "_Titles": "冠军",
-         "_Title Years": "冠军年份"
-      },
-      "zh": "冠军"
-   },
-   "(multi)Prev Series": {
-      "inner_relation": {
-         "_Prev Series Years": "以前的系列年份",
-         "_Prev Series": "以前的系列"
-      },
-      "zh": "以前系列"
-   },
-   "(multi)Height": {
-      "inner_relation": {
-         "_Height(in)": "身高(英寸)",
-         "_Height(ft)": "身高(英尺)"
-      },
-      "zh": "身高"
-   },
-   "(multi)Weight": {
-      "inner_relation": {
-         "_Weight(lb)": "体重(磅)"
-      },
-      "zh": "体重"
-   },
    "(multi)Teams": {
       "inner_relation": {
-         "_Teams": "团队",
-         "_Years": "年份",
-         "_Car Number": "车号"
+         "_Teams": {
+            "zh": "团队"
+         },
+         "_Years": {
+            "zh": "年份"
+         },
+         "_Car Number": {
+            "zh": "车号"
+         }
       },
       "zh": "团队/队伍"
    },
-   "(multi)Statistics": {
-      "inner_relation": {
-         "_Stat League": "统计信息(联盟)",
-         "_Stat Label": "统计信息(标题)",
-         "_Stat Value": "统计信息(值)"
-      },
-      "zh": "统计信息"
-   },
    "(multi)Coach Teams": {
       "inner_relation": {
-         "_Coach Teams": "教练团队",
-         "_Coach Years": "教练年份"
+         "_Coach Teams": {
+            "zh": "教练团队"
+         },
+         "_Coach Years": {
+            "zh": "教练年份"
+         }
       },
       "zh": "教练团队/队伍"
    },
    "(multi)Thesis": {
       "inner_relation": {
-         "_Thesis Title": "论文标题",
-         "_Thesis Year": "论文年份",
-         "_Thesis Url": "论文链接"
+         "_Thesis Title": {
+            "zh": "论文标题"
+         },
+         "_Thesis Year": {
+            "zh": "论文年份"
+         },
+         "_Thesis Url": {
+            "zh": "论文链接"
+         }
       },
       "zh": "论文"
    },
    "(multi)League": {
       "inner_relation": {
-         "_League": "联盟",
-         "Roles": "角色",
-         "_Years": "年份"
+         "_League": {
+            "zh": "联盟"
+         },
+         "Roles": {
+            "zh": "角色"
+         },
+         "_Years": {
+            "zh": "年份"
+         }
       },
       "zh": "联盟"
    },
    "(multi)International League": {
       "inner_relation": {
-         "_International League": "国际联盟",
-         "_International Role": "国际角色",
-         "_International Years": "国际年份"
+         "_International League": {
+            "zh": "国际联盟"
+         },
+         "_International Role": {
+            "zh": "国际角色"
+         },
+         "_International Years": {
+            "zh": "国际年份"
+         }
       },
       "zh": "国际联盟"
    },
+   "(multi)Clubs": {
+      "inner_relation": {
+         "_Years": {
+            "zh": "年份"
+         },
+         "_Clubs": {
+            "zh": "服役俱乐部"
+         },
+         "_Caps": {
+            "zh": "出场数"
+         },
+         "_Goals": {
+            "zh": "进球数"
+         },
+         "_Caps(Goals)": {
+            "zh": "出场数(进球数)"
+         }
+      },
+      "zh": "服役俱乐部"
+   },
+   "(multi)National Team": {
+      "inner_relation": {
+         "_National Years": {
+            "zh": "国家队服役年份"
+         },
+         "_National Team": {
+            "zh": "国家队"
+         },
+         "_National Caps": {
+            "zh": "在国家队出场数"
+         },
+         "_National Goals": {
+            "zh": "在国家队进球数"
+         },
+         "_National Caps(Goals)": {
+            "zh": "在国家队出场数(在国家队进球数)"
+         }
+      },
+      "zh": "服役国家队"
+   },
+   "(multi)Youth Clubs": {
+      "inner_relation": {
+         "_Youth Clubs": {
+            "zh": "青年俱乐部"
+         },
+         "_Youth Years": {
+            "zh": "青年俱乐部服役年份"
+         },
+         "_Youth Caps(Goals)": {
+            "zh": "在青年俱乐部出场数(在青年俱乐部进球数)"
+         },
+         "_Youth Caps": {
+            "zh": "在青年俱乐部出场数"
+         },
+         "_Youth Goals": {
+            "zh": "在青年俱乐部进球数"
+         }
+      },
+      "zh": "服役青年俱乐部"
+   },
+   "(multi)Manager Clubs": {
+      "inner_relation": {
+         "_Manager Clubs": {
+            "zh": "管理俱乐部"
+         },
+         "_Manager Years": {
+            "zh": "管理俱乐部年份"
+         }
+      },
+      "zh": "管理俱乐部"
+   },
+   "(multi)Height": {
+      "inner_relation": {
+         "_Height(in)": {
+            "zh": "身高(英寸)"
+         },
+         "_Height(ft)": {
+            "zh": "身高(英尺)"
+         }
+      },
+      "zh": "身高"
+   },
+   "(multi)Weight": {
+      "inner_relation": {
+         "_Weight(lb)": {
+            "zh": "体重(磅)"
+         }
+      },
+      "zh": "体重"
+   },
+   "(multi)Statistics": {
+      "inner_relation": {
+         "_Stat League": {
+            "zh": "统计信息(联盟)"
+         },
+         "_Stat Label": {
+            "zh": "统计信息(标题)"
+         },
+         "_Stat Value": {
+            "zh": "统计信息(值)"
+         }
+      },
+      "zh": "统计信息"
+   },
+   "(multi)Awards": {
+      "inner_relation": {
+         "Awards": {
+            "zh": "奖项"
+         },
+         "_Years": {
+            "zh": "年份"
+         }
+      },
+      "zh": "奖项"
+   },
+   "(multi)Pro Team": {
+      "inner_relation": {
+         "_Pro Team": {
+            "zh": "专业团队"
+         },
+         "_Pro Years": {
+            "zh": "专业团队年份"
+         }
+      },
+      "zh": "专业团队"
+   },
+   "(multi)Best Finish": {
+      "inner_relation": {
+         "_Year": {
+            "zh": "最好战绩年份"
+         },
+         "_Best Finish": {
+            "zh": "最好战绩"
+         }
+      },
+      "zh": "最好战绩"
+   },
+   "(multi)Titles": {
+      "inner_relation": {
+         "_Titles": {
+            "zh": "冠军"
+         },
+         "_Title Years": {
+            "zh": "冠军年份"
+         }
+      },
+      "zh": "冠军"
+   },
+   "(multi)Prev Series": {
+      "inner_relation": {
+         "_Prev Series Years": {
+            "zh": "以前的系列年份"
+         },
+         "_Prev Series": {
+            "zh": "以前的系列"
+         }
+      },
+      "zh": "以前系列"
+   },
    "(multi)Eva": {
       "inner_relation": {
-         "_Eva": "舱外活动"
+         "_Eva": {
+            "zh": "舱外活动"
+         }
       },
       "zh": "舱外活动"
    }

@@ -6,6 +6,7 @@
 """
 
 from src.templates import TEMPLATE_MAP
+import json
 
 if __name__ == '__main__':
     values = set(TEMPLATE_MAP.values())
@@ -62,13 +63,33 @@ if __name__ == '__main__':
                 zh = dic[k]
             except KeyError:
                 zh = a_dic[k]['zh']
-            t[k] = zh
+            t[k] = {'zh': zh}
         b_dic['(multi)' + i[0]] = {'inner_relation': t,
                                    'zh': i[1]}
 
     a_dic.update(b_dic)
 
     with open('../ms_wiki_data/relations.json', 'w+', encoding='utf-8') as f:
-        import json
 
         json.dump(a_dic, f, indent=3, ensure_ascii=False)
+
+    rl = {}
+    for tem in values:
+        name = tem.template_name
+        rl[name] = {}
+        test = {}
+        for k, v in tem.fields_map.items():
+            if not k.startswith('_'):
+                rl[name].update({k: v[0]})
+            else:
+                test[k] = v[0]
+        if tem.multi_values_field:
+            for k, v in tem.multi_values_field.items():
+                aa = {i: test.get(i, tem.fields_map[i][0]) for i in v[-1]}
+                inner = {'inner_relation': aa}
+                inner.update(v[0])
+                rl[name].update({f'(multi){k}': inner})
+
+    with open('../ms_wiki_data/template_relations.json', 'w+', encoding='utf-8') as f:
+
+        json.dump(rl, f, indent=3, ensure_ascii=False)
