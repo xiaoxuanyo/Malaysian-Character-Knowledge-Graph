@@ -32,11 +32,11 @@ class KnowledgeGraph:
             node1 = self.graph.nodes.match(name=node1_name).first()
         for k, v in fields['fields'].items():
             for item in v['values']:
-                if not self.graph.nodes.match('Others', name=item).exists():
+                if not self.graph.nodes.match(name=item).exists():
                     node2 = Node('Others', name=item)
                     self.graph.create(node2)
                 else:
-                    node2 = self.graph.nodes.match('Others', name=item).first()
+                    node2 = self.graph.nodes.match(name=item).first()
                 if not self.graph.relationships.match((node1, node2), r_type=k, **v['relation_props']).exists():
                     relation = Relationship(node1, k, node2, **v['relation_props'])
                     self.graph.create(relation)
@@ -64,4 +64,3 @@ if __name__ == '__main__':
             fields_all = Parse.parse_wiki_data(data=i['info'], entry=i['title'])
             print(fields_all, '\n')
             # graph.insert(fields_all)
-
