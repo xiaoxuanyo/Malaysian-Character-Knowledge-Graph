@@ -140,5 +140,20 @@ class Parse:
 if __name__ == '__main__':
     http = '192.168.235.227:8888'
     # Krystal Jung
-    print(Parse.parse_wiki_title('Norodom Marie', code='ms', http_proxy=None))
-
+    value = {
+        "name": "Riteish Deshmukh",
+        "image": "Riteish Deshmukh.jpg",
+        "caption": "Deshmukh di acara filem ''[[Housefull]]'', 2010",
+        "birth_name": "Ritesh Vilasrao Deshmukh",
+        "birth_date": "{{Birth date and age|df=y|1978|12|17}}<ref name=\"ibti_Happ\">{{Cite web | title = Happy birthday Riteish Deshmukh: Rare photos and lesser known facts about 'Housefull 3' actor | last = Sen | first = Sushmita | work = International Business Times, India Edition | date = 16 December 2015 | accessdate = 2016-06-14 | url = http://www.ibtimes.co.in/happy-birthday-riteish-deshmukh-rare-photos-lesser-known-facts-about-housefull-3-actor-659789}}</ref><ref name=\"indi_Rite\">{{Cite web | title = Riteish Deshmukh turns 38, gets wishes galore from B-Town | author = IANS | work = The Indian Express | date = 17 December 2015 | accessdate = 2016-06-14 | url = http://indianexpress.com/article/entertainment/bollywood/riteish-deshmukh-turns-37-gets-wishes-galore-from-b-town/ }}</ref>",
+        "birth_place": "[[Latur]],  [[Maharashtra]], [[India]]<ref name=\"gupta\">{{cite web|last=Gupta|first=Priya|title=Yes, Genelia is pregnant and we are both very excited about it: Ritesh Deshmukh|url=http://timesofindia.indiatimes.com/entertainment/hindi/bollywood/news-interviews/Yes-Genelia-is-pregnant-and-we-are-both-very-excited-about-it-Riteish-Deshmukh/articleshow/36150341.cms|website=Times of India|date=7 June 2014|accessdate=6 June 2014}}</ref>",
+        "nationality": "[[India]]",
+        "occupation": "Pelakon, pengacara, penerbit, arkitek",
+        "years active": "2003–kini",
+        "spouse": "[[Genelia D'Souza]] (k. 2012)",
+        "children": "2",
+        "parents": "{{plainlist|\n* [[Vilasrao Deshmukh]] (bapa)     \n* Vaishalitai Deshmukh (ibu)<ref name=\"Article4-914009\" >[https://web.archive.org/web/20120817122618/http://www.hindustantimes.com/photos-news/Photos-India/RememberingVilasraoDeshmukh/Article4-914009.aspx \"SRemembering Vilasrao Deshmukh\"]. ''Hindustan Times''.</ref>\n}}",
+        "relatives": "{{plainlist|\n* [[Amit Deshmukh]] (adik)\n* Dheeraj Deshmukh (adik)\n}}"
+    }
+    # print(Parse.parse_wiki_title('Norodom Marie', code='ms', http_proxy=None))
+    print(Parse.parse_values(value))

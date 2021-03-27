@@ -62,7 +62,7 @@ class TemplateAstronaut(TemplateBase):
     template_name = 'Astronaut'
     fields_map = {
         'Mission': ({'zh': '使命'}, ['mission']),
-        'Space Time': ({'zh': '时间'}, ['time'], re_compile(r'space.*?time')),
+        'Space Time': ({'zh': '舱外活动时间'}, ['time'], re_compile(r'space.*?time')),
         'Selection': ({'zh': '选拔'}, ['selection']),
         'Rank': ({'zh': '等级/军衔'}, ['rank']),
         '_Eva': ({'zh': '舱外活动'}, re_compile(r'evas?|eva.*?time')),
