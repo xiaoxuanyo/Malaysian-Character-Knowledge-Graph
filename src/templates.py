@@ -762,8 +762,9 @@ class TemplateDefine:
                 else:
                     self._fields['fields'][k] = v
             if res.fields.get('primary_entity_props'):
-                if res.fields['primary_entity_props']['multi_values_field'] not in _props:
-                    _props.append(res.fields['primary_entity_props']['multi_values_field'])
+                for i_s in res.fields['primary_entity_props']['multi_values_field'].split('\n'):
+                    if i_s not in _props:
+                        _props.append(i_s)
         if _props:
             self._fields['primary_entity_props'] = {'multi_values_field': '\n'.join(_props)}
 

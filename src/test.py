@@ -7,11 +7,9 @@
 # @Software : PyCharm
 # @Desc     :
 
-import re
+import json
 
-string = 'Amit Deshmukh (adik)\n Dheeraj Deshmukh (adik)'
-string = string.split('\n')
-string = [i.strip() for i in string]
-patten = re.compile(r'\((?P<front>.+?)\)\s*$|$\s*\((?P<after>.+?)\)')
-string = [re.search(patten, i).groups() for i in string]
-print(string)
+with open('../ms_wiki_data/relations.json', 'r', encoding='utf-8') as f:
+    data = json.load(f)
+
+print(len(data.keys()))

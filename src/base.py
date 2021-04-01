@@ -13,10 +13,13 @@ import re
 
 __all__ = ['re_compile', 'LoggerUtil', 'mwp', 'QueryEngine', 'TemplateBase',
            'TemplateOfficer', 'TemplateSportsPlayer', 'TemplatePerformanceWorker',
-           'TemplateResearchers']
+           'TemplateResearchers', 'RELATION']
 
 _FILE_LOG_LEVEL = logging.WARNING
 _CONSOLE_LOG_LEVEL = logging.WARNING
+
+RELATION_PATTERN = re.compile(
+    r'\((?P<front>.+?)\)\s*$|^\s*\((?P<after>.+?)\)|（(?P<front1>.+?)）\s*$|^\s*（(?P<after1>.+?)）')
 
 _file_log = LoggerUtil('src.templates.file', file_path='../log/templates.log',
                        level=_FILE_LOG_LEVEL, mode='w+')
@@ -88,6 +91,13 @@ def re_compile(s, mode='se', split='.*?'):
     return re.compile(r'%s' % s)
 
 
+def re_groups(pattern, s):
+    res = re.search(pattern, s)
+    if res:
+        return res.groups()
+    return []
+
+
 def _matches(string, match):
     def match1(i_s, i_m):
         assert isinstance(i_m, list) or isinstance(i_m, re.Pattern), f'类型不符，match类型{type(i_m)}'
@@ -145,6 +155,9 @@ class QueryEngine:
         return ps.filter_templates(matches=matches)
 
 
+RELATION = {}
+
+
 class TemplateBase:
     # 模板名称，在构建图谱时模板名会当成节点的标签名
     template_name = 'Base'
@@ -157,8 +170,8 @@ class TemplateBase:
                            'pinyinchinesename', 'simpchinesename', 'nama penuh', 'hanja'],
             re_compile(r'other.*?names?|real.*?name|native.*?names?|player.*?name|chinese.*?name|nama.*?inggeris'
                        r'|birth.*?names?|full.*?name')),
-        'Birth': ({'zh': '出生信息'}, ['birth', 'born', 'keputeraan'],),
-        'Death': ({'zh': '死亡信息'}, ['died']),
+        '_Birth': ({'zh': '出生信息'}, ['birth', 'born', 'keputeraan'],),
+        '_Death': ({'zh': '死亡信息'}, ['died']),
         '_Birth Date': (
             {'zh': '出生时间'}, ['tarikh lahir'], re_compile(r'birth.*?date|date.*?birth|born.*?date|date.*?born'),),
         '_Birth Place': (
@@ -181,23 +194,23 @@ class TemplateBase:
         '_Death Date': ({'zh': '死亡时间'}, ['tarikh kematian'], re_compile(r'death.*?date|date.*?death'),),
         '_Death Place': ({'zh': '死亡地点'}, ['tempat kematian'], re_compile(r'death.*?place|place.*?death'),),
         '_Burial Place': ({'zh': '埋葬地点'}, re_compile(r'resting.*?place|burial.*?place'),),
-        '_Spouse': ({'zh': '配偶'}, ['spouse', 'pasangan', 'spouses', 'consort'],),
+        'Spouse': ({'zh': '配偶'}, ['spouse', 'pasangan', 'spouses', 'consort'],),
         '_Parents': ({'zh': '父母'}, ['parents'],),
         '_Sibling': ({'zh': '兄弟姐妹'}, ['sibling', 'saudara']),
-        '_Children': ({'zh': '孩子'}, ['children', 'issue', 'anak'],),
+        'Children': ({'zh': '孩子'}, ['children', 'issue', 'anak'],),
         'Gender': ({'zh': '性别'}, ['gender'],),
         'Alma Mater': ({'zh': '母校'}, re_compile(r'alma.*?mater'),),
         '_Relatives': ({'zh': '关系'}, ['relatives,husband'], re_compile(r'relatives?|relations?|related.*?to'),),
-        '_Father': ({'zh': '父亲'}, ['father', 'bapa'],),
-        '_Mother': ({'zh': '母亲'}, ['mother', 'ibunda'],),
+        'Father': ({'zh': '父亲'}, ['father', 'bapa'],),
+        'Mother': ({'zh': '母亲'}, ['mother', 'ibunda'],),
         'Residence': ({'zh': '住宅/(尤指)豪宅'}, ['residence', 'residential'],),
         'Known For': ({'zh': '著名'}, ['known'], re_compile(r'known.*?for'),),
-        '_Partner': ({'zh': '伙伴/搭档/合伙人'}, ['partner', 'partners'], re_compile(r'former.*?partner|domestic.*?partner')),
+        'Partner': ({'zh': '伙伴/搭档/合伙人'}, ['partner', 'partners'], re_compile(r'former.*?partner|domestic.*?partner')),
         'Citizenship': ({'zh': '公民/公民身份'}, ['citizenship'],),
         'Honorific Prefix': ({'zh': '尊称前缀'}, re_compile(r'honorific.*?prefix'),),
         'Honorific Suffix': ({'zh': '尊称后缀'}, re_compile(r'honorific.*?suffix'),),
         'Home Town': ({'zh': '家乡'}, re_compile(r'home.*?town'),),
-        '_Employer': ({'zh': '雇主'}, ['employer'],),
+        'Employer': ({'zh': '雇主'}, ['employer'],),
         '_Family': ({'zh': '家庭/亲属'}, ['family', 'house', 'royal house'],),
         'Ethnicity': ({'zh': '种族'}, ['ethnicity', 'ethnic'],),
         'Subject': ({'zh': '学科'}, ['subject', 'discipline'],),
@@ -234,12 +247,11 @@ class TemplateBase:
     }
     # 多值属性字段
     multi_values_field = {
-        'Birth': ({'zh': '出生信息'}, ['_Birth Date', '_Birth Place', '_Birth City', '_Birth Country']),
-        'Death': ({'zh': '死亡信息'}, ['_Death Date', '_Death Place', '_Burial Place']),
+        'Birth': ({'zh': '出生信息'}, ['_Birth Date', '_Birth Place', '_Birth City', '_Birth Country', '_Birth']),
+        'Death': ({'zh': '死亡信息'}, ['_Death Date', '_Death Place', '_Burial Place', '_Death']),
         'Relatives': (
             {'zh': '关系'},
-            ['_Spouse', '_Parents', '_Sibling', '_Children', '_Relatives', '_Father', '_Mother', '_Family',
-             '_Partner', '_Employer'])
+            ['_Parents', '_Sibling', '_Relatives', '_Family'])
     }
     # 多值字段中必须出现的字段，若没有出现，则认为这个多值字段没有意义
     multi_field_cond = None
@@ -248,9 +260,9 @@ class TemplateBase:
     # 解析wiki对象template时需要保存的模板名，通常情况下是因为模板名保存了必要的信息，比如某次比赛中的名次（金牌、银牌等）保存在模板名中
     retain_template_name = (re.compile(r'medal'),)
     # 解析wiki对象template时需要剔除的特殊值，这些值往往无意义
-    discard_template_value = (['zh-hans'], re.compile(r'\.svg$'))
+    discard_template_value = (['zh-hans'], re.compile(r'\.svg$|\.png$|\.jpg$|\.jpeg$'))
     # 解析wiki对象WikiLink时需要剔除的值，这些值往往无意义
-    discard_wikilink_value = (re.compile(r'\.svg$'),)
+    discard_wikilink_value = (re.compile(r'\.svg$|\.png$|\.jpg$|\.jpeg$'),)
     # 解析wiki对象template时需要保存的参数名，通常情况下是因为身高体重等字段的参数名中含有度量单位，例如m: 1.76，这些参数名需要保存，确保信息准确
     retain_template_param = (['m', 'end', 'reason', 'award', 'ft', 'in', 'meter', 'meters',
                               'cm', 'kg'], re.compile(r'\d+'))
@@ -274,6 +286,27 @@ class TemplateBase:
                             k, v in self.fields_map.items()},
                         'entry': entry}
         # 对待解析的字典数据做字段匹配
+        self._get_field_values(values)
+        # 多值属性不为空时，将多值属性解析成一一对应
+        self._process_multi_values_field(entry)
+
+        if self._fields['fields'].get('Relatives'):
+            for string in self.fields['fields']['Relatives']['values']:
+                string1 = string.split('\n')
+                string1 = [i.strip() for i in string1]
+                string1 = [[j for j in re_groups(RELATION_PATTERN, i) if j] for i in string1]
+                for i_s in string1:
+                    for ii_s in i_s:
+                        if ii_s not in RELATION.keys():
+                            RELATION[ii_s] = self.fields['entry']
+
+    def _check(self, kkk, vvv):
+        temp = set([list(i.keys())[0] for i in vvv])
+        if set(self.multi_field_cond.get(kkk, [])).issubset(temp):
+            return True
+        return False
+
+    def _get_field_values(self, values):
         for k, v in values.items():
             field = None
             index = None
@@ -290,8 +323,8 @@ class TemplateBase:
                     break
             if field:
                 # 对wiki对象递归解析
-                p_v = self.parse(v.strip())
-                h_v = ''.join([str(i) for i in p_v]).strip()
+                p_v = self.parse(v.strip(' '))
+                h_v = ''.join([str(i).strip(' ') for i in p_v]).strip()
                 if h_v:
                     h_v = re.sub(self.replace_fields_value, '', h_v)
                     _console_log.logger.debug(f'\n{field}: {h_v}\n')
@@ -300,7 +333,8 @@ class TemplateBase:
                     if h_v not in self._fields['fields'][field]['values'] and not \
                             _matches(str(h_v).lower(), self.discard_fields_value)[0]:
                         self._fields['fields'][field]['values'].append(h_v)
-        # 多值属性不为空时，将多值属性解析成一一对应
+
+    def _process_multi_values_field(self, entry):
         if self.multi_values_field is not None:
             fields_values = {k: v for k, v in self._fields['fields'].items() if
                              v['values'] and all([k not in kk[-1] for kk in
@@ -315,20 +349,11 @@ class TemplateBase:
                         if k in i_f:
                             for iii, jjj in enumerate(v['values']):
                                 if not isinstance(jjj, dict):
-                                    v['values'][iii] = {str(0) + str(iii): v['values'][iii]}
+                                    v['values'][iii] = {str(0) + str(iii): jjj}
                             multi_values_field[i_k]['values'].append({k: v['values']})
 
-            def _check1(kkk, vvv):
-                temp = set([list(i.keys())[0] for i in vvv])
-                if set(self.multi_field_cond.get(kkk, [])).issubset(temp):
-                    return True
-                return False
-
-            def _check2(*args):
-                return True
-
             # 检查是否包含必须有的字段
-            check = _check1 if self.multi_field_cond is not None else _check2
+            check = self._check if self.multi_field_cond is not None else lambda *args: True
 
             multi_values_field = {k: v for k, v in multi_values_field.items() if v['values'] and check(k, v['values'])}
             # 为主实体entry增加props, 构建知识图谱时有用
@@ -366,7 +391,7 @@ class TemplateBase:
                     if _is_include_dict(v['values']):
                         for iii, jjj in enumerate(v['values']):
                             if not isinstance(jjj, dict):
-                                v['values'][iii] = {str(0) + str(iii): v['values'][iii]}
+                                v['values'][iii] = {str(0) + str(iii): jjj}
                         multi_values_field.append({k: v['values']})
                         name.append(k)
                     else:
@@ -390,25 +415,28 @@ class TemplateBase:
         p_t = p_t.filter(recursive=False)
         for i, j in enumerate(p_t):
             if isinstance(j, mwp.wikicode.Template):
-                values = []
-                for k in j.params:
-                    tag, res = _matches(str(k.name).strip(' ').lower(), cls.retain_template_param)
-                    res = res.group() if res else ''
-                    if tag and not _matches(str(k.value).strip(' ').lower(), cls.discard_template_value)[0]:
-                        if _is_int(res):
-                            values.append(str(k.value).strip(' '))
-                        else:
-                            values.append(f"({str(k.name).strip(' ')}: {str(k.value).strip(' ')})")
-                if _matches(str(j.name).strip(' ').lower(), cls.retain_template_name)[0]:
-                    res = f"({str(j.name).strip(' ')}: {', '.join(values)})"
+                if str(j.name).strip().lower() == 'br':
+                    p_t[i] = mwp.parse('\n')
                 else:
-                    res = ', '.join(values)
-                p_t[i] = mwp.parse(res)
+                    values = []
+                    for k in j.params:
+                        tag, res = _matches(str(k.name).strip().lower(), cls.retain_template_param)
+                        res = res.group() if res else ''
+                        if tag and not _matches(str(k.value).strip(' ').lower(), cls.discard_template_value)[0]:
+                            if _is_int(res):
+                                values.append(str(k.value).strip(' '))
+                            else:
+                                values.append(f"[{str(k.name).strip()}: {str(k.value).strip(' ')}]")
+                    if _matches(str(j.name).strip().lower(), cls.retain_template_name)[0]:
+                        res = f"[{str(j.name).strip()}: {', '.join(values)}]"
+                    else:
+                        res = ', '.join(values)
+                    p_t[i] = mwp.parse(res)
             elif isinstance(j, mwp.wikicode.ExternalLink):
                 p_t[i] = j.url
             elif isinstance(j, mwp.wikicode.Tag):
-                if not _matches(str(j.tag).strip(' ').lower(), cls.discard_tag_name)[0]:
-                    rs = mwp.parse('\n') if str(j.tag).strip(' ').lower() == 'br' else mwp.parse(
+                if not _matches(str(j.tag).strip().lower(), cls.discard_tag_name)[0]:
+                    rs = mwp.parse('\n') if str(j.tag).strip().lower() == 'br' else mwp.parse(
                         str(j.contents).strip(' '))
                 else:
                     rs = mwp.parse(None)

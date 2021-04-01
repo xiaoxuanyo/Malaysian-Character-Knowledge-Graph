@@ -6,12 +6,18 @@
 # @File     : graph.py
 # @Software : PyCharm
 # @Desc     :
-
-
+import logging
 from py2neo import Graph, Node, Relationship
 from tqdm import tqdm
 import json
 from src.parse import Parse
+from src.base import RELATION
+from src.utils import LoggerUtil
+
+_FILE_LOG_LEVEL = logging.INFO
+
+_file_log = LoggerUtil('src.graph.file', file_path='../log/graph.log',
+                       level=_FILE_LOG_LEVEL, mode='w+')
 
 
 class KnowledgeGraph:
@@ -64,3 +70,6 @@ if __name__ == '__main__':
             fields_all = Parse.parse_wiki_data(data=i['info'], entry=i['title'])
             print(fields_all, '\n')
             # graph.insert(fields_all)
+    _file_log.logger.info(RELATION)
+    with open('graph.json', 'w+', encoding='utf-8') as f:
+        json.dump(RELATION, f, ensure_ascii=False, indent=3)
