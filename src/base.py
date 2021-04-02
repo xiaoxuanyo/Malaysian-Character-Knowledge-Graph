@@ -14,7 +14,7 @@ import xml.sax
 
 __all__ = ['re_compile', 'LoggerUtil', 'mwp', 'QueryEngine', 'TemplateBase',
            'TemplateOfficer', 'TemplateSportsPlayer', 'TemplatePerformanceWorker',
-           'TemplateResearchers', 'RELATION']
+           'TemplateResearchers', 'RELATION', 'XMLParser']
 
 _FILE_LOG_LEVEL = logging.WARNING
 _CONSOLE_LOG_LEVEL = logging.WARNING

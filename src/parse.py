@@ -10,7 +10,7 @@ from src.templates import TemplatePerson, TEMPLATE_MAP
 import mwparserfromhell as mwp
 
 
-class Parse:
+class Parser:
     InfoField = 'Infobox'
 
     class DicTTemp:
@@ -172,7 +172,7 @@ if __name__ == '__main__':
     # print(Parse.parse_wiki_data(test))
     # print(RELATION)
 
-    fields_ = Parse.parse_wiki_title('Mike Gascoyne', code='ms', http_proxy=None)
+    fields_ = Parser.parse_wiki_title('Mike Gascoyne', code='ms', http_proxy=None)
     print('\n\n\n\n', fields_)
     # for i, j in fields_['fields'].items():
     #     for k in j['values']:

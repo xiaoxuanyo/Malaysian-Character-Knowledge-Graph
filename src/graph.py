@@ -10,7 +10,7 @@ import logging
 from py2neo import Graph, Node, Relationship
 from tqdm import tqdm
 import json
-from src.parse import Parse
+from src.parse import Parser
 from src.base import RELATION
 from src.utils import LoggerUtil
 
@@ -67,7 +67,7 @@ if __name__ == '__main__':
 
     for i in tqdm(j_data.values(), '正在构建知识图谱...'):
         if i.get('info'):
-            fields_all = Parse.parse_wiki_data(data=i['info'], entry=i['title'])
+            fields_all = Parser.parse_wiki_data(data=i['info'], entry=i['title'])
             print(fields_all, '\n')
             # graph.insert(fields_all)
     _file_log.logger.info(RELATION)
