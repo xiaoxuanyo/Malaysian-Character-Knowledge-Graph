@@ -10,6 +10,7 @@ import pywikibot
 from src.utils import LoggerUtil
 import logging
 import re
+import xml.sax
 
 __all__ = ['re_compile', 'LoggerUtil', 'mwp', 'QueryEngine', 'TemplateBase',
            'TemplateOfficer', 'TemplateSportsPlayer', 'TemplatePerformanceWorker',
@@ -19,7 +20,7 @@ _FILE_LOG_LEVEL = logging.WARNING
 _CONSOLE_LOG_LEVEL = logging.WARNING
 
 RELATION_PATTERN = re.compile(
-    r'\((?P<front>.+?)\)\s*$|^\s*\((?P<after>.+?)\)|（(?P<front1>.+?)）\s*$|^\s*（(?P<after1>.+?)）')
+    r'\((?P<front>.+?)\)\s*$|^\s*\((?P<after>.+?)\)')
 
 _file_log = LoggerUtil('src.templates.file', file_path='../log/templates.log',
                        level=_FILE_LOG_LEVEL, mode='w+')
@@ -155,6 +156,44 @@ class QueryEngine:
         return ps.filter_templates(matches=matches)
 
 
+class WikiHandler(xml.sax.handler.ContentHandler):
+
+    def __init__(self):
+        super(WikiHandler, self).__init__()
+        self._buffer = ''
+        self._current_tag = None
+        self.pages = {}
+
+    def startElement(self, name, attrs):
+        if name in ['title', 'text']:
+            self._current_tag = name
+
+    def endElement(self, name):
+        if name == self._current_tag:
+            self.pages[name] = self._buffer
+            self._buffer = ''
+            self._current_tag = None
+
+    def characters(self, content):
+        if self._current_tag:
+            self._buffer += content
+
+
+class XMLParser:
+
+    def __init__(self, xml_file_path):
+        self.xml_file_path = xml_file_path
+        self._handler = WikiHandler()
+        parser = xml.sax.make_parser()
+        parser.setFeature(xml.sax.handler.feature_namespaces, 0)
+        parser.setContentHandler(self._handler)
+        parser.parse(xml_file_path)
+
+    @property
+    def result(self):
+        return self._handler.pages
+
+
 RELATION = {}
 
 
@@ -193,6 +232,7 @@ class TemplateBase:
         'Years Active': ({'zh': '活跃年份'}, ['active', 'yeaesactive', 'era'], re_compile(r'year.*?active')),
         '_Death Date': ({'zh': '死亡时间'}, ['tarikh kematian'], re_compile(r'death.*?date|date.*?death'),),
         '_Death Place': ({'zh': '死亡地点'}, ['tempat kematian'], re_compile(r'death.*?place|place.*?death'),),
+        '_Death Cause': ({'zh': '死因'}, re_compile(r'death.*?cause|cause.*?death')),
         '_Burial Place': ({'zh': '埋葬地点'}, re_compile(r'resting.*?place|burial.*?place'),),
         'Spouse': ({'zh': '配偶'}, ['spouse', 'pasangan', 'spouses', 'consort'],),
         '_Parents': ({'zh': '父母'}, ['parents'],),
@@ -248,7 +288,7 @@ class TemplateBase:
     # 多值属性字段
     multi_values_field = {
         'Birth': ({'zh': '出生信息'}, ['_Birth Date', '_Birth Place', '_Birth City', '_Birth Country', '_Birth']),
-        'Death': ({'zh': '死亡信息'}, ['_Death Date', '_Death Place', '_Burial Place', '_Death']),
+        'Death': ({'zh': '死亡信息'}, ['_Death Date', '_Death Place', '_Burial Place', '_Death', '_Death Cause']),
         'Relatives': (
             {'zh': '关系'},
             ['_Parents', '_Sibling', '_Relatives', '_Family'])
@@ -293,7 +333,8 @@ class TemplateBase:
         if self._fields['fields'].get('Relatives'):
             for string in self.fields['fields']['Relatives']['values']:
                 string1 = string.split('\n')
-                string1 = [i.strip() for i in string1]
+                string1 = [re.sub(r'（', '(', i.strip()) for i in string1]
+                string1 = [re.sub(r'）', ')', i) for i in string1]
                 string1 = [[j for j in re_groups(RELATION_PATTERN, i) if j] for i in string1]
                 for i_s in string1:
                     for ii_s in i_s:
@@ -469,7 +510,7 @@ class TemplateOfficer(TemplateBase):
         '_Coronation': ({'zh': '加冕礼'}, re_compile(r'coronation'),),
         '_Succession': ({'zh': '继任/继承权（尤指王位的）'}, re_compile(r'succession'),),
         '_Regent': ({'zh': '摄政者'}, re_compile(r'regent'),),
-        '_Office': ({'zh': '要职'}, re_compile(r'office.{,2}|order'),),
+        '_Office': ({'zh': '要职'}, re_compile(r'office\D{,2}|order'),),
         '_Prime Minister': ({'zh': '总理/首相'}, re_compile(r'prime.*?minister'),),
         '_Minister': ({'zh': '部长/大臣'}, re_compile(r'minister'),),
         '_Term Start': ({'zh': '（政党、政府的）任期开始时间'}, re_compile(r'term.*?start'),),

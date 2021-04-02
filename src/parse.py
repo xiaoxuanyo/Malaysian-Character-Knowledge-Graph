@@ -66,8 +66,8 @@ class Parse:
             temp = cls.DicTTemp(data)
         else:
             data = mwp.parse(data)
+            print(data)
             temp = data.filter_templates(matches=cls.InfoField)
-            print(temp)
         if temp:
             tem = temp.pop(0)
             values = {str(p.name).strip(): str(p.value).strip(' ') for p in
@@ -171,8 +171,9 @@ if __name__ == '__main__':
     # print(Parse.parse_wiki_title('Liew Vui Keong', code='ms', http_proxy=http))
     # print(Parse.parse_wiki_data(test))
     # print(RELATION)
-    fields = Parse.parse_wiki_title('Liew Vui Keong', code='ms', http_proxy=http)
-    print('\n\n\n\n', fields)
-    # for i, j in fields['fields'].items():
+
+    fields_ = Parse.parse_wiki_title('Mike Gascoyne', code='ms', http_proxy=None)
+    print('\n\n\n\n', fields_)
+    # for i, j in fields_['fields'].items():
     #     for k in j['values']:
     #         print(f"{i}({list(j['relation_props'].values())[0]}): {k}\n")

@@ -124,7 +124,7 @@ options = SimpleNamespace(
 
     ##
     # Extract and save page categories
-    extract_categories=False,
+    extract_categories=True,
     category_surface='Kategori',
 
     ##
