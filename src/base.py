@@ -162,7 +162,7 @@ class WikiContentHandler(xml.sax.handler.ContentHandler):
         self._buffer = ''
         self._current_tag = None
         self._per_page = {}
-        self.pages = []
+        self.pages = {}
         if filter_categories is not None:
             assert category is not None, '指定filter_categories后，应提供对应语言的category。'
             assert isinstance(filter_categories, list), f'不支持的filter_categories类型{type(filter_categories)}，目前仅支持list类型。'
@@ -172,21 +172,26 @@ class WikiContentHandler(xml.sax.handler.ContentHandler):
             self._filter_categories = None
 
     def startElement(self, name, attrs):
-        if name in ['title', 'text']:
+        if name in ['title', 'text', 'id']:
             self._current_tag = name
         elif name == 'redirect':
             self._per_page['redirect title'] = attrs['title']
 
     def endElement(self, name):
         if name == self._current_tag:
-            self._per_page[name] = self._buffer
+            if not self._per_page.get(name):
+                self._per_page[name] = self._buffer
             self._buffer = ''
             self._current_tag = None
         if name == 'page':
-            if self._filter_categories is None:
-                self.pages.append(self._per_page)
-            elif re.search(r'%s' % '|'.join(self._filter_categories), self._per_page['text'], re.I):
-                self.pages.append(self._per_page)
+            self._per_page['id url'] = 'https://ms.wikipedia.org/wiki?curid=%s' % self._per_page['id']
+            self._per_page['title url'] = 'https://ms.wikipedia.org/wiki/%s' % self._per_page['title'].replace(' ', '_')
+            if self._per_page.get('redirect title'):
+                self._per_page['redirect url'] = 'https://ms.wikipedia.org/wiki/%s' % self._per_page[
+                    'redirect title'].replace(' ', '_')
+            if self._filter_categories is None or re.search(r'%s' % '|'.join(self._filter_categories),
+                                                            self._per_page['text'], re.I):
+                self.pages[self._per_page.pop('id')] = self._per_page
             self._per_page = {}
 
     def characters(self, content):

@@ -66,7 +66,6 @@ class Parser:
             temp = cls.DicTTemp(data)
         else:
             data = mwp.parse(data)
-            print(data)
             temp = data.filter_templates(matches=cls.InfoField)
         if temp:
             tem = temp.pop(0)
@@ -155,8 +154,8 @@ if __name__ == '__main__':
             "relatives": "{{unbulleted list|{{nowrap|[[Tippi Hedren]] {{small|(nenek sebelah ibu)}}}}|[[Peter Griffith]] {{small|(datuk sebelah ibu)}}|[[Tracy Griffith]] {{small|(ibu saudara)}}}}"
          }
       }
-    print(Parser.parse_wiki_data(test, entry='test'))
-    # print(Parse.parse_wiki_title('Liew Vui Keong', code='ms', http_proxy=http))
+    # print(Parser.parse_wiki_data(test, entry='test'))
+    print(Parser.parse_wiki_title('Natalie Imbruglia', code='ms', http_proxy=http))
     # print(Parse.parse_wiki_data(test))
     # print(RELATION)
 

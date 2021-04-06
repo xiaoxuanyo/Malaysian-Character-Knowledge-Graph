@@ -7,9 +7,9 @@
 # @Software : PyCharm
 # @Desc     :
 
-import json
 
-with open('../ms_wiki_data/relations.json', 'r', encoding='utf-8') as f:
-    data = json.load(f)
+from src.base import XMLParser
 
-print(len(data.keys()))
+xml_parser = XMLParser()
+
+print(xml_parser.parse_file('../ms_wiki_data/test.xml'))
