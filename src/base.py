@@ -5,16 +5,14 @@
 @email  : xiexx@xiaopeng.com
 """
 
+from tqdm import tqdm
 import mwparserfromhell as mwp
 import pywikibot
 from src.utils import LoggerUtil
 import logging
 import re
 import xml.sax
-
-__all__ = ['re_compile', 'LoggerUtil', 'mwp', 'QueryEngine', 'TemplateBase',
-           'TemplateOfficer', 'TemplateSportsPlayer', 'TemplatePerformanceWorker',
-           'TemplateResearchers', 'RELATION', 'XMLParser']
+import io
 
 _FILE_LOG_LEVEL = logging.WARNING
 _CONSOLE_LOG_LEVEL = logging.WARNING
@@ -68,7 +66,7 @@ def _get_multi_values(array):
     return result
 
 
-def re_compile(s, mode='se', split='.*?'):
+def re_compile(s, mode='se', split='.*?', ignore_case=True):
     assert mode in ['s', 'e', 'se'], f'不支持{mode}'
     _s = r'^'
     _e = r'$'
@@ -89,7 +87,8 @@ def re_compile(s, mode='se', split='.*?'):
         ss.append(r'\s*?(?P<s_index%d>\d*)\s*?' % j + r'\D*?(?P<%s_index%s>\d*)\D*?'.join(
             i_split) % tuple(index) + r'\s*?(?P<e_index%d>\d*)\s*?' % j)
     s = '|'.join([_p % j for j in ss])
-    return re.compile(r'%s' % s)
+    pattern = re.compile(r'%s' % s, re.I) if ignore_case else re.compile(r'%s' % s)
+    return pattern
 
 
 def re_groups(pattern, s):
@@ -156,23 +155,39 @@ class QueryEngine:
         return ps.filter_templates(matches=matches)
 
 
-class WikiHandler(xml.sax.handler.ContentHandler):
+class WikiContentHandler(xml.sax.handler.ContentHandler):
 
-    def __init__(self):
-        super(WikiHandler, self).__init__()
+    def __init__(self, filter_categories=None, category=None):
+        super(WikiContentHandler, self).__init__()
         self._buffer = ''
         self._current_tag = None
-        self.pages = {}
+        self._per_page = {}
+        self.pages = []
+        if filter_categories is not None:
+            assert category is not None, '指定filter_categories后，应提供对应语言的category。'
+            assert isinstance(filter_categories, list), f'不支持的filter_categories类型{type(filter_categories)}，目前仅支持list类型。'
+            split_tag = r'\s*[:：]\s*'
+            self._filter_categories = [category + split_tag + i for i in filter_categories]
+        else:
+            self._filter_categories = None
 
     def startElement(self, name, attrs):
         if name in ['title', 'text']:
             self._current_tag = name
+        elif name == 'redirect':
+            self._per_page['redirect title'] = attrs['title']
 
     def endElement(self, name):
         if name == self._current_tag:
-            self.pages[name] = self._buffer
+            self._per_page[name] = self._buffer
             self._buffer = ''
             self._current_tag = None
+        if name == 'page':
+            if self._filter_categories is None:
+                self.pages.append(self._per_page)
+            elif re.search(r'%s' % '|'.join(self._filter_categories), self._per_page['text'], re.I):
+                self.pages.append(self._per_page)
+            self._per_page = {}
 
     def characters(self, content):
         if self._current_tag:
@@ -181,17 +196,36 @@ class WikiHandler(xml.sax.handler.ContentHandler):
 
 class XMLParser:
 
-    def __init__(self, xml_file_path):
-        self.xml_file_path = xml_file_path
-        self._handler = WikiHandler()
-        parser = xml.sax.make_parser()
-        parser.setFeature(xml.sax.handler.feature_namespaces, 0)
-        parser.setContentHandler(self._handler)
-        parser.parse(xml_file_path)
+    def __init__(self, filter_categories=None, category=None):
+        self.handler = WikiContentHandler(filter_categories, category)
+        self.parser = xml.sax.make_parser()
+        self.parser.setFeature(xml.sax.handler.feature_namespaces, 0)
+        self.parser.setContentHandler(self.handler)
+        self._input_source = None
 
-    @property
-    def result(self):
-        return self._handler.pages
+    def parse_file(self, xml_file):
+        self.parser.parse(xml_file)
+        return self.handler.pages
+
+    def parse_string(self, xml_string):
+        if self._input_source is None:
+            self._input_source = xml.sax.xmlreader.InputSource()
+        if isinstance(xml_string, str):
+            self._input_source.setCharacterStream(io.StringIO(xml_string))
+        else:
+            self._input_source.setByteStream(io.BytesIO(xml_string))
+        self.parser.parse(self._input_source)
+        return self.handler.pages
+
+    def parse_file_block(self, xml_file):
+        num = 0
+        with open(xml_file, 'r', encoding='utf-8') as f:
+            for _ in tqdm(f, desc='正在获取文件大小信息...', leave=False):
+                num += 1
+        with open(xml_file, 'r', encoding='utf-8') as f:
+            for line in tqdm(f, desc='正在获取文件...', total=num):
+                self.parser.feed(line)
+        return self.handler.pages
 
 
 RELATION = {}
@@ -332,7 +366,7 @@ class TemplateBase:
 
         if self._fields['fields'].get('Relatives'):
             for string in self.fields['fields']['Relatives']['values']:
-                string1 = string.split('\n')
+                string1 = re.split(r'[\n,]', string)
                 string1 = [re.sub(r'（', '(', i.strip()) for i in string1]
                 string1 = [re.sub(r'）', ')', i) for i in string1]
                 string1 = [[j for j in re_groups(RELATION_PATTERN, i) if j] for i in string1]

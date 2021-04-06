@@ -142,38 +142,26 @@ class Parser:
 if __name__ == '__main__':
     http = '192.168.235.227:8888'
     test = {
-        "Infobox person": {
-            "title": "Ratu Rock Malaysia",
-            "name": "Ella",
-            "landscape": "<!-- Tulis \"yes\", jika imej kelihatan lebar. Jika tidak, tinggalkan. -->",
-            "birth_name": "Nor Zila binti Aminuddin",
-            "birth_date": "{{birth date and age|1966|7|31}}",
-            "birth_place": "[[Gelugor]], [[Pulau Pinang]], [[Malaysia]]",
-            "home_town": "[[Gelugor]], [[Pulau Pinang]]",
-            "occupation": "[[Penyanyi]], [[pelakon]], [[pemuzik]], [[model (profesion)|model]]",
-            "years_active": "1985&ndash;kini",
-            "spouse": "{{marriage|Azhar Husaini Ghazali|2012}}",
-            "mother": "Yang Asmah Yong",
-            "father": "Aminuddin Manap",
-            "relatives": "[[Kaka Azraff]] (anak saudara) {{br}}",
-            "family": "Mohd. Nor Izam Aminuddin (abang) {{br}} Nor Azraff Aminuddin (abang) {{br}} Saidatulnisa Aminuddin (kakak)  {{br}} Rozita ''Jojie'' Aminuddin (kakak) {{br}} Shahrizan Aminuddin (kakak) {{br}} Azahari ''Korie'' Aminuddin (adik)",
-            "module": "{{Infobox musical artist\n| embed = yes\n| background = solo_singer\n| genre = [[Rock]]\n| instrument = [[Vokal]]\n| label = WEA (sekarang [[Warner Music Malaysia]]) {{br}} [[EMI|EMI Music Malaysia]]\n| associated_acts = [[Ella & The Boys]], [[Kumpulan Spider|Spider]]\n}}"
-        },
-        "Infobox musical artist": {
-            "embed": "yes",
-            "background": "solo_singer",
-            "genre": "[[Rock]]",
-            "instrument": "[[Vokal]]",
-            "label": "WEA (sekarang [[Warner Music Malaysia]]) {{br}} [[EMI|EMI Music Malaysia]]",
-            "associated_acts": "[[Ella & The Boys]], [[Kumpulan Spider|Spider]]"
-        }
-    }
+         "Infobox person": {
+            "name": "Dakota Johnson",
+            "image": "File:Dakota_Johnson_2014_(cropped).jpg",
+            "caption": "Johnson pada bulan Januari 2014",
+            "birthname": "Dakota Mayi Johnson",
+            "birth_date": "{{birth date and age|1989|10|4}}",
+            "birth_place": "[[Austin, Texas]], A.S.",
+            "occupation": "Pelakon, model",
+            "years_active": "1999–sekarang",
+            "parents": "[[Melanie Griffith]]<br />[[Don Johnson]]",
+            "relatives": "{{unbulleted list|{{nowrap|[[Tippi Hedren]] {{small|(nenek sebelah ibu)}}}}|[[Peter Griffith]] {{small|(datuk sebelah ibu)}}|[[Tracy Griffith]] {{small|(ibu saudara)}}}}"
+         }
+      }
+    print(Parser.parse_wiki_data(test, entry='test'))
     # print(Parse.parse_wiki_title('Liew Vui Keong', code='ms', http_proxy=http))
     # print(Parse.parse_wiki_data(test))
     # print(RELATION)
 
-    fields_ = Parser.parse_wiki_title('Mike Gascoyne', code='ms', http_proxy=None)
-    print('\n\n\n\n', fields_)
+    # fields_ = Parser.parse_wiki_title('Mike Gascoyne', code='ms', http_proxy=None)
+    # print('\n\n\n\n', fields_)
     # for i, j in fields_['fields'].items():
     #     for k in j['values']:
     #         print(f"{i}({list(j['relation_props'].values())[0]}): {k}\n")

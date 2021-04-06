@@ -1,0 +1,4 @@
+2021-04-06 18:43:41.591 WARNING [MainProcess-94816] [MainThread-93440] [base._process_multi_values_field] From F:\Malaysian-Character-Knowledge-Graph\src\base.py[line:456]: 未指定在multi_values_field中多值字段(Mohammed bin Zayed Al Nahyan, Alias)
+2021-04-06 18:46:54.712 WARNING [MainProcess-94816] [MainThread-93440] [base._process_multi_values_field] From F:\Malaysian-Character-Knowledge-Graph\src\base.py[line:456]: 未指定在multi_values_field中多值字段(Lee Su-jin, Status)
+2021-04-06 18:47:50.868 WARNING [MainProcess-94816] [MainThread-93440] [base._process_multi_values_field] From F:\Malaysian-Character-Knowledge-Graph\src\base.py[line:456]: 未指定在multi_values_field中多值字段(Seo Jung-hyup, Status)
+2021-04-06 18:48:15.838 WARNING [MainProcess-94816] [MainThread-93440] [base._process_multi_values_field] From F:\Malaysian-Character-Knowledge-Graph\src\base.py[line:456]: 未指定在multi_values_field中多值字段(Eugenio Lopez III, Status)
