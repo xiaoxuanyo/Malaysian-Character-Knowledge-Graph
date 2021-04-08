@@ -4,7 +4,7 @@
 @author : xiexx
 @email  : xiexx@xiaopeng.com
 """
-
+import json
 from tqdm import tqdm
 import mwparserfromhell as mwp
 import pywikibot
@@ -156,6 +156,7 @@ class QueryEngine:
 
 
 class WikiContentHandler(xml.sax.handler.ContentHandler):
+    InfoField = 'Infobox'
 
     def __init__(self, filter_categories=None, category=None):
         super(WikiContentHandler, self).__init__()
@@ -171,6 +172,12 @@ class WikiContentHandler(xml.sax.handler.ContentHandler):
         else:
             self._filter_categories = None
 
+    @classmethod
+    def _matches(cls, obj):
+        if re.search(r'%s' % cls.InfoField, str(obj), re.I):
+            return False
+        return True
+
     def startElement(self, name, attrs):
         if name in ['title', 'text', 'id']:
             self._current_tag = name
@@ -184,13 +191,22 @@ class WikiContentHandler(xml.sax.handler.ContentHandler):
             self._buffer = ''
             self._current_tag = None
         if name == 'page':
-            self._per_page['id url'] = 'https://ms.wikipedia.org/wiki?curid=%s' % self._per_page['id']
-            self._per_page['title url'] = 'https://ms.wikipedia.org/wiki/%s' % self._per_page['title'].replace(' ', '_')
-            if self._per_page.get('redirect title'):
-                self._per_page['redirect url'] = 'https://ms.wikipedia.org/wiki/%s' % self._per_page[
-                    'redirect title'].replace(' ', '_')
             if self._filter_categories is None or re.search(r'%s' % '|'.join(self._filter_categories),
                                                             self._per_page['text'], re.I):
+                self._per_page['id url'] = 'https://ms.wikipedia.org/wiki?curid=%s' % self._per_page['id']
+                self._per_page['title url'] = 'https://ms.wikipedia.org/wiki/%s' % self._per_page['title'].replace(' ',
+                                                                                                                   '_')
+                self._per_page['all text'] = self._per_page.pop('text')
+                self._per_page['info text'] = ''.join([str(i) for i in
+                                                       mwp.parse(self._per_page['all text']).filter_templates(
+                                                           matches=r'%s' % self.InfoField, recursive=False)])
+                self._per_page['wiki text'] = ''.join(
+                    [str(i) for i in
+                     mwp.parse(self._per_page['all text']).filter(matches=self._matches, recursive=False)])
+                if self._per_page.get('redirect title'):
+                    self._per_page['redirect url'] = 'https://ms.wikipedia.org/wiki/%s' % self._per_page[
+                        'redirect title'].replace(' ', '_')
+                self._per_page = {k: v for k, v in self._per_page.items() if v}
                 self.pages[self._per_page.pop('id')] = self._per_page
             self._per_page = {}
 
@@ -231,6 +247,10 @@ class XMLParser:
             for line in tqdm(f, desc='正在获取文件...', total=num):
                 self.parser.feed(line)
         return self.handler.pages
+
+    def save(self, path, encoding='utf-8'):
+        with open(path, 'w+', encoding=encoding) as f:
+            json.dump(self.handler.pages, f, ensure_ascii=False, indent=3)
 
 
 RELATION = {}

@@ -9,7 +9,9 @@
 
 
 from src.base import XMLParser
+from src.parse import Parser
 
-xml_parser = XMLParser()
+xml_parser = XMLParser(filter_categories=['Orang hidup'], category='Kategori')
 
-print(xml_parser.parse_file('../ms_wiki_data/test.xml'))
+print(Parser.parse_wiki_data(data=xml_parser.parse_file('../ms_wiki_data/test.xml')['1040159']['info text'],
+                             entry='test'))
