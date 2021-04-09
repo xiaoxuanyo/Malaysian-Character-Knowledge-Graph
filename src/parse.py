@@ -5,7 +5,7 @@
 @email  : xiexx@xiaopeng.com
 """
 
-from src.base import QueryEngine, TemplateBase, RELATION
+from src.base import QueryEngine, TemplateBase
 from src.templates import TemplatePerson, TEMPLATE_MAP
 import mwparserfromhell as mwp
 
@@ -69,9 +69,9 @@ class Parser:
             temp = data.filter_templates(matches=cls.InfoField)
         if temp:
             tem = temp.pop(0)
-            values = {str(p.name).strip(): str(p.value).strip(' ') for p in
+            values = {str(p.name).strip(): str(p.value) for p in
                       tem.params if
-                      str(p.value).strip(' ')}
+                      str(p.value)}
             template = TEMPLATE_MAP.get(str(tem.name).strip().lower(), default_temp)
             res = template(values, entry)
             if res.template_name not in fields['template_name']:
@@ -81,10 +81,10 @@ class Parser:
                 if res.fields['primary_entity_props']['multi_values_field'] not in _props:
                     _props.append(res.fields['primary_entity_props']['multi_values_field'])
             for t in temp:
-                values = {str(p.name).strip(): str(p.value).strip(' ') for p
+                values = {str(p.name).strip(): str(p.value) for p
                           in
                           t.params if
-                          str(p.value).strip(' ')}
+                          str(p.value)}
                 template = TEMPLATE_MAP.get(str(t.name).strip().lower(), default_temp)
                 res = template(values, entry)
                 if res.template_name not in fields['template_name']:
@@ -142,20 +142,23 @@ if __name__ == '__main__':
     http = '192.168.235.227:8888'
     test = {
          "Infobox person": {
-            "name": "Dakota Johnson",
-            "image": "File:Dakota_Johnson_2014_(cropped).jpg",
-            "caption": "Johnson pada bulan Januari 2014",
-            "birthname": "Dakota Mayi Johnson",
-            "birth_date": "{{birth date and age|1989|10|4}}",
-            "birth_place": "[[Austin, Texas]], A.S.",
-            "occupation": "Pelakon, model",
-            "years_active": "1999–sekarang",
-            "parents": "[[Melanie Griffith]]<br />[[Don Johnson]]",
-            "relatives": "{{unbulleted list|{{nowrap|[[Tippi Hedren]] {{small|(nenek sebelah ibu)}}}}|[[Peter Griffith]] {{small|(datuk sebelah ibu)}}|[[Tracy Griffith]] {{small|(ibu saudara)}}}}"
+            "name": "Dannii Minogue",
+            "image": "Dannii Minogue arrives at the 58th Annual Logie Awards at Crown Palladium (26904220225) cropped.jpg",
+            "caption": "Minogue di [[Melbourne]] pada 2016",
+            "birth_name": "Danielle Jane Minogue",
+            "birth_date": "{{Birth date and age|df=yes|1971|10|20}}",
+            "birth_place": "[[Melbourne]], [[Victoria]], Australia",
+            "occupation": "{{hlist|Penyanyi|penulis lagu|pelakon|model|personaliti televisyen|pereka fesyen}}",
+            "years_active": "1979–kini",
+            "spouse": "{{marriage|[[Julian McMahon]]<br />|1994|1995|end=div}}",
+            "partner": "[[Jacques Villeneuve]]<br />({{abbr|bers.|bersama}} 1999; {{abbr|berp.|berpisah}} 2001)<ref>{{cite web|url=http://www.dannii.com.br/news/imagens/theage10.jpg |title=Archived copy |language=en |accessdate=21 Disember 2006 |url-status=dead |archiveurl=https://web.archive.org/web/20090326180303/http://www.dannii.com.br/news/imagens/theage10.jpg |archivedate=26 Mac 2009 }}</ref><br />[[Kris Smith]]<br />({{abbr|bers.|bersama}} 2008; {{abbr|berp.|berpisah}} 2012)",
+            "children": "1",
+            "relatives": "[[Kylie Minogue]] (kakak)",
+            "module": "{{Infobox musical artist|embed=yes\n| background      = solo_singer\n| genre           = {{hlist|[[Pop]]|[[tarian]]}}\n| instrument      = Vokal\n| label           = {{hlist|[[Mushroom Records|Mushroom]]|[[MCA Records|MCA]]|[[Warner Music Group|Warner]]| [[London Records|London]]|[[Ultra Records|Ultra]]|[[All Around the World Productions|All Around the World]]}}\n| website         = {{URL|danniiminogue.com}}\n}}"
          }
       }
-    # print(Parser.parse_wiki_data(test, entry='test'))
-    print(Parser.parse_wiki_title('Natalie Imbruglia', code='ms', http_proxy=http))
+    print(Parser.parse_wiki_data(test, entry='test')['fields']['Partner']['values'])
+    # print(Parser.parse_wiki_title('Natalie Imbruglia', code='ms', http_proxy=http))
     # print(Parse.parse_wiki_data(test))
     # print(RELATION)
 

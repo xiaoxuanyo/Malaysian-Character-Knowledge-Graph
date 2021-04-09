@@ -17,9 +17,6 @@ import io
 _FILE_LOG_LEVEL = logging.WARNING
 _CONSOLE_LOG_LEVEL = logging.WARNING
 
-RELATION_PATTERN = re.compile(
-    r'\((?P<front>.+?)\)\s*$|^\s*\((?P<after>.+?)\)')
-
 _file_log = LoggerUtil('src.templates.file', file_path='../log/templates.log',
                        level=_FILE_LOG_LEVEL, mode='w+')
 _console_log = LoggerUtil('src.templates.console', level=_CONSOLE_LOG_LEVEL)
@@ -155,107 +152,6 @@ class QueryEngine:
         return ps.filter_templates(matches=matches)
 
 
-class WikiContentHandler(xml.sax.handler.ContentHandler):
-    InfoField = 'Infobox'
-
-    def __init__(self, filter_categories=None, category=None):
-        super(WikiContentHandler, self).__init__()
-        self._buffer = ''
-        self._current_tag = None
-        self._per_page = {}
-        self.pages = {}
-        if filter_categories is not None:
-            assert category is not None, '指定filter_categories后，应提供对应语言的category。'
-            assert isinstance(filter_categories, list), f'不支持的filter_categories类型{type(filter_categories)}，目前仅支持list类型。'
-            split_tag = r'\s*[:：]\s*'
-            self._filter_categories = [category + split_tag + i for i in filter_categories]
-        else:
-            self._filter_categories = None
-
-    @classmethod
-    def _matches(cls, obj):
-        if re.search(r'%s' % cls.InfoField, str(obj), re.I):
-            return False
-        return True
-
-    def startElement(self, name, attrs):
-        if name in ['title', 'text', 'id']:
-            self._current_tag = name
-        elif name == 'redirect':
-            self._per_page['redirect title'] = attrs['title']
-
-    def endElement(self, name):
-        if name == self._current_tag:
-            if not self._per_page.get(name):
-                self._per_page[name] = self._buffer
-            self._buffer = ''
-            self._current_tag = None
-        if name == 'page':
-            if self._filter_categories is None or re.search(r'%s' % '|'.join(self._filter_categories),
-                                                            self._per_page['text'], re.I):
-                self._per_page['id url'] = 'https://ms.wikipedia.org/wiki?curid=%s' % self._per_page['id']
-                self._per_page['title url'] = 'https://ms.wikipedia.org/wiki/%s' % self._per_page['title'].replace(' ',
-                                                                                                                   '_')
-                self._per_page['all text'] = self._per_page.pop('text')
-                self._per_page['info text'] = ''.join([str(i) for i in
-                                                       mwp.parse(self._per_page['all text']).filter_templates(
-                                                           matches=r'%s' % self.InfoField, recursive=False)])
-                self._per_page['wiki text'] = ''.join(
-                    [str(i) for i in
-                     mwp.parse(self._per_page['all text']).filter(matches=self._matches, recursive=False)])
-                if self._per_page.get('redirect title'):
-                    self._per_page['redirect url'] = 'https://ms.wikipedia.org/wiki/%s' % self._per_page[
-                        'redirect title'].replace(' ', '_')
-                self._per_page = {k: v for k, v in self._per_page.items() if v}
-                self.pages[self._per_page.pop('id')] = self._per_page
-            self._per_page = {}
-
-    def characters(self, content):
-        if self._current_tag:
-            self._buffer += content
-
-
-class XMLParser:
-
-    def __init__(self, filter_categories=None, category=None):
-        self.handler = WikiContentHandler(filter_categories, category)
-        self.parser = xml.sax.make_parser()
-        self.parser.setFeature(xml.sax.handler.feature_namespaces, 0)
-        self.parser.setContentHandler(self.handler)
-        self._input_source = None
-
-    def parse_file(self, xml_file):
-        self.parser.parse(xml_file)
-        return self.handler.pages
-
-    def parse_string(self, xml_string):
-        if self._input_source is None:
-            self._input_source = xml.sax.xmlreader.InputSource()
-        if isinstance(xml_string, str):
-            self._input_source.setCharacterStream(io.StringIO(xml_string))
-        else:
-            self._input_source.setByteStream(io.BytesIO(xml_string))
-        self.parser.parse(self._input_source)
-        return self.handler.pages
-
-    def parse_file_block(self, xml_file):
-        num = 0
-        with open(xml_file, 'r', encoding='utf-8') as f:
-            for _ in tqdm(f, desc='正在获取文件大小信息...', leave=False):
-                num += 1
-        with open(xml_file, 'r', encoding='utf-8') as f:
-            for line in tqdm(f, desc='正在获取文件...', total=num):
-                self.parser.feed(line)
-        return self.handler.pages
-
-    def save(self, path, encoding='utf-8'):
-        with open(path, 'w+', encoding=encoding) as f:
-            json.dump(self.handler.pages, f, ensure_ascii=False, indent=3)
-
-
-RELATION = {}
-
-
 class TemplateBase:
     # 模板名称，在构建图谱时模板名会当成节点的标签名
     template_name = 'Base'
@@ -294,12 +190,12 @@ class TemplateBase:
         '_Death Cause': ({'zh': '死因'}, re_compile(r'death.*?cause|cause.*?death')),
         '_Burial Place': ({'zh': '埋葬地点'}, re_compile(r'resting.*?place|burial.*?place'),),
         'Spouse': ({'zh': '配偶'}, ['spouse', 'pasangan', 'spouses', 'consort'],),
-        '_Parents': ({'zh': '父母'}, ['parents'],),
-        '_Sibling': ({'zh': '兄弟姐妹'}, ['sibling', 'saudara']),
+        'Parents': ({'zh': '父母'}, ['parents'],),
+        'Sibling': ({'zh': '兄弟姐妹'}, ['sibling', 'saudara']),
         'Children': ({'zh': '孩子'}, ['children', 'issue', 'anak'],),
         'Gender': ({'zh': '性别'}, ['gender'],),
         'Alma Mater': ({'zh': '母校'}, re_compile(r'alma.*?mater'),),
-        '_Relatives': ({'zh': '关系'}, ['relatives,husband'], re_compile(r'relatives?|relations?|related.*?to'),),
+        'Relatives': ({'zh': '关系'}, ['relatives,husband'], re_compile(r'relatives?|relations?|related.*?to'),),
         'Father': ({'zh': '父亲'}, ['father', 'bapa'],),
         'Mother': ({'zh': '母亲'}, ['mother', 'ibunda'],),
         'Residence': ({'zh': '住宅/(尤指)豪宅'}, ['residence', 'residential'],),
@@ -310,7 +206,7 @@ class TemplateBase:
         'Honorific Suffix': ({'zh': '尊称后缀'}, re_compile(r'honorific.*?suffix'),),
         'Home Town': ({'zh': '家乡'}, re_compile(r'home.*?town'),),
         'Employer': ({'zh': '雇主'}, ['employer'],),
-        '_Family': ({'zh': '家庭/亲属'}, ['family', 'house', 'royal house'],),
+        'Family': ({'zh': '家庭/亲属'}, ['family', 'house', 'royal house'],),
         'Ethnicity': ({'zh': '种族'}, ['ethnicity', 'ethnic'],),
         'Subject': ({'zh': '学科'}, ['subject', 'discipline'],),
         'Works': ({'zh': '作品'}, ['works'],),
@@ -348,14 +244,14 @@ class TemplateBase:
     multi_values_field = {
         'Birth': ({'zh': '出生信息'}, ['_Birth Date', '_Birth Place', '_Birth City', '_Birth Country', '_Birth']),
         'Death': ({'zh': '死亡信息'}, ['_Death Date', '_Death Place', '_Burial Place', '_Death', '_Death Cause']),
-        'Relatives': (
-            {'zh': '关系'},
-            ['_Parents', '_Sibling', '_Relatives', '_Family'])
+        # 'Relatives': (
+        #     {'zh': '关系'},
+        #     ['_Parents', '_Sibling', '_Relatives', '_Family'])
     }
     # 多值字段中必须出现的字段，若没有出现，则认为这个多值字段没有意义
     multi_field_cond = None
     # 在解析时跳过的类型
-    dont_parse_type = [mwp.wikicode.Argument, mwp.wikicode.Comment, mwp.wikicode.Heading]
+    dont_parse_type = [mwp.wikicode.Argument, mwp.wikicode.Comment]
     # 解析wiki对象template时需要保存的模板名，通常情况下是因为模板名保存了必要的信息，比如某次比赛中的名次（金牌、银牌等）保存在模板名中
     retain_template_name = (re.compile(r'medal'),)
     # 解析wiki对象template时需要剔除的特殊值，这些值往往无意义
@@ -366,7 +262,7 @@ class TemplateBase:
     retain_template_param = (['m', 'end', 'reason', 'award', 'ft', 'in', 'meter', 'meters',
                               'cm', 'kg'], re.compile(r'\d+'))
     # 解析wiki对象tag时需要剔除的标签，这些值往往无意义
-    discard_tag_name = (['ref'],)
+    discard_tag_name = (['ref', 'table'],)
     # 对于自定义的所有字段，需要剔除的值，这些值往往无意义
     discard_fields_value = (re.compile(r'nama.*?amerika|nama.*?korea'),)
     # 对于自定义的所有字段，需要替换为空字符串的无意义的值
@@ -388,17 +284,6 @@ class TemplateBase:
         self._get_field_values(values)
         # 多值属性不为空时，将多值属性解析成一一对应
         self._process_multi_values_field(entry)
-
-        if self._fields['fields'].get('Relatives'):
-            for string in self.fields['fields']['Relatives']['values']:
-                string1 = re.split(r'[\n,]', string)
-                string1 = [re.sub(r'（', '(', i.strip()) for i in string1]
-                string1 = [re.sub(r'）', ')', i) for i in string1]
-                string1 = [[j for j in re_groups(RELATION_PATTERN, i) if j] for i in string1]
-                for i_s in string1:
-                    for ii_s in i_s:
-                        if ii_s not in RELATION.keys():
-                            RELATION[ii_s] = self.fields['entry']
 
     def _check(self, kkk, vvv):
         temp = set([list(i.keys())[0] for i in vvv])
@@ -424,7 +309,7 @@ class TemplateBase:
             if field:
                 # 对wiki对象递归解析
                 p_v = self.parse(v.strip(' '))
-                h_v = ''.join([str(i).strip(' ') for i in p_v]).strip()
+                h_v = ''.join([str(i) for i in p_v]).strip(' ')
                 if h_v:
                     h_v = re.sub(self.replace_fields_value, '', h_v)
                     _console_log.logger.debug(f'\n{field}: {h_v}\n')
@@ -522,11 +407,11 @@ class TemplateBase:
                     for k in j.params:
                         tag, res = _matches(str(k.name).strip().lower(), cls.retain_template_param)
                         res = res.group() if res else ''
-                        if tag and not _matches(str(k.value).strip(' ').lower(), cls.discard_template_value)[0]:
+                        if tag and not _matches(str(k.value).strip().lower(), cls.discard_template_value)[0]:
                             if _is_int(res):
-                                values.append(str(k.value).strip(' '))
+                                values.append(str(k.value))
                             else:
-                                values.append(f"[{str(k.name).strip()}: {str(k.value).strip(' ')}]")
+                                values.append(f"[{str(k.name).strip()}: {str(k.value)}]")
                     if _matches(str(j.name).strip().lower(), cls.retain_template_name)[0]:
                         res = f"[{str(j.name).strip()}: {', '.join(values)}]"
                     else:
@@ -537,17 +422,19 @@ class TemplateBase:
             elif isinstance(j, mwp.wikicode.Tag):
                 if not _matches(str(j.tag).strip().lower(), cls.discard_tag_name)[0]:
                     rs = mwp.parse('\n') if str(j.tag).strip().lower() == 'br' else mwp.parse(
-                        str(j.contents).strip(' '))
+                        str(j.contents))
                 else:
                     rs = mwp.parse(None)
                 p_t[i] = rs
             elif isinstance(j, mwp.wikicode.Wikilink):
-                if not _matches(str(j.title).strip(' ').lower(), cls.discard_wikilink_value)[0]:
-                    p_t[i] = mwp.parse(str(j.title).strip(' '))
+                if not _matches(str(j.title).strip().lower(), cls.discard_wikilink_value)[0]:
+                    p_t[i] = mwp.parse(str(j.title))
                 else:
                     p_t[i] = mwp.parse(None)
             elif isinstance(j, mwp.wikicode.HTMLEntity):
                 p_t[i] = mwp.parse(j.normalize())
+            elif isinstance(j, mwp.wikicode.Heading):
+                p_t[i] = mwp.parse(str(j.title))
             elif any([isinstance(j, k) for k in cls.dont_parse_type]):
                 p_t[i] = mwp.parse(None)
         if all([isinstance(ii, mwp.wikicode.Text) for ii in p_t]):
@@ -558,6 +445,105 @@ class TemplateBase:
     def fields(self):
         # 获取字典类型的数据
         return self._fields
+
+
+class WikiContentHandler(xml.sax.handler.ContentHandler):
+    InfoField = 'Infobox'
+
+    def __init__(self, filter_categories=None, category=None):
+        super(WikiContentHandler, self).__init__()
+        self._buffer = ''
+        self._current_tag = None
+        self._per_page = {}
+        self.pages = {}
+        if filter_categories is not None:
+            assert category is not None, '指定filter_categories后，应提供对应语言的category。'
+            assert isinstance(filter_categories, list), f'不支持的filter_categories类型{type(filter_categories)}，目前仅支持list类型。'
+            split_tag = r'\s*[:：]\s*'
+            self._filter_categories = [category + split_tag + i for i in filter_categories]
+        else:
+            self._filter_categories = None
+
+    @classmethod
+    def _matches(cls, obj):
+        if re.search(r'%s' % cls.InfoField, str(obj), re.I):
+            return False
+        return True
+
+    def startElement(self, name, attrs):
+        if name in ['title', 'text', 'id']:
+            self._current_tag = name
+        elif name == 'redirect':
+            self._per_page['redirect title'] = attrs['title']
+
+    def endElement(self, name):
+        if name == self._current_tag:
+            if not self._per_page.get(name):
+                self._per_page[name] = self._buffer
+            self._buffer = ''
+            self._current_tag = None
+        if name == 'page':
+            if self._filter_categories is None or re.search(r'%s' % '|'.join(self._filter_categories),
+                                                            self._per_page['text'], re.I):
+                self._per_page['id url'] = 'https://ms.wikipedia.org/wiki?curid=%s' % self._per_page['id']
+                self._per_page['title url'] = 'https://ms.wikipedia.org/wiki/%s' % self._per_page['title'].replace(' ',
+                                                                                                                   '_')
+                self._per_page['all text'] = self._per_page.pop('text')
+                self._per_page['info text'] = ''.join([str(i) for i in
+                                                       mwp.parse(self._per_page['all text']).filter_templates(
+                                                           matches=r'%s' % self.InfoField, recursive=False)])
+                wiki_text = ''.join(
+                    [str(i) for i in
+                     mwp.parse(self._per_page['all text']).filter(matches=self._matches, recursive=False)])
+                self._per_page['string text'] = ''.join([str(i) for i in TemplateBase.parse(wiki_text)]).strip(' ')
+                if self._per_page.get('redirect title'):
+                    self._per_page['redirect url'] = 'https://ms.wikipedia.org/wiki/%s' % self._per_page[
+                        'redirect title'].replace(' ', '_')
+                self._per_page = {k: v for k, v in self._per_page.items() if v}
+                self.pages[self._per_page.pop('id')] = self._per_page
+            self._per_page = {}
+
+    def characters(self, content):
+        if self._current_tag:
+            self._buffer += content
+
+
+class XMLParser:
+
+    def __init__(self, filter_categories=None, category=None):
+        self.handler = WikiContentHandler(filter_categories, category)
+        self.parser = xml.sax.make_parser()
+        self.parser.setFeature(xml.sax.handler.feature_namespaces, 0)
+        self.parser.setContentHandler(self.handler)
+        self._input_source = None
+
+    def parse_file(self, xml_file):
+        self.parser.parse(xml_file)
+        return self.handler.pages
+
+    def parse_string(self, xml_string):
+        if self._input_source is None:
+            self._input_source = xml.sax.xmlreader.InputSource()
+        if isinstance(xml_string, str):
+            self._input_source.setCharacterStream(io.StringIO(xml_string))
+        else:
+            self._input_source.setByteStream(io.BytesIO(xml_string))
+        self.parser.parse(self._input_source)
+        return self.handler.pages
+
+    def parse_file_block(self, xml_file):
+        num = 0
+        with open(xml_file, 'r', encoding='utf-8') as f:
+            for _ in tqdm(f, desc='正在获取文件大小信息...', leave=False):
+                num += 1
+        with open(xml_file, 'r', encoding='utf-8') as f:
+            for line in tqdm(f, desc='正在获取文件...', total=num):
+                self.parser.feed(line)
+        return self.handler.pages
+
+    def save(self, path, encoding='utf-8'):
+        with open(path, 'w+', encoding=encoding) as f:
+            json.dump(self.handler.pages, f, ensure_ascii=False, indent=3)
 
 
 class TemplateOfficer(TemplateBase):

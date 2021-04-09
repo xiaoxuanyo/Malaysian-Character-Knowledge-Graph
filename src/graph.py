@@ -11,7 +11,6 @@ from py2neo import Graph, Node, Relationship
 from tqdm import tqdm
 import json
 from src.parse import Parser
-from src.base import RELATION
 from src.utils import LoggerUtil
 
 _FILE_LOG_LEVEL = logging.INFO
@@ -70,6 +69,3 @@ if __name__ == '__main__':
             fields_all = Parser.parse_wiki_data(data=i['info'], entry=i['title'])
             print(fields_all, '\n')
             # graph.insert(fields_all)
-    _file_log.logger.info(RELATION)
-    with open('../ms_wiki_data/graph.json', 'w+', encoding='utf-8') as f:
-        json.dump(RELATION, f, ensure_ascii=False, indent=3)
