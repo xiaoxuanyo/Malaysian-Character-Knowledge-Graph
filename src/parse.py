@@ -4,10 +4,113 @@
 @author : xiexx
 @email  : xiexx@xiaopeng.com
 """
-
+import json
+from tqdm import tqdm
+import xml.sax
+import io
+import re
 from src.base import QueryEngine, TemplateBase
 from src.templates import TemplatePerson, TEMPLATE_MAP
 import mwparserfromhell as mwp
+
+
+class WikiContentHandler(xml.sax.handler.ContentHandler):
+    InfoField = 'Infobox'
+
+    def __init__(self, filter_categories=None, category=None):
+        super(WikiContentHandler, self).__init__()
+        self._buffer = ''
+        self._current_tag = None
+        self._per_page = {}
+        self.pages = {}
+        if filter_categories is not None:
+            assert category is not None, '指定filter_categories后，应提供对应语言的category。'
+            assert isinstance(filter_categories, list), f'不支持的filter_categories类型{type(filter_categories)}，目前仅支持list类型。'
+            split_tag = r'\s*[:：]\s*'
+            self._filter_categories = [category + split_tag + i for i in filter_categories]
+        else:
+            self._filter_categories = None
+
+    @classmethod
+    def _matches(cls, obj):
+        if re.search(r'%s' % cls.InfoField, str(obj), re.I):
+            return False
+        return True
+
+    def startElement(self, name, attrs):
+        if name in ['title', 'text', 'id']:
+            self._current_tag = name
+        elif name == 'redirect':
+            self._per_page['redirect title'] = attrs['title']
+
+    def endElement(self, name):
+        if name == self._current_tag:
+            if not self._per_page.get(name):
+                self._per_page[name] = self._buffer
+            self._buffer = ''
+            self._current_tag = None
+        if name == 'page':
+            if self._filter_categories is None or re.search(r'%s' % '|'.join(self._filter_categories),
+                                                            self._per_page['text'], re.I):
+                self._per_page['id url'] = 'https://ms.wikipedia.org/wiki?curid=%s' % self._per_page['id']
+                self._per_page['title url'] = 'https://ms.wikipedia.org/wiki/%s' % self._per_page['title'].replace(' ',
+                                                                                                                   '_')
+                self._per_page['all text'] = self._per_page.pop('text')
+                self._per_page['info text'] = ''.join([str(i) for i in
+                                                       mwp.parse(self._per_page['all text']).filter_templates(
+                                                           matches=r'%s' % self.InfoField, recursive=False)])
+                wiki_text = ''.join(
+                    [str(i) for i in
+                     mwp.parse(self._per_page['all text']).filter(matches=self._matches, recursive=False)])
+                self._per_page['string text'] = ''.join([str(i) for i in TemplateBase.parse(wiki_text)]).strip(' ')
+                if self._per_page.get('redirect title'):
+                    self._per_page['redirect url'] = 'https://ms.wikipedia.org/wiki/%s' % self._per_page[
+                        'redirect title'].replace(' ', '_')
+                self._per_page = {k: v for k, v in self._per_page.items() if v}
+                self.pages[self._per_page.pop('id')] = self._per_page
+            self._per_page = {}
+
+    def characters(self, content):
+        if self._current_tag:
+            self._buffer += content
+
+
+class XMLParser:
+
+    def __init__(self, filter_categories=None, category=None):
+        self.handler = WikiContentHandler(filter_categories, category)
+        self.parser = xml.sax.make_parser()
+        self.parser.setFeature(xml.sax.handler.feature_namespaces, 0)
+        self.parser.setContentHandler(self.handler)
+        self._input_source = None
+
+    def parse_file(self, xml_file):
+        self.parser.parse(xml_file)
+        return self.handler.pages
+
+    def parse_string(self, xml_string):
+        if self._input_source is None:
+            self._input_source = xml.sax.xmlreader.InputSource()
+        if isinstance(xml_string, str):
+            self._input_source.setCharacterStream(io.StringIO(xml_string))
+        else:
+            self._input_source.setByteStream(io.BytesIO(xml_string))
+        self.parser.parse(self._input_source)
+        return self.handler.pages
+
+    def parse_file_block(self, xml_file):
+        num = 0
+        with open(xml_file, 'r', encoding='utf-8') as f:
+            for _ in tqdm(f, desc='正在获取文件大小信息...', leave=False):
+                num += 1
+        with open(xml_file, 'r', encoding='utf-8') as f:
+            for line in tqdm(f, desc='正在获取文件...', total=num):
+                self.parser.feed(line)
+        return self.handler.pages
+
+    def save(self, path, encoding='utf-8'):
+        with open(path, 'w+', encoding=encoding) as f:
+            json.dump(self.handler.pages, f, ensure_ascii=False, indent=3)
 
 
 class Parser:
@@ -141,7 +244,7 @@ class Parser:
 if __name__ == '__main__':
     http = '192.168.235.227:8888'
     test = {
-         "Infobox person": {
+        "Infobox person": {
             "name": "Dannii Minogue",
             "image": "Dannii Minogue arrives at the 58th Annual Logie Awards at Crown Palladium (26904220225) cropped.jpg",
             "caption": "Minogue di [[Melbourne]] pada 2016",
@@ -155,15 +258,17 @@ if __name__ == '__main__':
             "children": "1",
             "relatives": "[[Kylie Minogue]] (kakak)",
             "module": "{{Infobox musical artist|embed=yes\n| background      = solo_singer\n| genre           = {{hlist|[[Pop]]|[[tarian]]}}\n| instrument      = Vokal\n| label           = {{hlist|[[Mushroom Records|Mushroom]]|[[MCA Records|MCA]]|[[Warner Music Group|Warner]]| [[London Records|London]]|[[Ultra Records|Ultra]]|[[All Around the World Productions|All Around the World]]}}\n| website         = {{URL|danniiminogue.com}}\n}}"
-         }
-      }
-    print(Parser.parse_wiki_data(test, entry='test')['fields']['Partner']['values'])
+        }
+    }
+    print(Parser.parse_wiki_data(test, entry='test'))
     # print(Parser.parse_wiki_title('Natalie Imbruglia', code='ms', http_proxy=http))
-    # print(Parse.parse_wiki_data(test))
-    # print(RELATION)
 
     # fields_ = Parser.parse_wiki_title('Mike Gascoyne', code='ms', http_proxy=None)
-    # print('\n\n\n\n', fields_)
     # for i, j in fields_['fields'].items():
     #     for k in j['values']:
     #         print(f"{i}({list(j['relation_props'].values())[0]}): {k}\n")
+
+    xml_parser = XMLParser(filter_categories=['Orang hidup'], category='Kategori')
+
+    xml_parser.parse_file_block('../ms_wiki_data/mswiki-20210120-pages-articles-multistream.xml')
+    xml_parser.save('../ms_wiki_data/ms_person_data.json')
