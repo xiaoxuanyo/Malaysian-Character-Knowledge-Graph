@@ -772,6 +772,9 @@ class TemplateDefine:
     def fields(self):
         return self._fields
 
+    def __str__(self):
+        return self.template_name
+
 
 class TemplatePerson(TemplateDefine):
     template_name = 'Person'

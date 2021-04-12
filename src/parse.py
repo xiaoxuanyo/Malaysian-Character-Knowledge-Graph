@@ -18,16 +18,17 @@ import mwparserfromhell as mwp
 class WikiContentHandler(xml.sax.handler.ContentHandler):
     InfoField = 'Infobox'
 
-    def __init__(self, filter_categories=None, category=None):
+    def __init__(self, filter_categories=None, category=None, code='ms'):
         super(WikiContentHandler, self).__init__()
         self._buffer = ''
         self._current_tag = None
         self._per_page = {}
+        self._code = code
         self.pages = {}
         if filter_categories is not None:
             assert category is not None, '指定filter_categories后，应提供对应语言的category。'
             assert isinstance(filter_categories, list), f'不支持的filter_categories类型{type(filter_categories)}，目前仅支持list类型。'
-            split_tag = r'\s*[:：]\s*'
+            split_tag = r'.*?[:：].*?'
             self._filter_categories = [category + split_tag + i for i in filter_categories]
         else:
             self._filter_categories = None
@@ -53,9 +54,10 @@ class WikiContentHandler(xml.sax.handler.ContentHandler):
         if name == 'page':
             if self._filter_categories is None or re.search(r'%s' % '|'.join(self._filter_categories),
                                                             self._per_page['text'], re.I):
-                self._per_page['id url'] = 'https://ms.wikipedia.org/wiki?curid=%s' % self._per_page['id']
-                self._per_page['title url'] = 'https://ms.wikipedia.org/wiki/%s' % self._per_page['title'].replace(' ',
-                                                                                                                   '_')
+                self._per_page['id url'] = 'https://%s.wikipedia.org/wiki?curid=%s' % (self._code, self._per_page['id'])
+                self._per_page['title url'] = 'https://%s.wikipedia.org/wiki/%s' % (
+                    self._code, self._per_page['title'].replace(' ',
+                                                                '_'))
                 self._per_page['all text'] = self._per_page.pop('text')
                 self._per_page['info text'] = ''.join([str(i) for i in
                                                        mwp.parse(self._per_page['all text']).filter_templates(
@@ -65,8 +67,8 @@ class WikiContentHandler(xml.sax.handler.ContentHandler):
                      mwp.parse(self._per_page['all text']).filter(matches=self._matches, recursive=False)])
                 self._per_page['string text'] = ''.join([str(i) for i in TemplateBase.parse(wiki_text)]).strip(' ')
                 if self._per_page.get('redirect title'):
-                    self._per_page['redirect url'] = 'https://ms.wikipedia.org/wiki/%s' % self._per_page[
-                        'redirect title'].replace(' ', '_')
+                    self._per_page['redirect url'] = 'https://%s.wikipedia.org/wiki/%s' % (self._code, self._per_page[
+                        'redirect title'].replace(' ', '_'))
                 self._per_page = {k: v for k, v in self._per_page.items() if v}
                 self.pages[self._per_page.pop('id')] = self._per_page
             self._per_page = {}
@@ -78,8 +80,8 @@ class WikiContentHandler(xml.sax.handler.ContentHandler):
 
 class XMLParser:
 
-    def __init__(self, filter_categories=None, category=None):
-        self.handler = WikiContentHandler(filter_categories, category)
+    def __init__(self, filter_categories=None, category=None, code='ms'):
+        self.handler = WikiContentHandler(filter_categories, category, code)
         self.parser = xml.sax.make_parser()
         self.parser.setFeature(xml.sax.handler.feature_namespaces, 0)
         self.parser.setContentHandler(self.handler)
@@ -125,7 +127,7 @@ class Parser:
     def parse_wiki_data(cls, data, force=True, entry=None):
         """
 
-        :param data: pywikibot.Page().get()对象, 即必须是符合wiki语法格式的字符串
+        :param data: 必须是符合wiki语法格式的字符串
         :param force:
         :param entry:
         :return:
@@ -208,16 +210,16 @@ class Parser:
 
 
 if __name__ == '__main__':
-    http = '192.168.235.227:8888'
-    test = "{{Infobox actor\n|name = Normah Damanhuri \n|image = \n|image_size = \n|caption = \n|birth_name = \n|birth_date = {{birth date and age|1952|1|1}} \n|birth_place = [[Johor]], [[Persekutuan Tanah Melayu]] (kini [[Malaysia]])\n|occupation = Pelakon \n|years_active = 1980-an - kini\n|spouse = \n|children = {{plainlist|\n* Ahya Ulumuddin Rosli\n* Liana Rosli\n}}\n|relatives = [[Aripah Damanhuri]] (kakak)\n|parents = \n}}"
-    print(Parser.parse_wiki_data(test, entry='test'))
+    # http = '192.168.235.227:8888'
+    # test = "{{Infobox actor\n|name = Normah Damanhuri \n|image = \n|image_size = \n|caption = \n|birth_name = \n|birth_date = {{birth date and age|1952|1|1}} \n|birth_place = [[Johor]], [[Persekutuan Tanah Melayu]] (kini [[Malaysia]])\n|occupation = Pelakon \n|years_active = 1980-an - kini\n|spouse = \n|children = {{plainlist|\n* Ahya Ulumuddin Rosli\n* Liana Rosli\n}}\n|relatives = [[Aripah Damanhuri]] (kakak)\n|parents = \n}}"
+    # print(Parser.parse_wiki_data(test, entry='test'))
     # print(Parser.parse_wiki_title('Natalie Imbruglia', code='ms', http_proxy=http))
 
     # for i, j in fields_['fields'].items():
     #     for k in j['values']:
     #         print(f"{i}({list(j['relation_props'].values())[0]}): {k}\n")
 
-    xml_parser = XMLParser(filter_categories=['Orang hidup'], category='Kategori')
+    xml_parser = XMLParser(filter_categories=['Pilipino'], category='Kategorya', code='tl')
 
-    print(xml_parser.parse_file_block('../ms_wiki_data/test.xml'))
-    # xml_parser.save('../ms_wiki_data/ms_person_data.json')
+    xml_parser.parse_file_block('../ms_wiki_data/tlwiki-20201201-pages-articles-multistream.xml')
+    xml_parser.save('../ms_wiki_data/tl_person_data.json')

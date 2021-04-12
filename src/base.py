@@ -442,6 +442,9 @@ class TemplateBase:
         # 获取字典类型的数据
         return self._fields
 
+    def __str__(self):
+        return self.template_name
+
 
 class TemplateOfficer(TemplateBase):
     template_name = 'Officer'

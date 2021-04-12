@@ -60,7 +60,7 @@ class KnowledgeGraph:
 
 
 if __name__ == '__main__':
-    graph = KnowledgeGraph("http://localhost:7474", username="neo4j", password="XXX981110", delete=True)
+    # graph = KnowledgeGraph("http://localhost:7474", username="neo4j", password="XXX981110", delete=True)
     with open('../ms_wiki_data/ms_person_data.json', 'r', encoding='utf-8') as f:
         j_data = json.load(f)
 
@@ -68,4 +68,4 @@ if __name__ == '__main__':
         if i.get('info text'):
             fields_all = Parser.parse_wiki_data(data=i['info text'], entry=i['title'])
             print(fields_all, '\n')
-            graph.insert(fields_all)
+            # graph.insert(fields_all)
