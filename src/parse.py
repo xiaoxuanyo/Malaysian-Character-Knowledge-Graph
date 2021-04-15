@@ -126,7 +126,6 @@ class Parser:
     @classmethod
     def parse_wiki_data(cls, data, force=True, entry=None):
         """
-
         :param data: 必须是符合wiki语法格式的字符串
         :param force:
         :param entry:
@@ -194,7 +193,6 @@ class Parser:
     @classmethod
     def parse_values(cls, values, template_name=None, entry=None, force=True):
         """
-
         :param values: 键值对待解析的值
         :param template_name: 用什么模板解析
         :param entry:
@@ -210,16 +208,17 @@ class Parser:
 
 
 if __name__ == '__main__':
-    # http = '192.168.235.227:8888'
-    # test = "{{Infobox actor\n|name = Normah Damanhuri \n|image = \n|image_size = \n|caption = \n|birth_name = \n|birth_date = {{birth date and age|1952|1|1}} \n|birth_place = [[Johor]], [[Persekutuan Tanah Melayu]] (kini [[Malaysia]])\n|occupation = Pelakon \n|years_active = 1980-an - kini\n|spouse = \n|children = {{plainlist|\n* Ahya Ulumuddin Rosli\n* Liana Rosli\n}}\n|relatives = [[Aripah Damanhuri]] (kakak)\n|parents = \n}}"
-    # print(Parser.parse_wiki_data(test, entry='test'))
-    # print(Parser.parse_wiki_title('Natalie Imbruglia', code='ms', http_proxy=http))
+    http = '192.168.235.227:8888'
+    test = "{{Infobox actor\n|name = Normah Damanhuri \n|image = \n|image_size = \n|caption = \n|birth_name = \n|birth_date = {{birth date and age|1952|1|1}} \n|birth_place = [[Johor]], [[Persekutuan Tanah Melayu]] (kini [[Malaysia]])\n|occupation = Pelakon \n|years_active = 1980-an - kini\n|spouse = \n|children = {{plainlist|\n* Ahya Ulumuddin Rosli\n* Liana Rosli\n}}\n|relatives = [[Aripah Damanhuri]] (kakak)\n|parents = \n}}"
+    print(Parser.parse_wiki_data(test, entry='test'))
+    print(Parser.parse_wiki_title('Natalie Imbruglia', code='ms', http_proxy=http))
 
     # for i, j in fields_['fields'].items():
     #     for k in j['values']:
     #         print(f"{i}({list(j['relation_props'].values())[0]}): {k}\n")
 
-    xml_parser = XMLParser(filter_categories=['Pilipino'], category='Kategorya', code='tl')
+    xml_parser = XMLParser(filter_categories=['Pilipino', 'century', 'births', 'people', 'Ipinanganak noong'], category='Kategorya', code='tl')
 
     xml_parser.parse_file_block('../ms_wiki_data/tlwiki-20201201-pages-articles-multistream.xml')
     xml_parser.save('../ms_wiki_data/tl_person_data.json')
+
