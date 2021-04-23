@@ -52,4 +52,4 @@ if __name__ == '__main__':
                     i_table.rows[iii + 1].cells[0].text = jjj
                     i_table.rows[iii + 1].cells[1].text = i_rel[jjj]['zh']
 
-    document.save('template_relation.docx')
+    document.save('../ms_wiki_data/template_relation.docx')

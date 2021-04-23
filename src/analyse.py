@@ -7,13 +7,12 @@
 
 import json
 from tqdm import tqdm
-from src.parse import Parser
-from src.utils import LoggerUtil
+from wiki_person_parser import LoggerUtil, Parser
 import logging
 
 _FILE_LOG_LEVEL = logging.INFO
 
-_file_log = LoggerUtil('src.analyse.file', file_path='../log/analyse1.log',
+_file_log = LoggerUtil('src.analyse.file', file_path='../log/analyse.log',
                        level=_FILE_LOG_LEVEL, mode='w+')
 
 if __name__ == '__main__':
@@ -32,6 +31,7 @@ if __name__ == '__main__':
             for k, v in fields_all['fields'].items():
                 INFO_DICT2[k + f"({v['relation_props']['zh']})"] = INFO_DICT2.get(k + f"({v['relation_props']['zh']})",
                                                                                   0) + 1
+
     INFO_DICT2 = {i: INFO_DICT2[i] for i in sorted(INFO_DICT2, key=INFO_DICT2.get, reverse=True)}
     print('\n\n', INFO_DICT2)
     _file_log.logger.info(json.dumps(INFO_DICT2, ensure_ascii=False, indent=3))

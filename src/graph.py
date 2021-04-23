@@ -10,8 +10,7 @@ import logging
 from py2neo import Graph, Node, Relationship
 from tqdm import tqdm
 import json
-from src.parse import Parser
-from src.utils import LoggerUtil
+from wiki_person_parser import LoggerUtil, Parser
 
 _FILE_LOG_LEVEL = logging.INFO
 
